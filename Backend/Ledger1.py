@@ -27,7 +27,7 @@ from Backend.ReceiptViewer import Receipt
 
 from Frontend.Ledger1Ui import Ui_Ledger1
 
-from Toolbox.AF_Tools import disp_ledgerV1, fill_widget, find_mult_row, fill_statement_period, rename_image, set_font, update_ledger_balance
+from Toolbox.AF_Tools import disp_LedgerV1_Table, fill_widget, find_mult_row, fill_statement_period, rename_image, set_font, update_ledger_balance
 from Toolbox.Error_Tools import check_characters, check_numerical_inputs
 from Toolbox.Formatting_Tools import add_comma, decimal_places, remove_comma, remove_space
 from Toolbox.SQL_Tools import obtain_sql_value, specific_sql_statement, sqlite3_keyword_check
@@ -87,7 +87,7 @@ class LedgerV1(QDialog):
 
         # Ledger Widget Functionality
         self.ui.comboBLedger1.currentIndexChanged.connect(self.change_ledger1_account)
-        self.ui.comboBPeriod.currentIndexChanged.connect(self.display_ledger)
+        self.ui.comboBPeriod.currentIndexChanged.connect(self.display_ledger_1)
 
         self.ui.DateEditTransDate.setDate(QDate.currentDate())
         self.ui.rBPending.setChecked(True)
@@ -338,7 +338,7 @@ class LedgerV1(QDialog):
             # Spending_tab2 should auto update due to change in the combobox due to new account
             self.update_spending_tab("Overall")
 
-    def display_ledger(self):
+    def display_ledger_1(self):
         ledger = self.ui.comboBLedger1.currentText()
         statement = self.ui.comboBPeriod.currentText()
         if ledger == "" or statement == "":
@@ -359,7 +359,7 @@ class LedgerV1(QDialog):
             self.ui.lStatementGraph.setText(f"Spending During {self.ui.comboBPeriod.currentText()}")
 
             if parentType_value in ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit", "Property"]:
-                disp_ledgerV1(self.ui.comboBLedger1, self.ui.comboBPeriod, self.ui.tableWLedger1, self.refUserDB)
+                disp_LedgerV1_Table(self.ui.comboBLedger1, self.ui.comboBPeriod, self.ui.tableWLedger1, self.refUserDB)
             else:
                 error = "Parent Type doesn't belong with this ledger"
                 self.input_error_msg(error)

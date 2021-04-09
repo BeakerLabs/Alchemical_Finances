@@ -350,7 +350,7 @@ class AFBackbone(QMainWindow):
             statementList = []
             for method in methodList:
                 for catType in typeList:
-                    statement = f"INSERT INTO Categories Values('{method}', '{catType}', 'True')"
+                    statement = f"INSERT INTO Categories VALUES('{method}', '{catType}', 'True')"
                     statementList.append(statement)
             execute_sql_statement_list(statementList, self.refUserDB)
         else:
@@ -362,7 +362,7 @@ class AFBackbone(QMainWindow):
         if check_for_data("AccountSubType", "ParentType", parentType, self.refUserDB) is True:
             statementList = []
             for account in subTypes:
-                dbStatement = f"INSERT INTO AccountSubType Values('{account}', '{parentType}', 'True')"
+                dbStatement = f"INSERT INTO AccountSubType VALUES('{account}', '{parentType}', 'True')"
                 statementList.append(dbStatement)
             execute_sql_statement_list(statementList, self.refUserDB)
         else:
@@ -384,7 +384,13 @@ class AFBackbone(QMainWindow):
             sql_account = remove_space(account)
             contribution_statement = f"SELECT SUM(Credit - Debit) FROM {sql_account}"
             contribution_sum_raw = obtain_sql_value(contribution_statement, self.refUserDB)
-            contribution_sum = str(decimal_places(contribution_sum_raw[0], 2))
+
+            if contribution_sum_raw[0] is None:
+                contribution_sum_checked = 0
+            else:
+                contribution_sum_checked = contribution_sum_raw[0]
+
+            contribution_sum = str(decimal_places(contribution_sum_checked, 2))
 
             insert_contribution = f"UPDATE ContributionTotals SET '{sql_account}'={contribution_sum} WHERE Date='{date}'"
             specific_sql_statement(insert_contribution, self.refUserDB)

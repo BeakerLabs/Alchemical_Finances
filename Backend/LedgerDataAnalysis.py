@@ -164,13 +164,20 @@ def equity_subtype_data(database, parentType):
 
     for subType in subType_dic:
         balance = subType_dic[subType][1]
-        subType_dic[subType][0] = (balance / total) * 100
+
+        if total <= 0:
+            subType_dic[subType][0] = 0
+        else:
+            subType_dic[subType][0] = (balance / total) * 100
 
     [subType_list.append([subType, subType_dic[subType][0], subType_dic[subType][1]]) for subType in subType_dic]
     # [subType, percentage, SubTotal, string]
 
     for investment in investment_list:
-        investment[1] = (investment[2] / total) * 100
+        if total <= 0:
+            investment[1] = 0
+        else:
+            investment[1] = (investment[2] / total) * 100
 
     investment_list.sort(reverse=True, key=lambda x: x[1])
     subType_list.sort(reverse=True, key=lambda x: x[1])

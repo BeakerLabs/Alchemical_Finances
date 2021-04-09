@@ -25,7 +25,7 @@ from Backend.ReceiptViewer import Receipt
 
 from Frontend.Ledger2Ui import Ui_Ledger2
 
-from Toolbox.AF_Tools import disp_ledgerV2, fill_widget, find_mult_row, fill_statement_period, rename_image, set_font
+from Toolbox.AF_Tools import disp_LedgerV2_Table, fill_widget, find_mult_row, fill_statement_period, rename_image, set_font
 from Toolbox.Error_Tools import check_characters, check_numerical_inputs
 from Toolbox.Formatting_Tools import add_comma, decimal_places, remove_comma, remove_space
 from Toolbox.SQL_Tools import execute_sql_statement_list, obtain_sql_value, specific_sql_statement, sqlite3_keyword_check
@@ -63,6 +63,7 @@ class LedgerV2(QDialog):
         self.subType_label_dict = {}
         self.investment_label_dict = {}
 
+
         # Prepare Widgets for initial Use
         self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
         fill_widget(self.ui.comboBLedger2, self.comboBoxAccountStatement, True, self.refUserDB)
@@ -79,7 +80,7 @@ class LedgerV2(QDialog):
 
         # Ledger Widget Functionality
         self.ui.comboBLedger2.currentIndexChanged.connect(self.change_ledger2_account)
-        self.ui.comboBPeriod.currentIndexChanged.connect(self.display_ledger)
+        self.ui.comboBPeriod.currentIndexChanged.connect(self.display_ledger_2)
         self.ui.DateEditTransDate.setDate(QDate.currentDate())
         self.ui.rBPending.setChecked(True)
 
@@ -102,7 +103,7 @@ class LedgerV2(QDialog):
 
         self.tickerPrice = self.obtain_ticker_price()
         self.ui.lVariable1.setText("$ " + self.tickerPrice)
-        self.display_ledger()
+        self.display_ledger_2()
 
     # Opens Modal Dialogs for ledger Modification
     def accounts_dialog(self):
@@ -116,12 +117,11 @@ class LedgerV2(QDialog):
             if self.ui.comboBLedger2.currentText() != "":
                 fill_statement_period(self.ui.comboBLedger2, self.ui.comboBPeriod, "Ledger", self.refUserDB)
                 self.toggle_entire_ledger(True)
+                self.display_ledger_2()
             elif self.ui.comboBLedger2.currentText() == "":
                 self.toggle_entire_ledger(False)
 
             self.ui.comboBLedger2.setCurrentIndex(0)
-            self.set_variable1B()
-            self.set_variable2B()
             self.trigger_refresh()
 
     def categories_dialog(self):
@@ -134,16 +134,20 @@ class LedgerV2(QDialog):
     # General Functions
     def check_transactions(self):
         listA = [self.ui.lEditTransDesc, self.ui.lEditSharePrice]
-        listB = [self.ui.lEditCredit, self.ui.lEditDebit, self.ui.lEditSharePurch, self.ui.lEditShareSold, self.ui.lEditSharePrice, self.ui.textEditAddNotes.toPlainText()]
+        listB = [self.ui.lEditCredit.text(), self.ui.lEditDebit.text(), self.ui.lEditSharePurch.text(),
+                 self.ui.lEditShareSold.text(), self.ui.lEditSharePrice.text(), self.ui.textEditAddNotes.toPlainText()]
 
         for widget in listA:
             if not check_characters(widget.text(), "general"):
+                print(1)
                 return False  # Input Has Non Alphanumeric characters
 
             if widget.text() == "" or widget.text() == " ":
+                print(2)
                 return False  # Input is Blank
 
             if sqlite3_keyword_check(widget.text()):
+                print(3)
                 return False  # No restricted keywords
                 # Doesn't account for restricted statements. However, should be unlikely.
 
@@ -151,19 +155,24 @@ class LedgerV2(QDialog):
                 continue
 
         for widget in listB:
-            if not check_characters(widget.text(), "general"):
+            if not check_characters(widget, "general"):
+                print(4)
                 return False  # These are all numerical inputs
 
         if len(self.ui.textEditAddNotes.toPlainText()) > 150:
+            print(5)
             return False  # Limit the Additional Notes field
 
-        if check_numerical_inputs(self.ui.lEditDebit) and check_numerical_inputs(self.ui.lEditCredit):
+        if check_numerical_inputs(self.ui.lEditDebit.text()) and check_numerical_inputs(self.ui.lEditCredit.text()):
+            print(6)
             return False  # Simultaneous Credit and Debit inputs
 
-        if check_numerical_inputs(self.ui.lEditSharePurch) and check_numerical_inputs(self.ui.lEditShareSold):
+        if check_numerical_inputs(self.ui.lEditSharePurch.text()) and check_numerical_inputs(self.ui.lEditShareSold.text()):
+            print(7)
             return False  # Simultaneous Share Purchase and Debit Share Sold
 
-        if not check_numerical_inputs(self.ui.lEditSharePrice):
+        if not check_numerical_inputs(self.ui.lEditSharePrice.text()):
+            print(8)
             return False  # Must be numerical
 
         else:
@@ -269,7 +278,6 @@ class LedgerV2(QDialog):
         else:
             self.ui.comboBPeriod.clear()
             fill_statement_period(self.ui.comboBLedger2, self.ui.comboBPeriod, "Ledger", self.refUserDB)
-            disp_ledgerV2(self.ui.comboBLedger2, self.ui.comboBPeriod, self.ui.tableWLedger2, self.refUserDB)
             ledgerValue = self.net_ledger_value()
             self.ui.lAccountBalance.setText(ledgerValue[1])
             self.ui.lShareBalance.setText(self.net_share_balance())
@@ -294,7 +302,7 @@ class LedgerV2(QDialog):
         else:
             pass
 
-    def display_ledger(self):
+    def display_ledger_2(self):
         ledger = self.ui.comboBLedger2.currentText()
         statement = self.ui.comboBPeriod.currentText()
         if ledger == "":
@@ -307,7 +315,12 @@ class LedgerV2(QDialog):
             parentType_value = parentType_value[0]
 
             if parentType_value in ["Equity", "Retirement"]:
-                disp_ledgerV2(self.ui.comboBLedger2, self.ui.comboBPeriod, self.ui.tableWLedger2, self.refUserDB)
+                disp_LedgerV2_Table(self.ui.comboBLedger2, self.ui.comboBPeriod, self.ui.tableWLedger2, self.refUserDB)
+                ledgerValue = self.net_ledger_value()
+                self.ui.lAccountBalance.setText(ledgerValue[1])
+                self.ui.lShareBalance.setText(self.net_share_balance())
+                self.tickerPrice = self.obtain_ticker_price()
+                self.ui.lSharePrice.setText("$ " + self.tickerPrice)
             else:
                 error = "Parent Type doesn't belong with this ledger"
                 self.input_error_msg(error)
@@ -477,7 +490,7 @@ class LedgerV2(QDialog):
 
         self.ui.comboBPeriod.clear()
         fill_statement_period(self.ui.comboBLedger2, self.ui.comboBPeriod, "Ledger", self.refUserDB)
-        disp_ledgerV2(self.ui.comboBLedger2, self.ui.comboBPeriod, self.ui.tableWLedger2, self.refUserDB)
+        disp_LedgerV2_Table(self.ui.comboBLedger2, self.ui.comboBPeriod, self.ui.tableWLedger2, self.refUserDB)
 
         # Changes the Account Balance to reflect the "posted" balance
         ledgerValue = self.net_ledger_value()
@@ -705,7 +718,7 @@ class LedgerV2(QDialog):
             label_dict = self.subType_label_dict
             string_data = subType_string_dict
         else: # target_tab == "Investment"
-            label_dict = self.investmentLabel_label_dict
+            label_dict = self.investment_label_dict
             string_data = investment_string_dict
 
         for count, assetType in enumerate(string_data, start=1):

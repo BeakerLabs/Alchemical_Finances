@@ -10,7 +10,7 @@ from Toolbox.Formatting_Tools import cash_format, decimal_places, remove_space
 from Toolbox.SQL_Tools import obtain_sql_value, obtain_sql_list, specific_sql_statement
 
 
-def disp_ledgerV1(account_combobox, statement_combobox, tablewidget, database):
+def disp_LedgerV1_Table(account_combobox, statement_combobox, tablewidget, database):
     """
     Function used to display a given [non equity] account in the tablewidget of Ledger1.
     Function resides in a toolbox to allow access for Ledger 1 and the Archive.
@@ -100,7 +100,7 @@ def disp_ledgerV1(account_combobox, statement_combobox, tablewidget, database):
     tablewidget.scrollToBottom()
 
 
-def disp_ledgerV2(account_combobox, statement_combobox, tablewidget, database):
+def disp_LedgerV2_Table(account_combobox, statement_combobox, tablewidget, database):
     """
     Function used to display a given [equity] account in the tablewidget of Ledger1.
     Function resides in a toolbox to allow access for Ledger 2 and the Archive.

@@ -112,7 +112,7 @@ class AccountsDetails(QDialog):
                              "', '" + str(tickerPrice) + "')"
             accountLedger = f"CREATE TABLE IF NOT EXISTS {modifiedAN}(Transaction_Date NUMERIC, Transaction_Description TEXT, Category TEXT, Debit REAL, Credit REAL, Sold REAL, Purchased REAL, Price REAL, Note TEXT, Status TEXT," \
                             f" Receipt TEXT, Post_Date NUMERIC, Update_Date NUMERIC)"
-            accountSummary = f"INSERT INTO Account_Summary VALUES('{self.ui.lEditAN.text()}', 'Asset', '{self.parentType}', '{self.ui.comboboxAT.currentText()}',self.ui.lEditV1.text().upper(), '0.00')"
+            accountSummary = f"INSERT INTO Account_Summary VALUES('{self.ui.lEditAN.text()}', 'Asset', '{self.parentType}', '{self.ui.comboboxAT.currentText()}', '{self.ui.lEditV1.text().upper()}', '0.00')"
 
             # The Contribution Totals table only applies to the Equities and Retirement. Where you compare amount invested to value.
             contribution_statement = f"ALTER TABLE ContributionTotals ADD COLUMN '{modifiedAN}' TEXT"
@@ -226,6 +226,12 @@ class AccountsDetails(QDialog):
         reply = QMessageBox.question(self, "Confirmation", question, QMessageBox.Yes, QMessageBox.No)
         if reply == QMessageBox.Yes:
             self.delete_account_sql(self.ui.lEditAN.text())
+
+            sqlCurrentLedgerName = remove_space(self.ui.lEditAN.text())
+            obsolete_dir_path = file_destination(['Receipts', self.refUser, self.parentType, sqlCurrentLedgerName])
+            obsolete_dir_str = str(obsolete_dir_path)
+            os.remove(obsolete_dir_str)
+
             self.ui.listWidgetAccount.clear()
             fill_widget(self.ui.listWidgetAccount, self.listWidget_Statement, True, self.refUserDB)
             self.clear_widgets()

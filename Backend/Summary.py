@@ -200,7 +200,11 @@ class Ledger_Summary(QDialog):
                     if parentType in ["Equity", "Retirement"]:
                         shareBalance_Statement = f"SELECT SUM(Purchased - Sold) FROM {accountID}"
                         shareBalance_raw = obtain_sql_value(shareBalance_Statement, self.refUserDB)
-                        shareBalance = decimal_places(shareBalance_raw[0], 4)
+                        if shareBalance_raw[0] is None:
+                            shareBalance_checked = 0
+                        else:
+                            shareBalance_checked = shareBalance_raw[0]
+                        shareBalance = decimal_places(shareBalance_checked, 4)
                         lShareBalance = QLabel(self)
                         lShareBalance.setObjectName(f"lShareBalance{accountID}")
                         lShareBalance.setText(str(shareBalance))

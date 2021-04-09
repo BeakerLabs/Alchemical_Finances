@@ -15,7 +15,7 @@ from Frontend.ArchiveUi import Ui_Archive
 # from Backend.Receipt import Receipt
 
 from Toolbox.OS_Tools import file_destination
-from Toolbox.AF_Tools import disp_ledgerV1, disp_ledgerV2, generate_statement_months
+from Toolbox.AF_Tools import disp_LedgerV1_Table, disp_LedgerV2_Table, generate_statement_months
 from Toolbox.SQL_Tools import  execute_sql_statement_list, move_sql_tables, obtain_sql_value, obtain_sql_list
 from Toolbox.Formatting_Tools import remove_space
 
@@ -110,9 +110,9 @@ class Archive(QDialog):
             type1 = ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit"]
             type2 = ["Equity", "Retirement"]
             if parentType_value in type1:
-                disp_ledgerV1(self.ui.comboBAccounts, self.ui.comboBStatements, self.ui.tWArchive, self.refUserDB)
+                disp_LedgerV1_Table(self.ui.comboBAccounts, self.ui.comboBStatements, self.ui.tWArchive, self.refUserDB)
             elif parentType_value in type2:
-                disp_ledgerV2(self.ui.comboBAccounts, self.ui.comboBStatements, self.ui.tWArchive, self.refUserDB)
+                disp_LedgerV2_Table(self.ui.comboBAccounts, self.ui.comboBStatements, self.ui.tWArchive, self.refUserDB)
             else:
                 error = "Ledger Type Doesn't Exist"
                 self.input_error_msg(error)

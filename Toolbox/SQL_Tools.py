@@ -152,16 +152,19 @@ def delete_column(table: str, column: str, database: str):
 
     retained_columns = []
     new_table_column_str = ""
+    select_table_column_str = ""
 
     # removes the unwanted column
     for header in column_data_raw:
         if header[1] != column:
             retained_columns.append([header[1], header[2]])
-            new_table_column_str += f"{header[1]} {header[2]}, "
+            new_table_column_str += f"'{header[1]}' {header[2]}, "
+            select_table_column_str += f"{header[1]}, "
         else:
             pass
 
     new_table_column_str = new_table_column_str[:-2]
+    select_table_column_str = select_table_column_str[:-2]
 
     change_table_name = f"ALTER TABLE {table} RENAME TO {temp}"
     new_table_statement = f"CREATE TABLE IF NOT EXISTS {table}({new_table_column_str})"
@@ -171,7 +174,7 @@ def delete_column(table: str, column: str, database: str):
     rowID_list = obtain_sql_list(rowID_Statement, database)
 
     for rowID in rowID_list:
-        insert = f"INSERT INTO {table} VALUES({new_table_column_str}) SELECT {new_table_column_str} FROM {temp} WHERE ROWID='{rowID[0]}'"
+        insert = f"INSERT INTO {table} SELECT {select_table_column_str} FROM {temp} WHERE ROWID='{rowID[0]}'"
         specific_sql_statement(insert, database)
 
     drop = f"DROP TABLE {temp}"
