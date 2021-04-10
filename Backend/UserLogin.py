@@ -6,11 +6,9 @@ Future Concepts
 
 """
 
-import sys
-
 from Frontend.UserLoginUi import Ui_LoginScreen
 from pathlib import Path
-from PySide6.QtWidgets import QDialog, QMainWindow, QApplication
+from PySide6.QtWidgets import QDialog
 from PySide6 import QtCore, QtWidgets
 from Toolbox.Error_Tools import check_characters, spacing_check
 from Toolbox.Formatting_Tools import gen_rand_str
@@ -19,7 +17,7 @@ from Toolbox.OS_Tools import file_destination
 
 
 class LoginForm(QDialog):
-    def __init__(self):
+    def __init__(self, error_Log):
         super().__init__()
         # Initial Appearance
         self.ui = Ui_LoginScreen()
@@ -37,6 +35,9 @@ class LoginForm(QDialog):
         self.dbPathway = Path.cwd() / self.dbPathway / "UAInformation.db"
         self.refUser = None
         self.count = None
+
+        # Program Error Log
+        self.error_Logger = error_Log
 
         # Appearance Modifiers
         self.show()
@@ -62,13 +63,13 @@ class LoginForm(QDialog):
         self.table_check()
         currentDate = datetime.now().strftime("%Y/%m/%d")
         lookupStatement = f"SELECT Profile, Password FROM Users WHERE Profile='{self.ui.lineEditUserProfile.text().lower()}' and Password= '{self.ui.lineEditPassword.text()}'"
-        lookupResult = obtain_sql_value(lookupStatement, self.dbPathway)
+        lookupResult = obtain_sql_value(lookupStatement, self.dbPathway, self.error_Logger)
         dateStatement = f"UPDATE Users SET Last_Visit='{currentDate}' WHERE Profile='{self.ui.lineEditUserProfile.text().lower()}'"
         if lookupResult is None:
             self.ui.labelResponse.setText("Profile & Password Do Not Match.\n Create New User?")
             # Change appearance here
         else:
-            specific_sql_statement(dateStatement, self.dbPathway)
+            specific_sql_statement(dateStatement, self.dbPathway, self.error_Logger)
             print('Jacob has a golden spork')
             self.ui.labelResponse.setText("Welcome")
             self.refUser = self.ui.lineEditUserProfile.text().lower()
@@ -128,7 +129,8 @@ class LoginForm(QDialog):
             if self.profile_check() is True:
                 self.add_user()
             else:
-                print(f"""ERROR: UserLogin: submit_profile \n Description: Failure to Create Profile """)
+                error_string = f"""ERROR: UserLogin: submit_profile \n Description: Failure to Create Profile """
+                self.error_Logger.error(error_string)
 
     def cancel_profile(self):
         self.ui.pushButtonLogin.setEnabled(True)
@@ -153,12 +155,12 @@ class LoginForm(QDialog):
 
     def table_check(self):
         creationStatement = "CREATE TABLE IF NOT EXISTS Users(Profile TEXT, Password TEXT, UserKey TEXT, Message INTEGER, Creation TEXT, Last_Visit TEXT)"
-        specific_sql_statement(creationStatement, self.dbPathway)
+        specific_sql_statement(creationStatement, self.dbPathway, self.error_Logger)
 
     def profile_check(self):
         self.table_check()
         checkStatement = f"SELECT Profile FROM Users WHERE Profile='{self.ui.lineEditUserProfile.text().lower()}'"
-        checkResult = attempt_sql_statement(checkStatement, self.dbPathway)
+        checkResult = attempt_sql_statement(checkStatement, self.dbPathway, self.error_Logger)
         if checkResult is True:
             return True
         else:
@@ -171,7 +173,7 @@ class LoginForm(QDialog):
         generateUserKey = gen_rand_str(7)
         creationDate = datetime.now().strftime("%Y/%m/%d")
         newProfileStatement = f"INSERT INTO Users VALUES('{self.ui.lineEditUserProfile.text().lower()}', '{self.ui.lineEditConfirmPassword.text()}', '{generateUserKey}', '0', '{creationDate}', '{creationDate}')"
-        creationSuccess = attempt_sql_statement(newProfileStatement, self.dbPathway)
+        creationSuccess = attempt_sql_statement(newProfileStatement, self.dbPathway, self.error_Logger)
         if creationSuccess is True:
             self.ui.labelResponse.setText("New User Created")
             self.new_profile_appearance(False)
@@ -183,7 +185,7 @@ class LoginForm(QDialog):
 
     def increase_message_count(self):
         messageStatement = f"SELECT Message FROM Users WHERE Profile= '{self.refUser}'"
-        current_count = obtain_sql_value(messageStatement, self.dbPathway)
+        current_count = obtain_sql_value(messageStatement, self.dbPathway, self.error_Logger)
         if current_count is None:
             count = 0
         else:
@@ -191,7 +193,7 @@ class LoginForm(QDialog):
             if count == 0:
                 UpdatedCount = count + 1
                 updateStatement = f"UPDATE Users SET Message = {str(UpdatedCount)} WHERE PROFILE= '{self.refUser}'"
-                specific_sql_statement(updateStatement, self.dbPathway)
+                specific_sql_statement(updateStatement, self.dbPathway, self.error_Logger)
             else:
                 pass
         return count

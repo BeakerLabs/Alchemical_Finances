@@ -6,17 +6,16 @@ Future Concepts
 """
 
 import shutil
-import time
 
 from PySide6.QtWidgets import QMessageBox, QDialog, QInputDialog
 from PySide6 import QtCore
 from pathlib import Path
 from Frontend.ArchiveUi import Ui_Archive
-# from Backend.Receipt import Receipt
+from Backend.ReceiptViewer import Receipt
 
 from Toolbox.OS_Tools import file_destination
 from Toolbox.AF_Tools import disp_LedgerV1_Table, disp_LedgerV2_Table, generate_statement_months
-from Toolbox.SQL_Tools import  execute_sql_statement_list, move_sql_tables, obtain_sql_value, obtain_sql_list
+from Toolbox.SQL_Tools import execute_sql_statement_list, move_sql_tables, obtain_sql_value, obtain_sql_list
 from Toolbox.Formatting_Tools import remove_space
 
 # from Frontend.StyleSheets import UniversalStyleSheet
@@ -25,7 +24,7 @@ from Toolbox.Formatting_Tools import remove_space
 class Archive(QDialog):
     remove_tab_archive = QtCore.Signal(str)
 
-    def __init__(self, database, user):
+    def __init__(self, database, user, error_log):
         super().__init__()
         self.ui = Ui_Archive()
         self.ui.setupUi(self)
@@ -35,6 +34,9 @@ class Archive(QDialog):
 
         self.refUserDB = database
         self.refUser = user
+
+        # Program Error Logger
+        self.error_Logger = error_log
 
         self.parentType_dict = {"Bank": "Bank_Account_Details",
                                 "Equity": "Equity_Account_Details",
@@ -71,7 +73,7 @@ class Archive(QDialog):
         modified_ledger_name = remove_space(ledger_name)
 
         parentType_statement = f"SELECT ParentType FROM Account_Archive WHERE ID='{ledger_name}'"
-        parentType_value = obtain_sql_value(parentType_statement, self.refUserDB)
+        parentType_value = obtain_sql_value(parentType_statement, self.refUserDB, self.error_Logger)
         parentType_value = parentType_value[0]
         details_table = self.parentType_dict[parentType_value]
 
@@ -84,7 +86,7 @@ class Archive(QDialog):
             delete_archive = f"DELETE FROM Account_Archive WHERE ID = '{ledger_name}'"
             delete_details = f"DELETE FROM {details_table} WHERE Account_Name ='{ledger_name}'"
             delete_ledger = f"DROP TABLE IF EXISTS {modified_ledger_name}"
-            execute_sql_statement_list([delete_archive, delete_details, delete_ledger], self.refUserDB)
+            execute_sql_statement_list([delete_archive, delete_details, delete_ledger], self.refUserDB, self.error_Logger)
             shutil.rmtree(receipt_directory_path)
             self.ui.comboBAccounts.clear()
             self.ui.comboBStatements.clear()
@@ -104,15 +106,15 @@ class Archive(QDialog):
             pass
         else:
             parentType_statement = f"SELECT ParentType FROM Account_Archive WHERE ID='{ledger}'"
-            parentType_value = obtain_sql_value(parentType_statement, self.refUserDB)
+            parentType_value = obtain_sql_value(parentType_statement, self.refUserDB, self.error_Logger)
             parentType_value = parentType_value[0]
 
             type1 = ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit"]
             type2 = ["Equity", "Retirement"]
             if parentType_value in type1:
-                disp_LedgerV1_Table(self.ui.comboBAccounts, self.ui.comboBStatements, self.ui.tWArchive, self.refUserDB)
+                disp_LedgerV1_Table(self.ui.comboBAccounts, self.ui.comboBStatements, self.ui.tWArchive, self.refUserDB, self.error_Logger)
             elif parentType_value in type2:
-                disp_LedgerV2_Table(self.ui.comboBAccounts, self.ui.comboBStatements, self.ui.tWArchive, self.refUserDB)
+                disp_LedgerV2_Table(self.ui.comboBAccounts, self.ui.comboBStatements, self.ui.tWArchive, self.refUserDB, self.error_Logger)
             else:
                 error = "Ledger Type Doesn't Exist"
                 self.input_error_msg(error)
@@ -122,7 +124,7 @@ class Archive(QDialog):
         ledger_sql = remove_space(ledger)
 
         parentType_statement = "SELECT ParentType FROM Account_Archive WHERE ID='" + ledger + "'"
-        parentType_value = obtain_sql_value(parentType_statement, self.refUserDB)
+        parentType_value = obtain_sql_value(parentType_statement, self.refUserDB, self.error_Logger)
         parentType_value = parentType_value[0]
 
         inputText1 = "Select Row"
@@ -134,7 +136,7 @@ class Archive(QDialog):
             pass
         else:
             file_Name_Statement = f"SELECT Receipt FROM {ledger_sql} WHERE RowID = {str(row)}"
-            file_Name = obtain_sql_value(file_Name_Statement, self.refUserDB)
+            file_Name = obtain_sql_value(file_Name_Statement, self.refUserDB, self.error_Logger)
             file_Name = file_Name[0]
 
             if file_Name == "":
@@ -150,7 +152,7 @@ class Archive(QDialog):
     def fill_combobox(self, combobox, target):
         if target == "Account":
             account_sql_statement = "SELECT ID FROM Account_Archive"
-            comboBox_rawData = obtain_sql_list(account_sql_statement, self.refUserDB)
+            comboBox_rawData = obtain_sql_list(account_sql_statement, self.refUserDB, self.error_Logger)
             comboBox_list = []
             for ID in comboBox_rawData:
                 comboBox_list.append(ID[0])
@@ -160,7 +162,7 @@ class Archive(QDialog):
 
         else:
             account = self.ui.comboBAccounts.currentText()
-            statement_period_list = generate_statement_months(account, "Archive", self.refUserDB)
+            statement_period_list = generate_statement_months(account, "Archive", self.refUserDB, self.error_Logger)
             combobox.addItems(statement_period_list)
             combobox.setCurrentIndex(0)
 
@@ -172,7 +174,7 @@ class Archive(QDialog):
             pass
 
     def restore_account(self):
-        move_sql_tables("Account_Summary", "Account_Archive", "ID", self.ui.comboBAccounts.currentText(), self.refUserDB)
+        move_sql_tables("Account_Summary", "Account_Archive", "ID", self.ui.comboBAccounts.currentText(), self.refUserDB, self.error_Logger)
         self.ui.comboBAccounts.clear()
         self.ui.comboBStatements.clear()
         self.fill_combobox(self.ui.comboBAccounts, "Accounts")

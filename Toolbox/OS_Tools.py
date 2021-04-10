@@ -3,12 +3,7 @@ from pathlib import Path
 
 # --- OS Functions --- #
 def file_destination(dir_name_lst=None):
-    """
-    Create desired directory or check for it's existence
-
-    :param dir_name_lst: Provide list of folders if current directory isn't desired endpoint
-    :return: Returns string of the full pathway
-    """
+    """ Create desired directory or check for it's existence """
     if dir_name_lst is None:
         dir_name_lst = []
 

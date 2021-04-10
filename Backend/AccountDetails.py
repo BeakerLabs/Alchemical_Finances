@@ -7,11 +7,10 @@ Future Concepts
 """
 
 import os
-import sys
 
 from Backend.Question import YNTypeQuestion
 from Frontend.AccountsUi import Ui_Accounts
-from PySide6.QtWidgets import QDialog, QApplication, QMessageBox, QListWidgetItem
+from PySide6.QtWidgets import QDialog, QMessageBox, QListWidgetItem
 from Toolbox.AF_Tools import fill_widget
 from Toolbox.Error_Tools import check_characters, find_character, first_character_check
 from Toolbox.Formatting_Tools import decimal_places, remove_space
@@ -21,7 +20,7 @@ from Toolbox.SQL_Tools import move_sql_tables, check_for_data, delete_column, ob
 
 
 class AccountsDetails(QDialog):
-    def __init__(self, dbName, parentType, user):
+    def __init__(self, dbName, parentType, user, error_Log):
         super().__init__()
         self.ui = Ui_Accounts()
         self.ui.setupUi(self)
@@ -40,6 +39,9 @@ class AccountsDetails(QDialog):
                                 "Cash": "Cash_Account_Details",
                                 "Property": "Property_Account_Details"}
 
+        # Program Error Logger
+        self.error_Logger = error_Log
+
         self.accountDetailsTable = self.parentType_dict[parentType]
         self.initial_appearance(self.parentType)
         self.ui.pBNew.clicked.connect(self.new_account)
@@ -51,9 +53,9 @@ class AccountsDetails(QDialog):
         self.ui.pBEditSubmit.clicked.connect(self.submit_edit)
 
         self.comboboxT_Statement = f"SELECT Subtype FROM AccountSubType WHERE ParentType= '{parentType}'"
-        fill_widget(self.ui.comboboxAT, self.comboboxT_Statement, True, self.refUserDB)
+        fill_widget(self.ui.comboboxAT, self.comboboxT_Statement, True, self.refUserDB, self.error_Logger)
         self.listWidget_Statement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{parentType}'"
-        fill_widget(self.ui.listWidgetAccount, self.listWidget_Statement, True, self.refUserDB)
+        fill_widget(self.ui.listWidgetAccount, self.listWidget_Statement, True, self.refUserDB, self.error_Logger)
         self.ui.listWidgetAccount.setCurrentRow(0)
         self.disp_current_selection()
         self.ui.listWidgetAccount.itemClicked.connect(self.disp_current_selection)
@@ -116,7 +118,7 @@ class AccountsDetails(QDialog):
 
             # The Contribution Totals table only applies to the Equities and Retirement. Where you compare amount invested to value.
             contribution_statement = f"ALTER TABLE ContributionTotals ADD COLUMN '{modifiedAN}' TEXT"
-            specific_sql_statement(contribution_statement, self.refUserDB)
+            specific_sql_statement(contribution_statement, self.refUserDB, self.error_Logger)
 
         elif self.parentType in variant4:
             accountDetails = "INSERT INTO " + self.accountDetailsTable + \
@@ -140,15 +142,15 @@ class AccountsDetails(QDialog):
                              "', '" + str(self.ui.spinBStatement.value()) + "')"
 
         statement_list = [accountDetails, accountLedger, accountSummary, accountWorth]
-        execute_sql_statement_list(statement_list, self.refUserDB)
+        execute_sql_statement_list(statement_list, self.refUserDB, self.error_Logger)
 
     def archive_account(self):
         if self.ui.listWidgetAccount.currentItem() is None:
             pass
         else:
-            move_sql_tables("Account_Archive", "Account_Summary", "ID", self.ui.listWidgetAccount.currentItem().text(), self.refUserDB)
+            move_sql_tables("Account_Archive", "Account_Summary", "ID", self.ui.listWidgetAccount.currentItem().text(), self.refUserDB, self.error_Logger)
             self.ui.listWidgetAccount.clear()
-            fill_widget(self.ui.listWidgetAccount, self.listWidget_Statement, True, self.refUserDB)
+            fill_widget(self.ui.listWidgetAccount, self.listWidget_Statement, True, self.refUserDB, self.error_Logger)
             self.clear_widgets()
 
     def clear_widgets(self):
@@ -178,7 +180,7 @@ class AccountsDetails(QDialog):
         else:
             account = self.ui.listWidgetAccount.currentItem().text()
             selectStatement = f"SELECT * FROM {self.accountDetailsTable} WHERE Account_Name ='{account}'"
-            account = obtain_sql_value(selectStatement, self.refUserDB)
+            account = obtain_sql_value(selectStatement, self.refUserDB, self.error_Logger)
 
         if account is None:
             self.ui.lEditAN.setText("")
@@ -233,7 +235,7 @@ class AccountsDetails(QDialog):
             os.remove(obsolete_dir_str)
 
             self.ui.listWidgetAccount.clear()
-            fill_widget(self.ui.listWidgetAccount, self.listWidget_Statement, True, self.refUserDB)
+            fill_widget(self.ui.listWidgetAccount, self.listWidget_Statement, True, self.refUserDB, self.error_Logger)
             self.clear_widgets()
             self.ui.listWidgetAccount.setCurrentRow(0)
             self.disp_current_selection()
@@ -247,7 +249,7 @@ class AccountsDetails(QDialog):
         dropLedger = f"DROP TABLE IF EXISTS {modifiedAN}"
 
         statement_list = [deleteDetails, deleteSummary, dropLedger]
-        execute_sql_statement_list(statement_list, self.refUserDB)
+        execute_sql_statement_list(statement_list, self.refUserDB, self.error_Logger)
 
         # Deletes the Account Worth over time column
         delete_column("AccountWorth", modifiedAN, self.refUserDB)
@@ -307,14 +309,14 @@ class AccountsDetails(QDialog):
                 return error_status
 
         if error_status is False and purpose != "Edit":
-            if check_for_data(self.accountDetailsTable, "Account_Name", accountName, self.refUserDB) is False:
+            if check_for_data(self.accountDetailsTable, "Account_Name", accountName, self.refUserDB, self.error_Logger) is False:
                 self.ui.lError.setText("Duplicate Account:\nTry Unique Name")
                 # Change appearance here
                 error_status = True
                 return error_status
 
         if error_status is False and purpose != "Edit":
-            if check_for_data("Account_Summary", "ID", accountName, self.refUserDB) is False:
+            if check_for_data("Account_Summary", "ID", accountName, self.refUserDB, self.error_Logger) is False:
                 self.ui.lError.setText("Duplicate Account:\nTry Unique Name")
                 # Change appearance here
                 error_status = True
@@ -510,11 +512,11 @@ class AccountsDetails(QDialog):
                 accountWorth = f"ALTER TABLE AccountWorth RENAME COLUMN '{sqlCurrentLedgerName}' TO '{sqlNewLedgerName}'"
             # Above functions exists just to avoid a crash -------------------------------------------------------------
             statement_list = [summaryUpdate, deleteOldDetails, detailsUpdate, ledgerUpdate, accountWorth]
-            execute_sql_statement_list(statement_list, self.refUserDB)
+            execute_sql_statement_list(statement_list, self.refUserDB, self.error_Logger)
 
             if self.parentType in ["Equity", "Retirement"]:
                 contribution = f"ALTER TABLE ContributionTotals RENAME COLUMN '{sqlCurrentLedgerName}' TO '{sqlNewLedgerName}'"
-                specific_sql_statement(contribution, self.refUserDB)
+                specific_sql_statement(contribution, self.refUserDB, self.error_Logger)
 
             old_dir_path = file_destination(['Receipts', self.refUser, self.parentType, sqlCurrentLedgerName])
             new_dir_path = file_destination(['Receipts', self.refUser, self.parentType, sqlNewLedgerName])
@@ -554,19 +556,14 @@ class AccountsDetails(QDialog):
             self.ui.lEZipCode.setEnabled(switch)
 
     def type_modifer(self):
-        molly = YNTypeQuestion(self.refUserDB, self.parentType)
+        molly = YNTypeQuestion(self.refUserDB, self.parentType, self.error_Logger)
         if molly.exec_() == QDialog.Accepted:
             self.ui.comboboxAT.clear()
-            fill_widget(self.ui.comboboxAT, self.comboboxT_Statement, True, self.refUserDB)
+            fill_widget(self.ui.comboboxAT, self.comboboxT_Statement, True, self.refUserDB, self.error_Logger)
 
 
 if __name__ == "__main__":
     print("error")
-    app = QApplication(sys.argv)
-    database = "../b8aem6j45m5r36ghs.db"
-    parentType = "Property"
-    w = AccountsDetails(database, parentType, "jmshamberg")
-    w.show()
-    sys.exit(app.exec_())
+
 
 

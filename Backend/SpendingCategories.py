@@ -2,14 +2,11 @@
 This script is the backend to Frontend.CategoriesUi.py
 
 Future Concepts
-1) Create a profile tab. This can be used to house settings and an e-mail address
-2) Create Properties Ledger Page
+
 """
 
-import sys
-
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtWidgets import QDialog, QApplication, QMessageBox
+from PySide6.QtWidgets import QDialog, QMessageBox
 from Frontend.CategoriesUi import Ui_Categories
 
 from Toolbox.AF_Tools import fill_widget
@@ -19,7 +16,7 @@ from Toolbox.SQL_Tools import attempt_sql_statement, obtain_sql_list, specific_s
 
 
 class SpendingCategories(QDialog):
-    def __init__(self, database, parentType):
+    def __init__(self, database, parentType, error_log):
         super().__init__()
         self.ui = Ui_Categories()
         self.ui.setupUi(self)
@@ -28,9 +25,12 @@ class SpendingCategories(QDialog):
         self.dialogState = None
         self.initialCategory = None
 
+        # Program Error Logger
+        self.error_Logger = error_log
+
         self.ui.lsubheader.setText(f"for {self.parentType} Accounts")
         self.listWidget_Statement = f"SELECT Method FROM Categories WHERE ParentType= '{self.parentType}'"
-        fill_widget(self.ui.listWidgetCat, self.listWidget_Statement, True, self.refUserDB)
+        fill_widget(self.ui.listWidgetCat, self.listWidget_Statement, True, self.refUserDB, self.error_Logger)
         self.ui.pBNew.clicked.connect(lambda: self.alter_appearance("new"))
         self.ui.pBEdit.clicked.connect(lambda: self.alter_appearance("edit"))
         self.ui.pBReplace.clicked.connect(lambda: self.alter_appearance("replace"))
@@ -45,7 +45,7 @@ class SpendingCategories(QDialog):
 
     def alter_appearance(self, state):
         self.ui.listWidgetCat.clear()
-        fill_widget(self.ui.listWidgetCat, self.listWidget_Statement, True, self.refUserDB)
+        fill_widget(self.ui.listWidgetCat, self.listWidget_Statement, True, self.refUserDB, self.error_Logger)
 
         self.ui.lEditSelection.setEnabled(True)
         self.ui.pBNew.setEnabled(False)
@@ -111,9 +111,9 @@ class SpendingCategories(QDialog):
         reply = QMessageBox.question(self, "Confirmation", question, QMessageBox.Yes, QMessageBox.No)
         if reply == QMessageBox.Yes:
             deleteStatement = f"DELETE FROM Categories WHERE Method ='{self.ui.lEditSelection.text()}' AND ParentType ='{self.parentType}'"
-            specific_sql_statement(deleteStatement, self.refUserDB)
+            specific_sql_statement(deleteStatement, self.refUserDB, self.error_Logger)
             self.ui.listWidgetCat.clear()
-            fill_widget(self.ui.listWidgetCat, self.listWidget_Statement, True, self.refUserDB)
+            fill_widget(self.ui.listWidgetCat, self.listWidget_Statement, True, self.refUserDB, self.error_Logger)
             self.ui.lEditSelection.setText("")
             self.ui.listWidgetCat.setCurrentRow(0)
             self.disp_current_category()
@@ -132,10 +132,10 @@ class SpendingCategories(QDialog):
         if self.syntax_check(self.ui.lEditSelection.text()) is False:
             if input_type == "new":
                 Statement = f"INSERT INTO Categories VALUES('{self.ui.lEditSelection.text()}', '{self.parentType}', 'True')"
-                specific_sql_statement(Statement, self.refUserDB)
+                specific_sql_statement(Statement, self.refUserDB, self.error_Logger)
             elif input_type == "edit":
                 Statement = f"UPDATE Categories SET Method='{self.ui.lEditSelection.text()}' WHERE Method='{self.ui.listWidgetCat.currentItem().text()}'"
-                specific_sql_statement(Statement, self.refUserDB)
+                specific_sql_statement(Statement, self.refUserDB, self.error_Logger)
             elif input_type == "replace":
                 question = f"  Are you sure you want to replace:\n  " \
                            f"   {self.initialCategory} with {self.ui.lEditSelection.text()}?  "
@@ -173,7 +173,7 @@ class SpendingCategories(QDialog):
 
         if error_status is False:
             duplicate_statement = f"SELECT Method, ParentType FROM Categories WHERE Method ='{self.ui.lEditSelection.text()}' AND ParentType ='{self.parentType}'"
-            if attempt_sql_statement(duplicate_statement, self.refUserDB) is False:
+            if attempt_sql_statement(duplicate_statement, self.refUserDB, self.error_Logger) is False:
                 error_status = True
                 print("fail4")
                 return error_status
@@ -203,7 +203,7 @@ class SpendingCategories(QDialog):
 
         # Replace the value (or remove) from the Categories Table within the database
         category_list_statement = f"SELECT Method FROM Categories WHERE ParentType='{self.parentType}'"
-        raw_category_list = obtain_sql_list(category_list_statement, self.refUserDB)
+        raw_category_list = obtain_sql_list(category_list_statement, self.refUserDB, self.error_Logger)
         category_list = []
 
         for category in raw_category_list:
@@ -211,14 +211,14 @@ class SpendingCategories(QDialog):
 
         if replacement_value in category_list:
             delete_statement = f"DELETE FROM Categories WHERE Method ='{initial}' AND ParentType ='{self.parentType}'"
-            specific_sql_statement(delete_statement, self.refUserDB)
+            specific_sql_statement(delete_statement, self.refUserDB, self.error_Logger)
         else:
             update_statement = f"UPDATE Categories SET Method='{replacement_value}' WHERE Method='{initial}'"
-            specific_sql_statement(update_statement, self.refUserDB)
+            specific_sql_statement(update_statement, self.refUserDB, self.error_Logger)
 
         # Replace the value in all accounts associated with that parentType
         accounts_list_statement = f"SELECT Account_Name FROM {parentType_dict[self.parentType]}"
-        raw_accounts_list = obtain_sql_list(accounts_list_statement, self.refUserDB)
+        raw_accounts_list = obtain_sql_list(accounts_list_statement, self.refUserDB, self.error_Logger)
         sql_accounts_list = []
 
         for account in raw_accounts_list:
@@ -227,12 +227,12 @@ class SpendingCategories(QDialog):
 
         for account in sql_accounts_list:
             target_transaction_Statement = f"SELECT ROWID FROM {account} WHERE Category='{initial}'"
-            raw_transaction_list = obtain_sql_list(target_transaction_Statement, self.refUserDB)
+            raw_transaction_list = obtain_sql_list(target_transaction_Statement, self.refUserDB, self.error_Logger)
 
             for rowID in raw_transaction_list:
                 row = rowID[0]
                 replace_category_statement = f"UPDATE {account} SET Category='{replacement_value}' WHERE ROWID='{row}'"
-                specific_sql_statement(replace_category_statement, self.refUserDB)
+                specific_sql_statement(replace_category_statement, self.refUserDB, self.error_Logger)
 
 
 if __name__ == "__main__":

@@ -6,15 +6,12 @@ Future Concepts
 
 """
 
-import sys
-import sqlite3
 import numpy as np
 
 from PySide6 import QtGui, QtCore, QtWidgets
-from PySide6.QtWidgets import QDialog, QApplication, QFrame, QLabel, QVBoxLayout
+from PySide6.QtWidgets import QDialog, QVBoxLayout
 from PySide6.QtGui import QPainter, QColor
 
-from sqlite3 import Error
 
 from Backend.BuildGraphs import AF_Canvas, overTimeLineGraph
 from Toolbox.AF_Tools import fill_widget
@@ -26,11 +23,14 @@ from Frontend.OverTimeGraphUi import Ui_OverTimeGraph
 class OverTimeGraph(QDialog):
     remove_tab_OTG = QtCore.Signal(str)
 
-    def __init__(self, parent, database):
+    def __init__(self, parent, database, error_log):
         super().__init__(parent)
         self.ui = Ui_OverTimeGraph()
         self.ui.setupUi(self)
         self.refUserDB = database
+
+        # Program Error Logger
+        self.error_Logger = error_log
 
         self.lgraphCanvas = AF_Canvas(self, width=5, height=4, dpi=400)
         self.lgLayout = QVBoxLayout(self.ui.nWFrame)
@@ -51,7 +51,7 @@ class OverTimeGraph(QDialog):
         self.update_lg_plot(self.lgraphCanvas, account)
 
         parentType_statement = f"SELECT ParentType FROM Account_Summary WHERE ID='{add_space(account)}'"
-        parentType_raw = obtain_sql_value(parentType_statement, self.refUserDB)
+        parentType_raw = obtain_sql_value(parentType_statement, self.refUserDB, self.error_Logger)
         if parentType_raw is None:
             parentType = None
         else:
@@ -87,13 +87,13 @@ class OverTimeGraph(QDialog):
 
     def update_lg_plot(self, canvas, account):
         parentType_statement = f"SELECT ParentType FROM Account_Summary WHERE ID='{add_space(account)}'"
-        parentType_raw = obtain_sql_value(parentType_statement, self.refUserDB)
+        parentType_raw = obtain_sql_value(parentType_statement, self.refUserDB, self.error_Logger)
         if parentType_raw is None:
             parentType = None
         else:
             parentType = parentType_raw[0]
 
-        lg_data = overTimeLineGraph(database=self.refUserDB, account=account)
+        lg_data = overTimeLineGraph(database=self.refUserDB, account=account, error_log=self.error_Logger)
 
         # [X-axis, Y1-axis = gross, Y2-axis = liability, Y3-axis = net, x-interval, y_interval, y-max, y-axis units, y1-Fill, y2-Fill, y3-Fill]
         canvas.axes.clear()
@@ -188,10 +188,10 @@ class OverTimeGraph(QDialog):
         if account == "Net_Worth_Graph":
             statement = "SELECT * FROM NetWorth"
             # Date, Gross, Liabilities, Net
-            row = obtain_sql_list(statement, self.refUserDB)
+            row = obtain_sql_list(statement, self.refUserDB, self.error_Logger)
         else:
             statement = f"SELECT Date, {account} FROM AccountWorth ORDER BY DATE ASC Limit 0, 49999"
-            row = obtain_sql_list(statement, self.refUserDB)
+            row = obtain_sql_list(statement, self.refUserDB, self.error_Logger)
 
         # Gross peak format will be used as the Account Value from Account Worth
         row.sort(key=lambda tup: (tup[1], tup[0]), reverse=True)

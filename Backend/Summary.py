@@ -25,7 +25,7 @@ from Toolbox.AF_Tools import set_font
 class Ledger_Summary(QDialog):
     remove_tab_LS = QtCore.Signal(str)
 
-    def __init__(self, parent, database):
+    def __init__(self, parent, database, error_Log):
         super().__init__(parent)
         self.ui = Ui_Summary()
         self.ui.setupUi(self)
@@ -38,6 +38,9 @@ class Ledger_Summary(QDialog):
         # label dictionary[AccountName] = label for ProgressBar
         self.progBardic = {}
         self.updateMessages = []
+
+        # Program Error Log
+        self.error_Logger = error_Log
 
         # Asset Nested Pie Graph
         # self.assetCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
@@ -54,7 +57,7 @@ class Ledger_Summary(QDialog):
         # Build Summary Display
         summaryStatement = """SELECT ItemType, ParentType, SubType, ID, Balance FROM Account_Summary """ \
                            + """ORDER BY "ItemType", "ParentType", "SubType", "Balance" DESC LIMIT 0, 49999"""
-        self.summaryTuple = obtain_sql_list(summaryStatement, self.refUserDB)
+        self.summaryTuple = obtain_sql_list(summaryStatement, self.refUserDB, self.error_Logger)
         self.generate_summary()
 
         parent.refresh_signal_summary.connect(self.refresh_summary)
@@ -199,7 +202,7 @@ class Ledger_Summary(QDialog):
 
                     if parentType in ["Equity", "Retirement"]:
                         shareBalance_Statement = f"SELECT SUM(Purchased - Sold) FROM {accountID}"
-                        shareBalance_raw = obtain_sql_value(shareBalance_Statement, self.refUserDB)
+                        shareBalance_raw = obtain_sql_value(shareBalance_Statement, self.refUserDB, self.error_Logger)
                         if shareBalance_raw[0] is None:
                             shareBalance_checked = 0
                         else:
@@ -261,13 +264,13 @@ class Ledger_Summary(QDialog):
 
                         if parentType == "Debt":
                             start_statement = f"SELECT Starting_Balance FROM Debt_Account_Details WHERE Account_Name='{account[3]}'"
-                            start = obtain_sql_value(start_statement, self.refUserDB)
+                            start = obtain_sql_value(start_statement, self.refUserDB, self.error_Logger)
                             start = start[0]
                             progress = (decimal_places(account[4], 2) / decimal_places(start, 2)) * 100
                             progress = int(progress)
                         else:
                             start_statement = f"SELECT Credit_Limit FROM Credit_Account_Details WHERE Account_Name='{account[3]}'"
-                            start = obtain_sql_value(start_statement, self.refUserDB)
+                            start = obtain_sql_value(start_statement, self.refUserDB, self.error_Logger)
                             start = start[0]
                             progress = 100 - ((decimal_places(account[4], 2) / decimal_places(start, 2)) * 100)
                             progress = int(progress)
@@ -323,7 +326,7 @@ class Ledger_Summary(QDialog):
     def refresh_balance_labels(self):
         for account in self.balancelabeldic:
             balanceStatement = f"SELECT Balance, ItemType, ParentType FROM Account_Summary WHERE ID='{account}'"
-            accountInfo = obtain_sql_value(balanceStatement, self.refUserDB)
+            accountInfo = obtain_sql_value(balanceStatement, self.refUserDB, self.error_Logger)
             if accountInfo is None:
                 accountInfo = (0.00, "Deleted", "Deleted")
             modBalance = add_comma(accountInfo[0],  2)
@@ -368,7 +371,7 @@ class Ledger_Summary(QDialog):
             else:
                 sqlparentType = parentType
             subTotalStatement = "SELECT SUM(Balance), ItemType FROM Account_Summary WHERE ParentType='" + sqlparentType + "'"
-            subTotalInfo = obtain_sql_value(subTotalStatement, self.refUserDB)
+            subTotalInfo = obtain_sql_value(subTotalStatement, self.refUserDB, self.error_Logger)
             preModSubTotal = subTotalInfo[0]
 
             if preModSubTotal is None:
@@ -392,7 +395,7 @@ class Ledger_Summary(QDialog):
 
     def user_messages(self):
         accountStatment = "SELECT ID FROM Account_Summary"
-        accountList = obtain_sql_list(accountStatment, self.refUserDB)
+        accountList = obtain_sql_list(accountStatment, self.refUserDB, self.error_Logger)
         currentQTYaccounts = len(accountList)
         oldQTYaccounts = len(self.summaryTuple)
         messagelabel = self.updateMessages[0]

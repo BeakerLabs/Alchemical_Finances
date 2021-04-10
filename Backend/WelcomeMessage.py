@@ -18,7 +18,7 @@ from Toolbox.SQL_Tools import obtain_sql_value, specific_sql_statement
 
 
 class Message(QDialog):
-    def __init__(self, messageCount, user):
+    def __init__(self, messageCount, user, error_Log):
         super().__init__()
         self.ui = Ui_WelcomeMessage()
         self.ui.setupUi(self)
@@ -32,6 +32,9 @@ class Message(QDialog):
         self.dictionaryFile = open("Spoon/welcomedictionary.pkl", "rb")
         self.messageDict = pickle.load(self.dictionaryFile)
         self.dictionaryFile.close()
+
+        # Program Error Log
+        self.error_log = error_Log
 
         # Button Functionality
         self.ui.pushButtonNext.clicked.connect(self.disp_next_message)
@@ -66,18 +69,14 @@ class Message(QDialog):
     def refresh_count(self, user):
         """ This function refreshes and increases the message count. Future Proofing for new messages"""
         refreshStatement = f"SELECT Message FROM Users WHERE Profile='{self.refuser}'"
-        newCount = obtain_sql_value(refreshStatement, self.dbPathway)
+        newCount = obtain_sql_value(refreshStatement, self.dbPathway, self.error_Logger)
         self.userCount = newCount[0]
         nextCount = int(self.userCount) + 1
 
         if nextCount in self.messageDict:
             updateStatement = f"UPDATE Users Set Message = {str(nextCount)} WHERE Profile= '{self.refuser}'"
-            specific_sql_statement(updateStatement, self.dbPathway)
+            specific_sql_statement(updateStatement, self.dbPathway, self.error_Logger)
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    user = "example"
-    molly = Message(0, user)
-    molly.show()
-    sys.exit(app.exec_())
+    print("error")

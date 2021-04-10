@@ -5,10 +5,9 @@ Future Concepts
 
 """
 
-import sys
 import os
 
-from PySide6.QtWidgets import QDialog, QApplication, QFileDialog
+from PySide6.QtWidgets import QDialog, QFileDialog
 from PySide6 import QtCore, QtWidgets
 
 

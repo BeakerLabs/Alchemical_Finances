@@ -173,7 +173,7 @@ def remove_comma(value: str):
 
 def remove_space(user_input: str):
     """
-    Simple reusble function to replace a space with an underscore
+    Simple reusable function to replace a space with an underscore
 
     :param user_input: string value
     :return: string value w/o spaces

@@ -6,34 +6,33 @@ Future Concepts
 
 """
 
-import sys
-
 from Frontend.ToggleCategoriesUi import Ui_ToggleCategories
 
 from PySide6.QtWidgets import QDialog, QApplication
 
 from Toolbox.AF_Tools import fill_widget
-# from Toolbox.Error_Tools import
-# from Toolbox.Formatting_Tools
-# from Toolbox.OS_Tools import
 from Toolbox.SQL_Tools import specific_sql_statement
 
 
 class Toggle_Categories(QDialog):
-    def __init__(self, dbName, parentType):
+    def __init__(self, dbName, parentType, error_log):
         super().__init__()
         self.ui = Ui_ToggleCategories()
         self.ui.setupUi(self)
+        self.setModal(True)
 
         self.refuserDB = dbName
         self.parentType = parentType
 
+        # Program Error Logger
+        self.error_Logger = error_log
+
         active_statement = f"SELECT Method FROM Categories WHERE ParentType='{self.parentType}' AND Tabulate='True'"
-        fill_widget(self.ui.listWidgetActive, active_statement, True, self.refuserDB)
+        fill_widget(self.ui.listWidgetActive, active_statement, True, self.refuserDB, self.error_Logger)
         self.ui.listWidgetActive.setCurrentRow(0)
 
         deactivated_statement = f"SELECT Method FROM Categories WHERE ParentType='{self.parentType}' AND Tabulate='False'"
-        fill_widget(self.ui.listWidgetDeactivated, deactivated_statement, True, self.refuserDB)
+        fill_widget(self.ui.listWidgetDeactivated, deactivated_statement, True, self.refuserDB, self.error_Logger)
         self.ui.listWidgetDeactivated.setCurrentRow(0)
 
         self.ui.pBToggleOn.clicked.connect(lambda: self.Toggle(True))
@@ -60,14 +59,14 @@ class Toggle_Categories(QDialog):
                 pass
             else:
                 toggle_on_statement = f"UPDATE Categories SET Tabulate='True' WHERE METHOD='{category}' and ParentType='{self.parentType}'"
-                specific_sql_statement(toggle_on_statement, self.refuserDB)
+                specific_sql_statement(toggle_on_statement, self.refuserDB, self.error_Logger)
 
         for category in deactivated_list:
             if len(deactivated_list) == 0:
                 pass
             else:
                 toggle_off_statement = f"UPDATE Categories SET Tabulate='False' WHERE METHOD='{category}' and ParentType='{self.parentType}'"
-                specific_sql_statement(toggle_off_statement, self.refuserDB)
+                specific_sql_statement(toggle_off_statement, self.refuserDB, self.error_Logger)
 
         self.ui.pBSave.setEnabled(False)
 

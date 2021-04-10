@@ -13,28 +13,22 @@ from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
 from Toolbox.Formatting_Tools import add_space, cash_format, decimal_places
 
 
-def category_spending_data(database, account):
-    """
-    Obtains the Account Specific Spending based upon Category.
-
-    :param database: str
-    :param account: str
-    :return: years: list, categories: list, raw_data: tuple
-    """
+def category_spending_data(database, account, error_log):
+    """ Obtains the Account Specific Spending based upon Category. """
 
     statement = f"SELECT Transaction_Date, Category, Debit, Credit FROM {account}"
-    raw_data = obtain_sql_list(statement, database)
+    raw_data = obtain_sql_list(statement, database, error_log)
 
     years = []
     [years.append(tup[0][:4]) for tup in raw_data if tup[0][:4] not in years]
     years.sort(reverse=True)
 
     parentType_statement = f"SELECT ParentType from Account_Summary WHERE ID='{add_space(account)}'"
-    parentType_raw = obtain_sql_value(parentType_statement, database)
+    parentType_raw = obtain_sql_value(parentType_statement, database, error_log)
     parentType = parentType_raw[0]
 
     active_categories = f"SELECT Method FROM Categories WHERE ParentType ='{parentType}' AND Tabulate ='True'"
-    active_categories_raw = obtain_sql_list(active_categories, database)
+    active_categories_raw = obtain_sql_list(active_categories, database, error_log)
 
     categories = []
     [categories.append(tup[0]) for tup in active_categories_raw if tup[0] not in categories]
@@ -42,9 +36,9 @@ def category_spending_data(database, account):
     return years, categories, raw_data
 
 
-def category_spending_by_interval(database, account, interval_length, interval):
+def category_spending_by_interval(database, account, interval_length, interval, error_log):
     """ Returns a 'result list' of the category spending from highest to lowest percentage"""
-    _, categories, raw_data = category_spending_data(database, account)
+    _, categories, raw_data = category_spending_data(database, account, error_log)
 
     spending_dict = {}
     result_list = []
@@ -87,12 +81,12 @@ def category_spending_by_interval(database, account, interval_length, interval):
             if start_datetime < transaction_date <= end_datetime:
 
                 if transaction[2] == "":
-                    debit = decimal_places(0.00, 2)
+                    debit = decimal_places("0.00", 2)
                 else:
                     debit = decimal_places(transaction[2], 2)
 
                 if transaction[3] == "":
-                    credit = decimal_places(0.00, 2)
+                    credit = decimal_places("0.00", 2)
                 else:
                     credit = decimal_places(transaction[3], 2)
 
@@ -143,9 +137,9 @@ def format_result_string(data_list):
     return temp_dict
 
 
-def equity_subtype_data(database, parentType):
+def equity_subtype_data(database, parentType, error_log):
     statement = f"SELECT ID, SubType, Balance FROM Account_Summary WHERE ParentType='{parentType}'"
-    raw_data = obtain_sql_list(statement, database)
+    raw_data = obtain_sql_list(statement, database, error_log)
 
     subType_dic = {}
     subType_dic = {investment[1]: [0, 0] for investment in raw_data if investment[1] not in subType_dic}
@@ -189,5 +183,4 @@ def equity_subtype_data(database, parentType):
 
 
 if __name__ == "__main__":
-    # print("error")
-    equity_subtype_data("b8aem6j45m5r36ghs.db", "Equity")
+    print("error")

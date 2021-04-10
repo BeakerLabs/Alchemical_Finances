@@ -10,7 +10,7 @@ from Toolbox.Formatting_Tools import cash_format, decimal_places, remove_space
 from Toolbox.SQL_Tools import obtain_sql_value, obtain_sql_list, specific_sql_statement
 
 
-def disp_LedgerV1_Table(account_combobox, statement_combobox, tablewidget, database):
+def disp_LedgerV1_Table(account_combobox, statement_combobox, tablewidget, database, error_log):
     """
     Function used to display a given [non equity] account in the tablewidget of Ledger1.
     Function resides in a toolbox to allow access for Ledger 1 and the Archive.
@@ -38,9 +38,8 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, tablewidget, datab
         sortTable = "SELECT Transaction_Date, Transaction_Method, Transaction_Description, Category, (Credit - Debit), Balance, Status, Receipt, Note, Post_Date FROM {0} " \
                     "ORDER BY Transaction_Date ASC LIMIT 0, 49999".format(modifiedLN)
 
-
         # 0 - TDate 1 - TMeth 2 - TDesc 3 - Cat 4 - Amount 5 - balance 6 - Status - 7 - Receipt - 8 Notes - 9 Date
-        complete_ledger = obtain_sql_list(sortTable, database)
+        complete_ledger = obtain_sql_list(sortTable, database, error_log)
         target_transactions = statement_range(complete_ledger, month)
         tablewidget.setColumnCount(11)
 
@@ -100,7 +99,7 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, tablewidget, datab
     tablewidget.scrollToBottom()
 
 
-def disp_LedgerV2_Table(account_combobox, statement_combobox, tablewidget, database):
+def disp_LedgerV2_Table(account_combobox, statement_combobox, tablewidget, database, error_log):
     """
     Function used to display a given [equity] account in the tablewidget of Ledger1.
     Function resides in a toolbox to allow access for Ledger 2 and the Archive.
@@ -122,9 +121,9 @@ def disp_LedgerV2_Table(account_combobox, statement_combobox, tablewidget, datab
         modifiedLN = remove_space(ledgerName)
         sortTable = "SELECT Transaction_Date, Transaction_Description, Category, (Credit - Debit), (Purchased - Sold), Price, Status, Receipt, Note," \
                     " Post_Date, Update_Date FROM {0} ORDER BY Transaction_Date ASC LIMIT 0, 49999".format(modifiedLN)
-        # 0 - TDate 1 - TDes 2 - Cat 3 - Amount 4 - Shares 5 - Price 6 - Status - 7 - Receipt - 8 Notes - 9 Date
 
-        complete_ledger = obtain_sql_list(sortTable, database)
+        # 0 - TDate 1 - TDes 2 - Cat 3 - Amount 4 - Shares 5 - Price 6 - Status - 7 - Receipt - 8 Notes - 9 Date
+        complete_ledger = obtain_sql_list(sortTable, database, error_log)
         target_transactions = statement_range(complete_ledger, month)
         tablewidget.setColumnCount(11)
 
@@ -195,9 +194,9 @@ def fill_statement_period(accountComboBox, statementComboBox, Ledger, database):
     statementComboBox.setCurrentIndex(0)
 
 
-def fill_widget(widget, statement: str, sorted: bool, database: str):
+def fill_widget(widget, statement: str, sorted: bool, database: str, error_log):
     """primarily used to fill QComboBox and QListWidget. Doesn't return a variable"""
-    raw_widget_list = obtain_sql_list(statement, database)
+    raw_widget_list = obtain_sql_list(statement, database, error_log)
     unsorted_widget_list = []
 
     if raw_widget_list is None:
@@ -234,9 +233,8 @@ def find_row(tableWidget, col_num: int, string: str):
             return row
 
 
-def generate_statement_months(account, ledger, database):
+def generate_statement_months(account, ledger, database, error_log):
     """Function used to obtain and format the Statement Months from the transactions submitted into the ledger"""
-
     parentType_dict = {
         "Bank": "Bank_Account_Details",
         "Cash": "Cash_Account_Details",
@@ -257,17 +255,17 @@ def generate_statement_months(account, ledger, database):
 
     elif ledger == "Ledger":
         parentType_statement = f"SELECT ParentType FROM Account_Summary WHERE ID='{active_ledger}'"
-    parentType = obtain_sql_value(parentType_statement, database)
+    parentType = obtain_sql_value(parentType_statement, database, error_log)
     parentType = parentType[0]
     date_statement = f"SELECT Statement_Date FROM {parentType_dict[parentType]}"
-    date_value = obtain_sql_value(date_statement, database)
+    date_value = obtain_sql_value(date_statement, database, error_log)
     date_value = date_value[0]
 
     if date_value > 10:
         date_value = f"0{str(date_value)}"
 
     sortDates = f"SELECT Transaction_Date FROM {sql_active_ledger} ORDER By Transaction_Date ASC Limit 0, 49999"
-    ledger_dates = obtain_sql_list(sortDates, database)
+    ledger_dates = obtain_sql_list(sortDates, database, error_log)
 
     raw_month_list = []
     display_month_list = []
@@ -382,25 +380,20 @@ def setColortoRow(tableWidget, rowIndex, color):
         tableWidget.item(rowIndex, j).setBackground(color)
 
 
-def set_networth(database: str, tablename="Account_Summary",  toggleformatting=True):
+def set_networth(database: str, error_log, tablename="Account_Summary",  toggleformatting=True):
     """
     Specialized function. Takes Balance Values from the Account Summary Table based upon the account's tablename,
     and asset/Liability.
-
-    :param tablename: string == "Account_Summary"
-    :param database: string
-    :param toggleformatting: determines if the values are formated or not
-    :return: lst
     """
     qtyAssetStatement = f"SELECT SUM(Balance) FROM {tablename} WHERE ItemType='Asset'"
     qtyLiabilityStatement = f"SELECT SUM(Balance) FROM {tablename} WHERE ItemType='Liability'"  # AND ParentType='Debt'"
-    qtyMoney = obtain_sql_value(qtyAssetStatement, database)
+    qtyMoney = obtain_sql_value(qtyAssetStatement, database, error_log)
     if qtyMoney[0] is None:
         qtyMoney = "0.00"
     else:
         qtyMoney = qtyMoney[0]
 
-    qtyDebt = obtain_sql_value(qtyLiabilityStatement, database)
+    qtyDebt = obtain_sql_value(qtyLiabilityStatement, database, error_log)
     if qtyDebt[0] is None:
         qtyDebt = "0.00"
     else:
@@ -423,23 +416,11 @@ def set_networth(database: str, tablename="Account_Summary",  toggleformatting=T
 
     return moneyList
 
-# def user_selection_input(self, tableWidget, text1, text2):
-#     row, ok = QInputDialog.getInt(self, text1, text2, 1, 1, tableWidget.rowCount(), 1)
-#     if ok and row:
-#         return row
-#     else:
-#         row = 0
-#         return row
 
-
-def update_ledger_balance(comboBox, database):
+def update_ledger_balance(comboBox, database, error_log):
     """
     Function used to adjust the ledger balance amounts whenever a transaction is added, deleted, or updated. This will maintain correct
     balance values based upon the "order of transaction"
-
-    :param comboBox: obj
-    :param database: str
-    :return: None
     """
     active_ledger = comboBox.currentText()
     sql_active_ledger = remove_space(active_ledger)
@@ -447,16 +428,16 @@ def update_ledger_balance(comboBox, database):
     running_balance = 0
 
     rowID_Statement = f"SELECT ROWID FROM {sql_active_ledger} Order by Transaction_Date ASC Limit 0, 49999"
-    rowID_list = obtain_sql_list(rowID_Statement, database)
+    rowID_list = obtain_sql_list(rowID_Statement, database, error_log)
 
     for rowID in rowID_list:
         row = rowID[0]
         transaction = f"SELECT SUM(Credit - Debit) FROM {sql_active_ledger} WHERE ROWID='{row}'"
-        CreditDebit = obtain_sql_value(transaction, database)
+        CreditDebit = obtain_sql_value(transaction, database, error_log)
         transaction_balance = running_balance + CreditDebit[0]
         transaction_balance = decimal_places(transaction_balance, 2)
         update_balance = f"UPDATE {sql_active_ledger} SET Balance='{transaction_balance}' WHERE ROWID='{row}'"
-        specific_sql_statement(update_balance, database)
+        specific_sql_statement(update_balance, database, error_log)
         running_balance = float(transaction_balance)
 
 

@@ -21,8 +21,11 @@ from Toolbox.Formatting_Tools import cash_format, remove_space, decimal_places
 
 class Generate_user_report:
 
-    def __init__(self, request):
+    def __init__(self, request, error_log):
         super().__init__()
+
+        # Program Error Logger
+        self.error_Logger = error_log
 
         # ---- Program --------------------------------------------------------------------------------------------------------------------------------------------------------
         # request = [Database, User Name, Report Content list, destination directory]
@@ -198,7 +201,7 @@ class Generate_user_report:
 
         # Generates list of account lists by parent type
         for statement in acc_statement_list:
-            parenttype_qty = obtain_sql_list(statement, request[0])
+            parenttype_qty = obtain_sql_list(statement, request[0], self.error_Logger)
             accounts.append(parenttype_qty)
 
         # Generate Dictionary of Equity Shares
@@ -207,12 +210,12 @@ class Generate_user_report:
                 if account[3] == "Equity":
                     sql_account = remove_space(account[0])
                     share_statement = f"""SELECT SUM(Purchased - Sold) FROM {sql_account}"""
-                    shares = obtain_sql_value(share_statement, request[0])
+                    shares = obtain_sql_value(share_statement, request[0], self.error_Logger)
                     shares_dct[account[0]] = decimal_places(shares[0], 4)
 
         # Generates list of parent type subtotals
         for statement in st_statement_list:
-            subtotal = obtain_sql_value(statement, request[0])
+            subtotal = obtain_sql_value(statement, request[0], self.error_Logger)
             subtotal = subtotal[0]
             if "Debt" in statement or "Credit" in statement:
                 subtotal = - subtotal

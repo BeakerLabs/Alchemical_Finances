@@ -38,7 +38,7 @@ class LedgerV1(QDialog):
     refresh_signal = QtCore.Signal(str)
     remove_tab = QtCore.Signal(str)
 
-    def __init__(self, database, parentType, user):
+    def __init__(self, database, parentType, user, error_log):
         super().__init__()
         self.ui = Ui_Ledger1(parentType)
         self.ui.setupUi(self)
@@ -66,11 +66,14 @@ class LedgerV1(QDialog):
         self.year_label_dict = {}
         self.overall_label_dict = {}
 
+        # Program Error Logger
+        self.error_Logger = error_log
+
         # Prepare Widgets for initial Use
         self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
-        fill_widget(self.ui.comboBLedger1, self.comboBoxAccountStatement, True, self.refUserDB)
+        fill_widget(self.ui.comboBLedger1, self.comboBoxAccountStatement, True, self.refUserDB, self.error_Logger)
         self.comboBoxCategoriesStatement = f"SELECT Method FROM Categories WHERE ParentType= '{self.parentType}'"
-        fill_widget(self.ui.comboBCategory, self.comboBoxCategoriesStatement, True, self.refUserDB)
+        fill_widget(self.ui.comboBCategory, self.comboBoxCategoriesStatement, True, self.refUserDB, self.error_Logger)
 
         if self.ui.comboBLedger1.currentText() == "":
             self.toggle_entire_ledger(False)
@@ -80,7 +83,7 @@ class LedgerV1(QDialog):
         # Prepare Spending By Category Data Representation.
         if self.parentType != "Property" and self.ui.comboBLedger1.currentText() != "":
             sql_account = remove_space(self.ui.comboBLedger1.currentText())
-            years, *_ = category_spending_data(self.refUserDB, sql_account)
+            years, *_ = category_spending_data(self.refUserDB, sql_account, self.error_Logger)
             self.ui.comboBTab2Year.addItems(years)
             self.ui.pBToggle.clicked.connect(self.toggle_dialog)
             self.ui.comboBTab2Year.currentIndexChanged.connect(lambda: self.update_spending_tab("Year"))
@@ -125,14 +128,14 @@ class LedgerV1(QDialog):
 
     # Opens Modal Dialogs for ledger Modification
     def accounts_dialog(self):
-        alf = AccountsDetails(self.refUserDB, self.parentType, self.refUser)
+        alf = AccountsDetails(self.refUserDB, self.parentType, self.refUser, self.error_Logger)
         if alf.exec_() == QDialog.Accepted:
             self.ui.comboBLedger1.clear()
             self.ui.comboBPeriod.clear()
             self.ui.comboBTab2Year.clear()
 
             self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
-            fill_widget(self.ui.comboBLedger1, self.comboBoxAccountStatement, True, self.refUserDB)
+            fill_widget(self.ui.comboBLedger1, self.comboBoxAccountStatement, True, self.refUserDB, self.error_Logger)
             if self.ui.comboBLedger1.currentText() != "":
                 fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB)
                 self.toggle_entire_ledger(True)
@@ -146,15 +149,15 @@ class LedgerV1(QDialog):
 
     # Opens Modal Dialog for Spending Category Modifications
     def categories_dialog(self):
-        molly = SpendingCategories(self.refUserDB, self.parentType)
+        molly = SpendingCategories(self.refUserDB, self.parentType, self.error_Logger)
         if molly.exec_() == QDialog.Accepted:
             self.ui.comboBCategory.clear()
             self.comboBoxCategoriesStatement = f"SELECT Method FROM Categories WHERE ParentType= '{self.parentType}'"
-            fill_widget(self.ui.comboBCategory, self.comboBoxCategoriesStatement, True, self.refUserDB)
+            fill_widget(self.ui.comboBCategory, self.comboBoxCategoriesStatement, True, self.refUserDB, self.error_Logger)
 
     # Opens Modal Dialog for Modifying which Spending Categories are used in the Graphical Calculations
     def toggle_dialog(self):
-        boston = Toggle_Categories(self.refUserDB, self.parentType)
+        boston = Toggle_Categories(self.refUserDB, self.parentType, self.error_Logger)
         if boston.exec_() == QDialog.Accepted:
             self.update_spending_tab("Statement")
             self.update_spending_tab("Year")
@@ -213,10 +216,10 @@ class LedgerV1(QDialog):
             pass
 
     def transaction_status(self, status1, status2):
-        if status1.isChecked() is True:
+        if status1.isChecked():
             currentStatus1 = "Pending"
             return currentStatus1
-        elif status2.isChecked() is True:
+        elif status2.isChecked():
             currentStatus2 = "Posted"
             return currentStatus2
         else:
@@ -279,11 +282,11 @@ class LedgerV1(QDialog):
                                + self.ui.lEditReceipt.text() + "', '"\
                                + currentDate + "', '"\
                                + currentDate + "')"
-                specific_sql_statement(addStatement, self.refUserDB)
+                specific_sql_statement(addStatement, self.refUserDB, self.error_Logger)
 
                 # It is easier to just update the ledger's balance column every time, versus attempt to calculate the value when adding the transaction.
                 # This will cover both the new transaction and its placement in the ledger.
-                update_ledger_balance(self.ui.comboBLedger1, self.refUserDB)
+                update_ledger_balance(self.ui.comboBLedger1, self.refUserDB, self.error_Logger)
                 self.transaction_refresh()
             else:
                 input_error = """
@@ -311,7 +314,7 @@ class LedgerV1(QDialog):
             deleteStatement = "DELETE FROM " + modifiedLN + " WHERE " \
                               + "Post_Date='" + self.ui.tableWLedger1.item(row, 9).text() + "'"
 
-            specific_sql_statement(deleteStatement, self.refUserDB)
+            specific_sql_statement(deleteStatement, self.refUserDB, self.error_Logger)
             self.transaction_refresh()
         else:
             pass
@@ -330,7 +333,7 @@ class LedgerV1(QDialog):
 
         if self.ui.comboBLedger1.currentText() != "":
             sql_account = remove_space(self.ui.comboBLedger1.currentText())
-            years, *_ = category_spending_data(self.refUserDB, sql_account)
+            years, *_ = category_spending_data(self.refUserDB, sql_account, self.error_Logger)
             self.ui.comboBTab2Year.addItems(years)
             self.set_variable1B()
             self.set_variable2B()
@@ -353,13 +356,13 @@ class LedgerV1(QDialog):
 
         else:
             parentType_statement = f"SELECT ParentType FROM Account_Summary WHERE ID='{ledger}'"
-            parentType_value = obtain_sql_value(parentType_statement, self.refUserDB)
+            parentType_value = obtain_sql_value(parentType_statement, self.refUserDB, self.error_Logger)
             parentType_value = parentType_value[0]
 
             self.ui.lStatementGraph.setText(f"Spending During {self.ui.comboBPeriod.currentText()}")
 
             if parentType_value in ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit", "Property"]:
-                disp_LedgerV1_Table(self.ui.comboBLedger1, self.ui.comboBPeriod, self.ui.tableWLedger1, self.refUserDB)
+                disp_LedgerV1_Table(self.ui.comboBLedger1, self.ui.comboBPeriod, self.ui.tableWLedger1, self.refUserDB, self.error_Logger)
             else:
                 error = "Parent Type doesn't belong with this ledger"
                 self.input_error_msg(error)
@@ -370,7 +373,7 @@ class LedgerV1(QDialog):
     def transaction_refresh(self):
         # It is easier to just update the ledger's balance column every time, versus attempt to calculate the value when adding the transaction.
         # This will cover both the new transaction and its placement in the ledger.
-        update_ledger_balance(self.ui.comboBLedger1, self.refUserDB)
+        update_ledger_balance(self.ui.comboBLedger1, self.refUserDB, self.error_Logger)
 
         # Refreshes the tableWidget to display the most recent statement period. May be considered annoying if working on an old statement.
         self.change_ledger1_account()
@@ -381,7 +384,7 @@ class LedgerV1(QDialog):
 
         # Updates the database Account_Summary to reflect the "posted" balance
         balanceStatement = f"UPDATE Account_Summary SET Balance='{ledgerValue[0]}' WHERE ID='{self.ui.comboBLedger1.currentText()}'"
-        specific_sql_statement(balanceStatement, self.refUserDB)
+        specific_sql_statement(balanceStatement, self.refUserDB, self.error_Logger)
 
         # Clears Inputs to allow for a new transaction
         self.clear_inputs()
@@ -477,11 +480,11 @@ class LedgerV1(QDialog):
                           + "', Receipt='" + self.ui.lEditReceipt.text() \
                           + "', Update_Date='" + currentDate \
                           + "' WHERE Post_Date='" + self.ui.tableWLedger1.item(row, 9).text() + "'"
-        specific_sql_statement(updateStatement, self.refUserDB)
+        specific_sql_statement(updateStatement, self.refUserDB, self.error_Logger)
 
         # It is easier to just update the ledger's balance column every time, versus attempt to calculate the value when adding the transaction.
         # This will cover both the new transaction and its placement in the ledger.
-        update_ledger_balance(self.ui.comboBLedger1, self.refUserDB)
+        update_ledger_balance(self.ui.comboBLedger1, self.refUserDB, self.error_Logger)
 
     def update_transaction(self):
         inputText1 = "Update Transaction"
@@ -522,7 +525,7 @@ class LedgerV1(QDialog):
             return netValue
         else:
             netValueStatement = "SELECT SUM(Credit - Debit) FROM " + modifiedLN + " WHERE Status='Posted'"
-            qtyMoney = obtain_sql_value(netValueStatement, self.refUserDB)
+            qtyMoney = obtain_sql_value(netValueStatement, self.refUserDB, self.error_Logger)
             if qtyMoney[0] is None:
                 moneyWOComma = "0.00"
                 formatString = "$ 0.00"
@@ -550,7 +553,7 @@ class LedgerV1(QDialog):
         setCreditLimit = ["Credit"]
         if self.parentType in setInterest:
             interestStatement = f"SELECT Interest_Rate FROM {detailsTable} WHERE Account_Name='{self.ui.comboBLedger1.currentText()}'"
-            interest = obtain_sql_value(interestStatement, self.refUserDB)
+            interest = obtain_sql_value(interestStatement, self.refUserDB, self.error_Logger)
             if interest is None:
                 interest = "Unknown"
             else:
@@ -559,7 +562,7 @@ class LedgerV1(QDialog):
             self.ui.lInterestRate.setText(interest)
         elif self.parentType in setCreditLimit:
             limitStatement = f"SELECT Credit_Limit FROM {detailsTable} WHERE Account_Name='{self.ui.comboBLedger1.currentText()}'"
-            limit = obtain_sql_value(limitStatement, self.refUserDB)
+            limit = obtain_sql_value(limitStatement, self.refUserDB, self.error_Logger)
             if limit is None:
                 limit = [0.00]
             limit = add_comma(limit[0], 2)
@@ -574,13 +577,13 @@ class LedgerV1(QDialog):
         setStart = ["Debt"]
         if self.parentType in setMaturity:
             maturityStatement = f"SELECT Maturity_Date FROM {detailsTable} WHERE Account_Name='{self.ui.comboBLedger1.currentText()}'"
-            maturity = obtain_sql_value(maturityStatement, self.refUserDB)
+            maturity = obtain_sql_value(maturityStatement, self.refUserDB, self.error_Logger)
             if maturity is None:
                 maturity = ["Unknown"]
             self.ui.lVariable1.setText(maturity[0])
         elif self.parentType in setStart:
             startStatement = f"SELECT Starting_Balance FROM {detailsTable} WHERE Account_Name='{self.ui.comboBLedger1.currentText()}'"
-            startingBalance = obtain_sql_value(startStatement, self.refUserDB)
+            startingBalance = obtain_sql_value(startStatement, self.refUserDB, self.error_Logger)
             if startingBalance is None:
                 startingBalance = [0]
             sBalance = add_comma(startingBalance[0], 2)
@@ -600,7 +603,7 @@ class LedgerV1(QDialog):
             pass
         else:
             account = remove_space(self.ui.comboBLedger1.currentText())
-            spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, target_tab, self.ui.comboBPeriod.currentText())
+            spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, target_tab, self.ui.comboBPeriod.currentText(), self.error_Logger)
 
             if target_tab == "Statement":
                 label_dict = self.statement_label_dict
@@ -656,11 +659,11 @@ class LedgerV1(QDialog):
             pass
         else:
             if target_tab == 'Year' and self.ui.comboBTab2Year.currentText() != "":
-                spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, target_tab, self.ui.comboBTab2Year.currentText())
+                spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, target_tab, self.ui.comboBTab2Year.currentText(), self.error_Logger)
             elif target_tab == "Statement" and self.ui.comboBPeriod.currentText() != "":
-                spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, target_tab, self.ui.comboBPeriod.currentText())
+                spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, target_tab, self.ui.comboBPeriod.currentText(), self.error_Logger)
             else:  # Overall
-                spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, target_tab, self.ui.comboBTab2Year.currentText())
+                spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, target_tab, self.ui.comboBTab2Year.currentText(), self.error_Logger)
 
             for count, value in enumerate(spending_statement_data, start=1):
                 try:
@@ -780,7 +783,7 @@ class LedgerV1(QDialog):
     # Functions focused on Property House Images
     def delete_house_action(self):
         house_Image_statement = f"SELECT Image FROM Property_Account_Details WHERE Account_Name='{self.ui.comboBLedger1.currentText()}'"
-        house_Image_location_raw = obtain_sql_value(house_Image_statement, self.refUserDB)
+        house_Image_location_raw = obtain_sql_value(house_Image_statement, self.refUserDB, self.error_Logger)
         house_Image_location = house_Image_location_raw[0]
 
         modifiedLN = remove_space(self.ui.comboBLedger1.currentText())
@@ -791,7 +794,7 @@ class LedgerV1(QDialog):
         self.ui.lHouseImage.setText(f"Upload a House Image\n\n Max Dimensions:\n{self.ui.houseFrame.geometry().width()} pixel x {self.ui.houseFrame.geometry().height()} pixel")
 
         delete_statement = f"UPDATE Property_Account_Details SET Image=NULL WHERE Account_Name='{self.ui.comboBLedger1.currentText()}'"
-        specific_sql_statement(delete_statement, self.refUserDB)
+        specific_sql_statement(delete_statement, self.refUserDB, self.error_Logger)
 
         self.ui.pBDeleteHouse.setEnabled(False)
         self.ui.pBUploadHouse.setEnabled(True)
@@ -799,7 +802,7 @@ class LedgerV1(QDialog):
     def display_house_image(self):
         if self.ui.comboBLedger1.currentText() != "":
             house_Image_statement = f"SELECT Image FROM Property_Account_Details WHERE Account_Name='{self.ui.comboBLedger1.currentText()}'"
-            house_Image_location_raw = obtain_sql_value(house_Image_statement, self.refUserDB)
+            house_Image_location_raw = obtain_sql_value(house_Image_statement, self.refUserDB, self.error_Logger)
             house_Image_location = house_Image_location_raw[0]
 
             if house_Image_location is None:
@@ -834,7 +837,7 @@ class LedgerV1(QDialog):
                 copy(pIname_path, nPIName_path)
 
                 house_image_statement = f"UPDATE Property_Account_Details SET Image='{nPIname}' WHERE Account_Name='{self.ui.comboBLedger1.currentText()}'"
-                specific_sql_statement(house_image_statement, self.refUserDB)
+                specific_sql_statement(house_image_statement, self.refUserDB, self.error_Logger)
 
                 self.display_house_image()
 

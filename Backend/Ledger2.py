@@ -36,7 +36,7 @@ class LedgerV2(QDialog):
     refresh_signal_L2 = QtCore.Signal(str)
     remove_tab_L2 = QtCore.Signal(str)
 
-    def __init__(self, database, parentType, user):
+    def __init__(self, database, parentType, user, error_log):
         super().__init__()
         self.ui = Ui_Ledger2()
         self.ui.setupUi(self)
@@ -63,12 +63,14 @@ class LedgerV2(QDialog):
         self.subType_label_dict = {}
         self.investment_label_dict = {}
 
+        # Program Error Logger
+        self.error_Logger = error_log
 
         # Prepare Widgets for initial Use
         self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
-        fill_widget(self.ui.comboBLedger2, self.comboBoxAccountStatement, True, self.refUserDB)
+        fill_widget(self.ui.comboBLedger2, self.comboBoxAccountStatement, True, self.refUserDB, self.error_Logger)
         self.comboBoxCategoriesStatement = f"SELECT Method FROM Categories WHERE ParentType= '{self.parentType}'"
-        fill_widget(self.ui.comboBCategory, self.comboBoxCategoriesStatement, True, self.refUserDB)
+        fill_widget(self.ui.comboBCategory, self.comboBoxCategoriesStatement, True, self.refUserDB, self.error_Logger)
 
         if self.ui.comboBLedger2.currentText() == "":
             self.toggle_entire_ledger(False)
@@ -107,13 +109,13 @@ class LedgerV2(QDialog):
 
     # Opens Modal Dialogs for ledger Modification
     def accounts_dialog(self):
-        alf = AccountsDetails(self.refUserDB, self.parentType, self.refUser)
+        alf = AccountsDetails(self.refUserDB, self.parentType, self.refUser, self.error_Logger)
         if alf.exec_() == QDialog.Accepted:
             self.ui.comboBLedger2.clear()
             self.ui.comboBPeriod.clear()
 
             self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
-            fill_widget(self.ui.comboBLedger2, self.comboBoxAccountStatement, True, self.refUserDB)
+            fill_widget(self.ui.comboBLedger2, self.comboBoxAccountStatement, True, self.refUserDB, self.error_Logger)
             if self.ui.comboBLedger2.currentText() != "":
                 fill_statement_period(self.ui.comboBLedger2, self.ui.comboBPeriod, "Ledger", self.refUserDB)
                 self.toggle_entire_ledger(True)
@@ -125,11 +127,11 @@ class LedgerV2(QDialog):
             self.trigger_refresh()
 
     def categories_dialog(self):
-        molly = SpendingCategories(self.refUserDB, self.parentType)
+        molly = SpendingCategories(self.refUserDB, self.parentType, self.error_Logger)
         if molly.exec_() == QDialog.Accepted:
             self.ui.comboBCategory.clear()
             self.comboBoxCategoriesStatement = f"SELECT Method FROM Categories WHERE ParentType= '{self.parentType}'"
-            fill_widget(self.ui.comboBCategory, self.comboBoxCategoriesStatement, True, self.refUserDB)
+            fill_widget(self.ui.comboBCategory, self.comboBoxCategoriesStatement, True, self.refUserDB, self.error_Logger)
 
     # General Functions
     def check_transactions(self):
@@ -255,7 +257,7 @@ class LedgerV2(QDialog):
                                + self.ui.lEditReceipt.text() + "', '"\
                                + currentDate + "', '"\
                                + currentDate + "')"
-                specific_sql_statement(addStatement, self.refUserDB)
+                specific_sql_statement(addStatement, self.refUserDB, self.error_Logger)
                 self.transaction_refresh()
             else:
                 input_error = """
@@ -297,7 +299,7 @@ class LedgerV2(QDialog):
             deleteStatement = "DELETE FROM " + modifiedLN + " WHERE " \
                               + "Post_Date='" + self.ui.tableWLedger2.item(row, 9).text() + "'"
 
-            specific_sql_statement(deleteStatement, self.refUserDB)
+            specific_sql_statement(deleteStatement, self.refUserDB, self.error_Logger)
             self.transaction_refresh()
         else:
             pass
@@ -311,11 +313,11 @@ class LedgerV2(QDialog):
             pass
         else:
             parentType_statement = f"SELECT ParentType FROM Account_Summary WHERE ID='{ledger}'"
-            parentType_value = obtain_sql_value(parentType_statement, self.refUserDB)
+            parentType_value = obtain_sql_value(parentType_statement, self.refUserDB, self.error_Logger)
             parentType_value = parentType_value[0]
 
             if parentType_value in ["Equity", "Retirement"]:
-                disp_LedgerV2_Table(self.ui.comboBLedger2, self.ui.comboBPeriod, self.ui.tableWLedger2, self.refUserDB)
+                disp_LedgerV2_Table(self.ui.comboBLedger2, self.ui.comboBPeriod, self.ui.tableWLedger2, self.refUserDB, self.error_Logger)
                 ledgerValue = self.net_ledger_value()
                 self.ui.lAccountBalance.setText(ledgerValue[1])
                 self.ui.lShareBalance.setText(self.net_share_balance())
@@ -341,7 +343,7 @@ class LedgerV2(QDialog):
             return netValue
         else:
             netValueStatement = "SELECT SUM(Purchased - Sold) FROM " + modifiedLN + " WHERE Status='Posted'"
-            qtyShares = obtain_sql_value(netValueStatement, self.refUserDB)
+            qtyShares = obtain_sql_value(netValueStatement, self.refUserDB, self.error_Logger)
             if qtyShares[0] is None:
                 netValue = "0.00"
                 return netValue
@@ -368,7 +370,7 @@ class LedgerV2(QDialog):
             return shareBalance
         else:
             netSBalance = "SELECT SUM(Purchased - Sold) FROM " + modifiedLN + " WHERE Status='Posted'"
-            shareBalance = obtain_sql_value(netSBalance, self.refUserDB)
+            shareBalance = obtain_sql_value(netSBalance, self.refUserDB, self.error_Logger)
             if shareBalance[0] is None:
                 shareBalance = "0.0000"
                 return shareBalance
@@ -383,7 +385,7 @@ class LedgerV2(QDialog):
     def obtain_ticker_price(self):
         tickerPriceStatement = "SELECT Stock_Price FROM " + self.parentType_dict[self.parentType] +\
                                     " WHERE Account_Name ='" + self.ui.comboBLedger2.currentText() + "'"
-        tickerPrice = obtain_sql_value(tickerPriceStatement, self.refUserDB)
+        tickerPrice = obtain_sql_value(tickerPriceStatement, self.refUserDB, self.error_Logger)
         if tickerPrice is None:
             tickerPrice = "Unknown"
         else:
@@ -392,12 +394,12 @@ class LedgerV2(QDialog):
 
     def refresh_ticker_price(self):
         tickerUpdate = "SELECT Stock_Price FROM " + self.parentType_dict[self.parentType] + " WHERE Account_Name='" + self.ui.comboBLedger2.currentText() + "'"
-        tickerPrice = obtain_sql_value(tickerUpdate, self.refUserDB)
-        updateLedgerValue = decimal_places(tickerPrice[0], 4) * decimal_places(self.ui.labelVariable1B.text(), 4)
+        tickerPrice = obtain_sql_value(tickerUpdate, self.refUserDB, self.error_Logger)
+        updateLedgerValue = decimal_places(tickerPrice[0], 4) * decimal_places(self.ui.lShareBalance.text(), 4)
         updateLedgerValue = decimal_places(updateLedgerValue, 2)
         balanceUpdate = "UPDATE Account_Summary SET Balance='" + str(updateLedgerValue) + "' WHERE ID='" + \
                         self.ui.comboBLedger2.currentText() + "'"
-        specific_sql_statement(balanceUpdate, self.refUserDB)
+        specific_sql_statement(balanceUpdate, self.refUserDB, self.error_Logger)
         newledgerValue = self.net_ledger_value()
         self.ui.lAccountBalance.setText(newledgerValue[1])
         self.ui.lVariable1.setText("$ " + str(decimal_places(tickerPrice[0], 4)))
@@ -490,7 +492,7 @@ class LedgerV2(QDialog):
 
         self.ui.comboBPeriod.clear()
         fill_statement_period(self.ui.comboBLedger2, self.ui.comboBPeriod, "Ledger", self.refUserDB)
-        disp_LedgerV2_Table(self.ui.comboBLedger2, self.ui.comboBPeriod, self.ui.tableWLedger2, self.refUserDB)
+        disp_LedgerV2_Table(self.ui.comboBLedger2, self.ui.comboBPeriod, self.ui.tableWLedger2, self.refUserDB, self.error_Logger)
 
         # Changes the Account Balance to reflect the "posted" balance
         ledgerValue = self.net_ledger_value()
@@ -500,7 +502,7 @@ class LedgerV2(QDialog):
 
         # Updates the database Account_Summary to reflect the "posted" balance
         balanceStatement = "UPDATE Account_Summary SET Balance='" + ledgerValue[0] + "' WHERE ID='" + self.ui.comboBLedger2.currentText() + "'"
-        specific_sql_statement(balanceStatement, self.refUserDB)
+        specific_sql_statement(balanceStatement, self.refUserDB, self.error_Logger)
 
         self.update_tab_display("SubType")
         self.update_tab_display("Investment")
@@ -533,7 +535,7 @@ class LedgerV2(QDialog):
                           + "', Receipt='" + self.ui.lEditReceipt.text() \
                           + "', Update_Date='" + currentDate \
                           + "' WHERE Post_Date='" + self.ui.tableWLedger2.item(row, 9).text() + "'"
-        specific_sql_statement(updateStatement, self.refUserDB)
+        specific_sql_statement(updateStatement, self.refUserDB, self.error_Logger)
 
     def update_transaction(self):
         inputText1 = "Update Transaction"
@@ -571,7 +573,7 @@ class LedgerV2(QDialog):
                        + "' WHERE Account_Name='" + self.ui.comboBLedger2.currentText() + "'"
         updateLedgerValue = tickerPrice * decimal_places(self.ui.lShareBalance.text(), 4)
         balanceUpdate = "UPDATE Account_Summary SET Balance='" + str(updateLedgerValue) + "' WHERE ID='" + self.ui.comboBLedger2.currentText() + "'"
-        execute_sql_statement_list([tickerUpdate, balanceUpdate], self.refUserDB)
+        execute_sql_statement_list([tickerUpdate, balanceUpdate], self.refUserDB, self.error_Logger)
         newledgerValue = self.net_ledger_value()
         self.ui.lAccountBalance.setText(newledgerValue[1])
         self.ui.lVariable1.setText("$ " + str(tickerPrice))
@@ -671,7 +673,7 @@ class LedgerV2(QDialog):
 
     # Asset Graph Frame Functions
     def build_tabWidget_display(self, target_tab):
-        subType_data, investment_data, subType_string_dict, investment_string_dict = equity_subtype_data(self.refUserDB, self.parentType)
+        subType_data, investment_data, subType_string_dict, investment_string_dict = equity_subtype_data(self.refUserDB, self.parentType, self.error_Logger)
 
         label_font = QtGui.QFont()
         set_font(label_font, 12, True, False)
@@ -707,7 +709,7 @@ class LedgerV2(QDialog):
             raise Exception("Ledger Type 2 Doesn't Contain that Tab Widget")
 
     def update_tab_display(self, target_tab):
-        subType_data, investment_data, subType_string_dict, investment_string_dict = equity_subtype_data(self.refUserDB, self.parentType)
+        subType_data, investment_data, subType_string_dict, investment_string_dict = equity_subtype_data(self.refUserDB, self.parentType, self.error_Logger)
 
         label_font = QtGui.QFont()
         set_font(label_font, 12, True, False)

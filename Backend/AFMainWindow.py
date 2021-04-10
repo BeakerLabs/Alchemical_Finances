@@ -7,12 +7,10 @@ Future Concepts
 """
 
 import os
-import pickle
-import sys
 import sqlite3
 
 from pathlib import Path
-from PySide6.QtWidgets import QMainWindow, QApplication, QMessageBox
+from PySide6.QtWidgets import QMainWindow, QMessageBox
 from PySide6 import QtCore, QtWidgets, QtGui
 from PySide6.QtCore import Slot
 from sqlite3 import Error
@@ -37,7 +35,7 @@ from Toolbox.Formatting_Tools import decimal_places, remove_space
 class AFBackbone(QMainWindow):
     refresh_signal_summary = QtCore.Signal(str)
 
-    def __init__(self, user, messageCount):
+    def __init__(self, user, messageCount, error_log):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -52,6 +50,9 @@ class AFBackbone(QMainWindow):
         self.dataCheck = None
 
         self.tabdic = {}
+
+        # Program Error Logger
+        self.error_Logger = error_log
 
         # Menu Bar Button Functionality
         # -- -- File - Summary, Generate Report, Export [Future], Save[Future] Close
@@ -97,7 +98,7 @@ class AFBackbone(QMainWindow):
 
                 # Account Summary Function (below) designed for use with example accounts.
                 summaryStatement = "CREATE TABLE IF NOT EXISTS Account_Summary(ID TEXT, ItemType TEXT, ParentType TEXT, SubType TEXT, Ticker_Symbol TEXT, Balance REAL)"
-                specific_sql_statement(summaryStatement, self.refUserDB)
+                specific_sql_statement(summaryStatement, self.refUserDB, self.error_Logger)
                 self.account_details(parentType, toggle_example=False, subtype='')  # Subtype had no effect when not creating an example account
 
                 # Example accounts are great for debugging and testing. However, for actual users probably just annoying
@@ -113,13 +114,13 @@ class AFBackbone(QMainWindow):
             execute_sql_statement_list([archiveStatement,
                                         nw_graph_statement,
                                         ov_graph_statement,
-                                        contribution_graph_statement], self.refUserDB)
+                                        contribution_graph_statement], self.refUserDB, self.error_Logger)
 
         # Initialize appearance upon Loading
         # update_stock_price(self.refUserDB)
         self.statusBar().showMessage("Stock Prices Updated")
 
-        summary = Ledger_Summary(self, self.refUserDB)
+        summary = Ledger_Summary(self, self.refUserDB, self.error_Logger)
         self.ui.mdiArea.addSubWindow(summary)
         summary.remove_tab_LS.connect(self.remove_tab)
         summary.showMaximized()
@@ -146,8 +147,9 @@ class AFBackbone(QMainWindow):
                     self.statusBar().showMessage("ERROR: MISSING USER KEY")
                 else:
                     key = str(row[0])
-        except Error as e:
-            print(f"""ERROR: AFBackbone: acquireKey \n statement: "{keyStatement}" \n Profile: "{self.refUser}" \n Database: "{self.refUserDB}" """)
+        except Error:
+            error_string = f"""ERROR: AFBackbone: acquireKey \n statement: "{keyStatement}" \n Profile: "{self.refUser}" \n Database: "{self.refUserDB}" """
+            self.error_Logger.error(error_string)
         finally:
             conn.close()
             return key
@@ -218,20 +220,20 @@ class AFBackbone(QMainWindow):
             self.tabdic[parentType].setFocus()
         except KeyError:
             if parentType == "Summary":
-                summary = Ledger_Summary(self, self.refUserDB)
+                summary = Ledger_Summary(self, self.refUserDB, self.error_Logger)
                 self.ui.mdiArea.addSubWindow(summary)
                 summary.remove_tab_LS.connect(self.remove_tab)
                 summary.showMaximized()
                 self.tabdic.update({parentType: summary})
             elif parentType in type1:
-                ledger = LedgerV1(self.refUserDB, parentType, self.refUser)
+                ledger = LedgerV1(self.refUserDB, parentType, self.refUser, self.error_Logger)
                 self.ui.mdiArea.addSubWindow(ledger)
                 ledger.refresh_signal.connect(self.refresh_netWorth)
                 ledger.remove_tab.connect(self.remove_tab)
                 ledger.showMaximized()
                 self.tabdic.update({parentType: ledger})
             elif parentType in type2:
-                ledger2 = LedgerV2(self.refUserDB, parentType, self.refUser)
+                ledger2 = LedgerV2(self.refUserDB, parentType, self.refUser, self.error_Logger)
                 self.ui.mdiArea.addSubWindow(ledger2)
                 ledger2.refresh_signal_L2.connect(self.refresh_netWorth)
                 ledger2.remove_tab_L2.connect(self.remove_tab)
@@ -244,13 +246,13 @@ class AFBackbone(QMainWindow):
                 about.showMaximized()
                 self.tabdic.update({parentType: about})
             elif parentType == "Archive":
-                archive = Archive(self.refUserDB, self.refUser)
+                archive = Archive(self.refUserDB, self.refUser, self.error_Logger)
                 self.ui.mdiArea.addSubWindow(archive)
                 archive.remove_tab_archive.connect(self.remove_tab)
                 archive.showMaximized()
                 self.tabdic.update({parentType: archive})
             # elif parentType == "OTG":
-            #     graph = OverTimeGraph(self, self.refUserDB)
+            #     graph = OverTimeGraph(self, self.refUserDB, self.error_Logger)
             #     self.ui.mdiArea.addSubWindow(graph)
             #     graph.remove_tab_NWG.connect(self.remove_tab)
             #     graph.showMaximized()
@@ -268,22 +270,22 @@ class AFBackbone(QMainWindow):
                             "(Transaction_Date NUMERIC, Transaction_Method TEXT," \
                             " Transaction_Description TEXT, Category TEXT, Debit REAL, Credit REAL, Balance REAL, Note TEXT," \
                             " Status TEXT, Receipt TEXT, Post_Date NUMERIC, Update_Date NUMERIC)"
-            specific_sql_statement(ledgerStatement, self.refUserDB)
+            specific_sql_statement(ledgerStatement, self.refUserDB, self.error_Logger)
         elif parentType in variant2:
             ledgerStatement = "CREATE TABLE IF NOT EXISTS " + finalName + \
                               "(Transaction_Date NUMERIC, Transaction_Description TEXT, Category TEXT," \
                               " Debit REAL, Credit REAL, Sold REAL, Purchased REAL, Price REAL, Note TEXT, Status TEXT," \
                               " Receipt TEXT, Post_Date NUMERIC, Update_Date NUMERIC)"
-            specific_sql_statement(ledgerStatement, self.refUserDB)
+            specific_sql_statement(ledgerStatement, self.refUserDB, self.error_Logger)
 
     def account_summary(self, accountName: str, accountType: str):
         """Single use Function: Creates Account Summary Table, then adds example accounts to the table. Used for Asset, Liability, and Net Worth Calculations"""
 
         summaryStatement = "CREATE TABLE IF NOT EXISTS Account_Summary(ID TEXT, ItemType TEXT, ParentType TEXT, SubType TEXT, Ticker_Symbol TEXT, Balance REAL)"
-        specific_sql_statement(summaryStatement, self.refUserDB)
-        if check_for_data("Account_Summary", "ParentType", accountType, self.refUserDB) is True:
+        specific_sql_statement(summaryStatement, self.refUserDB, self.error_Logger)
+        if check_for_data("Account_Summary", "ParentType", accountType, self.refUserDB, self.error_Logger) is True:
             exampleStatement = f"INSERT INTO Account_Summary VALUES('{accountName}', NULL, '{accountType}', NULL, NULL, '0.00')"
-            specific_sql_statement(exampleStatement, self.refUserDB)
+            specific_sql_statement(exampleStatement, self.refUserDB, self.error_Logger)
 
     def account_details(self, parentType, toggle_example, subtype, accountName="Example_Account"):
         """ Single use Function: Used to Create Parent Type Account Details Table, and Example Account Details
@@ -336,46 +338,46 @@ class AFBackbone(QMainWindow):
                 "Retirement": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', 'Alchemical Finances Bank', '1', 'AFB',  '1.0000')",
                 "Property": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', '123 Finance Street', 'County', 'State 91002', NULL)",
             }
-            specific_sql_statement(detailsTableDict[parentType], self.refUserDB)
-            if check_for_data(itemTypeDict[parentType][1], "Account_Name", accountName, self.refUserDB) is True:
-                specific_sql_statement(detailsValueDict[parentType], self.refUserDB)
-                specific_sql_statement(summaryStatement, self.refUserDB)
+            specific_sql_statement(detailsTableDict[parentType], self.refUserDB, self.error_Logger)
+            if check_for_data(itemTypeDict[parentType][1], "Account_Name", accountName, self.refUserDB, self.error_Logger) is True:
+                specific_sql_statement(detailsValueDict[parentType], self.refUserDB, self.error_Logger)
+                specific_sql_statement(summaryStatement, self.refUserDB, self.error_Logger)
         else:
-            specific_sql_statement(detailsTableDict[parentType], self.refUserDB)
+            specific_sql_statement(detailsTableDict[parentType], self.refUserDB, self.error_Logger)
 
     def initial_categories(self, methodList, typeList):
         """ Single Use Function: Used to create the starting spending Categories for each Parent Type"""
-        create_table("Categories", ["Method", "ParentType", "Tabulate"], ["TEXT", "TEXT", "BOOL"], self.refUserDB)
-        if check_for_data("Categories", "ParentType", typeList[0], self.refUserDB) is True:
+        create_table("Categories", ["Method", "ParentType", "Tabulate"], ["TEXT", "TEXT", "BOOL"], self.refUserDB, self.error_Logger)
+        if check_for_data("Categories", "ParentType", typeList[0], self.refUserDB, self.error_Logger) is True:
             statementList = []
             for method in methodList:
                 for catType in typeList:
                     statement = f"INSERT INTO Categories VALUES('{method}', '{catType}', 'True')"
                     statementList.append(statement)
-            execute_sql_statement_list(statementList, self.refUserDB)
+            execute_sql_statement_list(statementList, self.refUserDB, self.error_Logger)
         else:
             pass
 
     def account_subtypes(self, subTypes, parentType):
         """ Single Use Function: Used to create the starting list of Account Sub Types for each Parent Type"""
-        create_table("AccountSubType", ["SubType", "ParentType", "Tabulate"], ["TEXT", "TEXT", "BOOL"], self.refUserDB)
-        if check_for_data("AccountSubType", "ParentType", parentType, self.refUserDB) is True:
+        create_table("AccountSubType", ["SubType", "ParentType", "Tabulate"], ["TEXT", "TEXT", "BOOL"], self.refUserDB, self.error_Logger)
+        if check_for_data("AccountSubType", "ParentType", parentType, self.refUserDB, self.error_Logger) is True:
             statementList = []
             for account in subTypes:
                 dbStatement = f"INSERT INTO AccountSubType VALUES('{account}', '{parentType}', 'True')"
                 statementList.append(dbStatement)
-            execute_sql_statement_list(statementList, self.refUserDB)
+            execute_sql_statement_list(statementList, self.refUserDB, self.error_Logger)
         else:
             pass
 
     def log_contributions(self, action, date):
         """ Obtain Equity and Retirement Contribution sums for the Contributions Table"""
         select_target_accounts = "SELECT ID FROM Account_Summary WHERE ParentType='Equity' or ParentType='Retirement'"
-        target_accounts_raw = obtain_sql_list(select_target_accounts, self.refUserDB)
+        target_accounts_raw = obtain_sql_list(select_target_accounts, self.refUserDB, self.error_Logger)
 
         if action == "Insert":
             insert_date = f"INSERT INTO ContributionTotals(Date) VALUES('{date}')"
-            specific_sql_statement(insert_date, self.refUserDB)
+            specific_sql_statement(insert_date, self.refUserDB, self.error_Logger)
         else:
             pass
 
@@ -383,7 +385,7 @@ class AFBackbone(QMainWindow):
             account = account[0]
             sql_account = remove_space(account)
             contribution_statement = f"SELECT SUM(Credit - Debit) FROM {sql_account}"
-            contribution_sum_raw = obtain_sql_value(contribution_statement, self.refUserDB)
+            contribution_sum_raw = obtain_sql_value(contribution_statement, self.refUserDB, self.error_Logger)
 
             if contribution_sum_raw[0] is None:
                 contribution_sum_checked = 0
@@ -393,7 +395,7 @@ class AFBackbone(QMainWindow):
             contribution_sum = str(decimal_places(contribution_sum_checked, 2))
 
             insert_contribution = f"UPDATE ContributionTotals SET '{sql_account}'={contribution_sum} WHERE Date='{date}'"
-            specific_sql_statement(insert_contribution, self.refUserDB)
+            specific_sql_statement(insert_contribution, self.refUserDB, self.error_Logger)
 
     def log_netWorth(self, data, entryPoint):
         """ Adds Finance Data points [Gross, Liabilities, Net] to NetWorth Table
@@ -417,10 +419,10 @@ class AFBackbone(QMainWindow):
         update_statement = f"UPDATE NetWorth SET Gross='{data[0]}', Liabilities='{data[1]}', Net='{data[2]}' WHERE Date='{today}'"
 
         last_data_point_Statement = f"SELECT Date FROM Networth ORDER BY Date DESC LIMIT 1"
-        last_data_point = obtain_sql_value(last_data_point_Statement, self.refUserDB)
+        last_data_point = obtain_sql_value(last_data_point_Statement, self.refUserDB, self.error_Logger)
 
         account_balances_statement = "SELECT ID, Balance FROM Account_Summary"
-        account_balances_raw = obtain_sql_list(account_balances_statement, self.refUserDB)
+        account_balances_raw = obtain_sql_list(account_balances_statement, self.refUserDB, self.error_Logger)
 
         if last_data_point is None:
             last_data_point = "1978/01/01"  # Just an unlikely date
@@ -429,9 +431,9 @@ class AFBackbone(QMainWindow):
             if entryPoint == "Login" and today == last_data_point[0]:
                 for account in account_balances_raw:
                     update_account_statement = f"UPDATE AccountWorth SET '{remove_space(account[0])}'='{account[1]}' WHERE Date='{today}'"
-                    specific_sql_statement(update_account_statement, self.refUserDB)
+                    specific_sql_statement(update_account_statement, self.refUserDB, self.error_Logger)
 
-                specific_sql_statement(update_statement, self.refUserDB)
+                specific_sql_statement(update_statement, self.refUserDB, self.error_Logger)
                 updated = True
 
                 self.log_contributions("Update", today)
@@ -442,24 +444,24 @@ class AFBackbone(QMainWindow):
             if entryPoint == "Login" and today != last_data_point[0] and yesterday != last_data_point[0]:
                 # Insert current values for yesterday
                 insertDate_accountWorth_table = f"INSERT INTO AccountWorth(Date) VALUES('{yesterday}')"
-                specific_sql_statement(insertDate_accountWorth_table, self.refUserDB)
+                specific_sql_statement(insertDate_accountWorth_table, self.refUserDB, self.error_Logger)
                 for account in account_balances_raw:
                     update_account_statement = f"UPDATE AccountWorth SET '{remove_space(account[0])}'='{account[1]}' WHERE Date='{yesterday}'"
-                    specific_sql_statement(update_account_statement, self.refUserDB)
+                    specific_sql_statement(update_account_statement, self.refUserDB, self.error_Logger)
 
-                specific_sql_statement(insert_yesterday_statement, self.refUserDB)
+                specific_sql_statement(insert_yesterday_statement, self.refUserDB, self.error_Logger)
                 self.log_contributions("Insert", yesterday)
 
                 print(f"Finances inserted for {yesterday}")
 
                 # Follow by insert today
                 insertDate_accountWorth_table = f"INSERT INTO AccountWorth(Date) VALUES('{today}')"
-                specific_sql_statement(insertDate_accountWorth_table, self.refUserDB)
+                specific_sql_statement(insertDate_accountWorth_table, self.refUserDB, self.error_Logger)
                 for account in account_balances_raw:
                     update_account_statement = f"UPDATE AccountWorth SET '{remove_space(account[0])}'='{account[1]}' WHERE Date='{today}'"
-                    specific_sql_statement(update_account_statement, self.refUserDB)
+                    specific_sql_statement(update_account_statement, self.refUserDB, self.error_Logger)
 
-                specific_sql_statement(insert_today_statement, self.refUserDB)
+                specific_sql_statement(insert_today_statement, self.refUserDB, self.error_Logger)
                 self.log_contributions("Insert", today)
                 updated = True
 
@@ -468,12 +470,12 @@ class AFBackbone(QMainWindow):
         if updated is False:
             if entryPoint == "Login" and today != last_data_point[0] and yesterday == last_data_point[0]:
                 insertDate_accountWorth_table = f"INSERT INTO AccountWorth(Date) VALUES('{today}')"
-                specific_sql_statement(insertDate_accountWorth_table, self.refUserDB)
+                specific_sql_statement(insertDate_accountWorth_table, self.refUserDB, self.error_Logger)
                 for account in account_balances_raw:
                     update_account_statement = f"UPDATE AccountWorth SET '{remove_space(account[0])}'='{account[1]}' WHERE Date='{today}'"
-                    specific_sql_statement(update_account_statement, self.refUserDB)
+                    specific_sql_statement(update_account_statement, self.refUserDB, self.error_Logger)
 
-                specific_sql_statement(insert_today_statement, self.refUserDB)
+                specific_sql_statement(insert_today_statement, self.refUserDB, self.error_Logger)
                 self.log_contributions("Insert", today)
                 updated = True
 
@@ -483,9 +485,9 @@ class AFBackbone(QMainWindow):
             if entryPoint == "Logout":
                 for account in account_balances_raw:
                     update_account_statement = f"UPDATE AccountWorth SET '{remove_space(account[0])}'='{account[1]}' WHERE Date='{today}'"
-                    specific_sql_statement(update_account_statement, self.refUserDB)
+                    specific_sql_statement(update_account_statement, self.refUserDB, self.error_Logger)
 
-                specific_sql_statement(update_statement, self.refUserDB)
+                specific_sql_statement(update_statement, self.refUserDB, self.error_Logger)
                 self.log_contributions("Update", today)
                 updated = True
                 print(f"Finances updated for {today}")
@@ -519,8 +521,4 @@ class AFBackbone(QMainWindow):
 
 
 if __name__ == "__main_":
-    app = QApplication(sys.argv)
-    user = "jmshamberg"
-    lily = AFBackbone(user)
-    lily.show()
-    sys.exit(app.exec_())
+    print("error")

@@ -5,8 +5,6 @@ Due to the "static" nature of the tab. Anything kinetic can be done in the Front
 
 """
 
-import sys
-
 from PySide6 import QtGui, QtCore, QtWidgets
 from PySide6.QtWidgets import QDialog
 

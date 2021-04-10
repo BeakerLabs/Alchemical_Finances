@@ -7,12 +7,46 @@ As the current file name states. This file is to execute the entire program. I w
 
 import sys
 
+from pathlib import Path
 from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtWidgets import QMainWindow, QDialog, QApplication, QLayout
+from PySide6.QtWidgets import QDialog, QApplication
 
 from Backend.UserLogin import LoginForm
 from Backend.WelcomeMessage import Message
 from Backend.AFMainWindow import AFBackbone
+
+from Toolbox.Logging_System import create_log_fileName, get_logger
+from Toolbox.OS_Tools import file_destination
+
+
+def main():
+
+    log_created = False
+    sessionCount = 0
+
+    while log_created is False:
+        errorLog_File = create_log_fileName(sessionCount)
+        errorLog_Pathway = file_destination(['Data', 'Error_Log'])
+        errorLog_Pathway = Path.cwd() / errorLog_Pathway / errorLog_File
+        if not errorLog_Pathway.exists():
+            log_created = True
+        else:
+            sessionCount += 1
+
+    errorLog_Pathway = str(errorLog_Pathway)
+    error_Log = get_logger("AF_ERROR_LOG", errorLog_Pathway)
+
+    app = QApplication(sys.argv)
+    porcelainoffering = LoginForm(error_Log)
+    if porcelainoffering.exec_() == QDialog.Accepted:
+        user = porcelainoffering.refUser
+        messageCount = porcelainoffering.count
+        error_Log = porcelainoffering.error_Logger
+        PorcelainSupplement = Message(messageCount, user, error_Log)
+        if PorcelainSupplement.exec_() == QDialog.Accepted:
+            porcelaingod = AFBackbone(user, messageCount, error_Log)
+            porcelaingod.show()
+            sys.exit(app.exec_())
 
 # class Screen(QDialog):
 #     def __init__(self):
@@ -28,16 +62,8 @@ from Backend.AFMainWindow import AFBackbone
 #     display.show()
 #     sys.exit(app.exec_())
 
+
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    porcelainoffering = LoginForm()
-    if porcelainoffering.exec_() == QDialog.Accepted:
-        user = porcelainoffering.refUser
-        messageCount = porcelainoffering.count
-        PorcelainSupplement = Message(messageCount, user)
-        if PorcelainSupplement.exec_() == QDialog.Accepted:
-            porcelaingod = AFBackbone(user, messageCount)
-            porcelaingod.show()
-            sys.exit(app.exec_())
+    main()
 
 

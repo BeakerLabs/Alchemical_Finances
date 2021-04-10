@@ -19,9 +19,9 @@ class AF_Canvas(FigureCanvas):
         super(AF_Canvas, self).__init__(fig)
 
 
-def overTimeLineGraph(database, account):
+def overTimeLineGraph(database, account, error_log):
     parentType_statement = f"SELECT ParentType FROM Account_Summary WHERE ID='{add_space(account)}'"
-    parentType_raw = obtain_sql_value(parentType_statement, database)
+    parentType_raw = obtain_sql_value(parentType_statement, database, error_log)
     if parentType_raw is None:
         parentType = None
     else:
@@ -30,7 +30,7 @@ def overTimeLineGraph(database, account):
     # SQL raw data acquisition
     if account == "Net_Worth_Graph":
         combined_data_statement = "SELECT Date, Gross, Liabilities, Net FROM NetWorth ORDER BY Date ASC LIMIT 0, 49999"
-        combined_data_tuple = obtain_sql_list(combined_data_statement, database)
+        combined_data_tuple = obtain_sql_list(combined_data_statement, database, error_log)
 
         largest_grossValue_raw = []
         largest_liabilityValue_raw = []
@@ -49,9 +49,9 @@ def overTimeLineGraph(database, account):
 
     elif account != "Net_Worth_Graph" and parentType in ["Equity", "Retirement"]:
         value_data_statement = f"SELECT Date, {account} FROM AccountWorth ORDER BY Date ASC Limit 0, 49999"
-        value_data_tuple = obtain_sql_list(value_data_statement, database)
+        value_data_tuple = obtain_sql_list(value_data_statement, database, error_log)
         contribution_data_statement = f"SELECT Date, {account} FROM ContributionTotals ORDER BY Date ASC Limit 0, 49999"
-        contribution_tuple = obtain_sql_list(contribution_data_statement, database)
+        contribution_tuple = obtain_sql_list(contribution_data_statement, database, error_log)
 
         combined_data_tuple = []
         x = 0
@@ -78,9 +78,9 @@ def overTimeLineGraph(database, account):
 
     else:
         combined_data_statement = f"SELECT Date, {account} FROM AccountWorth ORDER BY Date ASC Limit 0, 49999"
-        combined_data_tuple = obtain_sql_list(combined_data_statement, database)
+        combined_data_tuple = obtain_sql_list(combined_data_statement, database, error_log)
         largest_value_statement = f"SELECT {account} FROM AccountWorth"
-        largest_y_tuple = obtain_sql_list(largest_value_statement, database)
+        largest_y_tuple = obtain_sql_list(largest_value_statement, database, error_log)
         largest_y_raw = []
 
         for value in largest_y_tuple:
@@ -185,7 +185,7 @@ def overTimeLineGraph(database, account):
     return lg_data
 
 
-def nested_snapshot(database, graph_focus):
+def nested_snapshot(database, graph_focus, error_log):
     if graph_focus == "Asset":
         parentTypes = ["Bank", "Cash", "CD", "Equity", "Treasury", "Retirement", "Property"]
     elif graph_focus == "Liability":
@@ -219,14 +219,14 @@ def nested_snapshot(database, graph_focus):
     }
 
     gross_statement = "SELECT SUM(Balance) FROM Account_Summary WHERE ItemType='{0}'".format(graph_focus)
-    gross_worth = obtain_sql_value(gross_statement, database)[0]
+    gross_worth = obtain_sql_value(gross_statement, database, error_log)[0]
 
     if gross_worth <= 0 or gross_worth is None:
         gross_worth = 1
 
     for parent in parentTypes:
         size_statement = "SELECT SUM(Balance) FROM Account_Summary WHERE ParentType='{0}'".format(parent)
-        value = obtain_sql_value(size_statement, database)[0]
+        value = obtain_sql_value(size_statement, database, error_log)[0]
         if value is None or value < 0:
             value = 0
         percentage = (float(value) / float(gross_worth)) * 100
@@ -234,7 +234,7 @@ def nested_snapshot(database, graph_focus):
         sizes.append(percentage)
 
         balance_statement = "SELECT Balance FROM Account_Summary WHERE ParentType='{0}'".format(parent)
-        account_balances = obtain_sql_list(balance_statement, database)
+        account_balances = obtain_sql_list(balance_statement, database, error_log)
         account_balances.sort(reverse=True)
         for balance in account_balances:
             correction = balance[0]
@@ -277,5 +277,4 @@ def nested_snapshot(database, graph_focus):
 
 
 if __name__ == "__main__":
-    database = os.path.join(os.getcwd(), '..', 'data/account/b8aem6j45m5r36ghs.db')
-    overTimeLineGraph(database)
+    print("error")
