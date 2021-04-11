@@ -10,7 +10,7 @@ import sys
 from logging.handlers import TimedRotatingFileHandler
 from os import path
 
-FORMATTER = logging.Formatter("%((asctime)s - %(name)s - %(levelname)s - %(message)s)")
+FORMATTER = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 
 def create_log_fileName(sessionCount: int):

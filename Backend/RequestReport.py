@@ -17,7 +17,7 @@ from Backend.BuildReports import Generate_user_report
 
 
 class user_report_request(QDialog):
-    def __init__(self, database, user):
+    def __init__(self, database, user, error_log):
         super().__init__()
         self.ui = Ui_GenReport()
         self.ui.setupUi(self)
@@ -29,6 +29,7 @@ class user_report_request(QDialog):
         # --- Class Global Variables ------------------------------------------------------------------------------------------------------------------------------------------
         self.refUserDB = database
         self.refUser = user
+        self.error_Logger = error_log
 
         self.widgetList = [
             self.ui.cBBank,
@@ -80,13 +81,13 @@ class user_report_request(QDialog):
     # --- -- Used to Generate the report and open the .pdf file ---------------------------------------------------------------------------------------------------------------
     def generate_list(self, directory):
         request = []
-        for widget in self.widgetlist:
+        for widget in self.widgetList:
             if widget.checkState() == 2:
                 parenType_request = [self.parentType[widget], "", ""]
                 request.append(parenType_request)
 
         input_Data = [self.refUserDB, self.refUser, request, directory]
-        Generate_user_report(input_Data)
+        Generate_user_report(input_Data, self.error_Logger)
         self.close()
 
     def closeEvent(self, event):

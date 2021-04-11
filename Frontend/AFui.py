@@ -281,7 +281,6 @@ class Ui_MainWindow(object):
         self.actionAbout.setText(_translate("MainWindow", "About", None))
         self.actionAbout.setToolTip(_translate("MainWindow", "Other", None))
         self.actionArchive.setText(_translate("MainWindow", "Archive", None))
-        self.actionReports_Future.setText(_translate("MainWindow", "Reports [Future]", None))
         self.actionBudgeting_Future.setText(_translate("MainWindow", "Budgeting [Future]", None))
         self.actionGenerate.setText(_translate("MainWindow", "Generate Report", None))
         self.actionNWG.setText(_translate("MainWindow", "Net Worth Graph", None))

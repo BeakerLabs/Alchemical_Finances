@@ -16,7 +16,7 @@ from Toolbox.Formatting_Tools import add_space, cash_format, decimal_places
 def category_spending_data(database, account, error_log):
     """ Obtains the Account Specific Spending based upon Category. """
 
-    statement = f"SELECT Transaction_Date, Category, Debit, Credit FROM {account}"
+    statement = f"SELECT Transaction_Date, Category, Debit, Credit FROM {account} WHERE Status='Posted'"
     raw_data = obtain_sql_list(statement, database, error_log)
 
     years = []
@@ -78,7 +78,7 @@ def category_spending_by_interval(database, account, interval_length, interval, 
         # [ Transaction_Date, Category, Debit, Credit ]
         if transaction[1] in spending_dict:
             transaction_date = datetime.strptime(transaction[0], "%Y/%m/%d")
-            if start_datetime < transaction_date <= end_datetime:
+            if start_datetime <= transaction_date <= end_datetime:
 
                 if transaction[2] == "":
                     debit = decimal_places("0.00", 2)
@@ -111,7 +111,6 @@ def category_spending_by_interval(database, account, interval_length, interval, 
     # result_list = [Category, Percentage]
     # spending_String_dict = {Category: string}
     # spending_dict = {Category: cash Balance}
-
     return result_list, spending_string_dict, spending_dict
 
 

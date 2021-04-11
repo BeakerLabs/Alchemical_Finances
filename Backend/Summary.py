@@ -99,6 +99,7 @@ class Ledger_Summary(QDialog):
         # This pre-exists to allow the program to update warnings as needed
         lMessage = QLabel(self)
         lMessage.setObjectName("labelMessages")
+        lMessage.setMaximumHeight(40)
         lMessage.setText("")
 
         messagefont = QtGui.QFont()
@@ -327,8 +328,10 @@ class Ledger_Summary(QDialog):
         for account in self.balancelabeldic:
             balanceStatement = f"SELECT Balance, ItemType, ParentType FROM Account_Summary WHERE ID='{account}'"
             accountInfo = obtain_sql_value(balanceStatement, self.refUserDB, self.error_Logger)
+
             if accountInfo is None:
                 accountInfo = (0.00, "Deleted", "Deleted")
+
             modBalance = add_comma(accountInfo[0],  2)
             targetlabel = self.balancelabeldic[account]
 
@@ -394,14 +397,14 @@ class Ledger_Summary(QDialog):
                 targetlabel.setText("  ($  " + modSubTotal + ")    ")
 
     def user_messages(self):
-        accountStatment = "SELECT ID FROM Account_Summary"
-        accountList = obtain_sql_list(accountStatment, self.refUserDB, self.error_Logger)
+        accountStatement = "SELECT ID FROM Account_Summary"
+        accountList = obtain_sql_list(accountStatement, self.refUserDB, self.error_Logger)
         currentQTYaccounts = len(accountList)
         oldQTYaccounts = len(self.summaryTuple)
         messagelabel = self.updateMessages[0]
         # messagelabel.setStyleSheet(messagesheet)
 
-        changes = "Reload to Display Changes to Accounts"
+        changes = "Reload Summary Page to Display New Accounts or Remove Old Accounts"
 
         if currentQTYaccounts != oldQTYaccounts:
             messagelabel.setText(changes)
@@ -443,8 +446,8 @@ class Ledger_Summary(QDialog):
     @Slot(str)
     def refresh_summary(self, message):
         if message == "2":
-            self.update_plot("Asset", self.assetCanvas)
-            self.update_plot("Liability", self.liabilityCanvas)
+            # self.update_plot("Asset", self.assetCanvas)
+            # self.update_plot("Liability", self.liabilityCanvas)
             self.refresh_balance_labels()
             self.user_messages()
         else:

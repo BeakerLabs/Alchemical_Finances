@@ -57,8 +57,8 @@ class AFBackbone(QMainWindow):
         # Menu Bar Button Functionality
         # -- -- File - Summary, Generate Report, Export [Future], Save[Future] Close
         self.ui.actionSummary.triggered.connect(lambda: self.switch_tab("Summary"))
-        self.ui.actionGenerate.triggered.connect(lambda: user_report_request(self.refUserDB, self.refUser))
-        self.ui.actionNWG.triggered.connect(lambda: self.switch_tab("NWG"))
+        self.ui.actionGenerate.triggered.connect(lambda: user_report_request(self.refUserDB, self.refUser, self.error_Logger))
+        self.ui.actionNWG.triggered.connect(lambda: self.switch_tab("OTG"))
         self.ui.actionClose.triggered.connect(self.close_app)
         # -- Assets - Bank, Equity, Retirement, CD, TB
         self.ui.actionBank.triggered.connect(lambda: self.switch_tab("Bank"))
@@ -493,7 +493,9 @@ class AFBackbone(QMainWindow):
                 print(f"Finances updated for {today}")
 
     def user_manual(self):
-        os.startfile("../spoon/USER_MANUAL.pdf")
+        user_manual_path = Path.cwd() / "Spoon" / "USER_MANUAL.pdf"
+        user_manual_str = str(user_manual_path)
+        os.startfile(user_manual_str)
 
     @Slot(str)
     def refresh_netWorth(self, message):
@@ -503,6 +505,7 @@ class AFBackbone(QMainWindow):
             self.ui.labelNW.setText(netWorth[1])
             self.ui.labelTAssests.setText(netWorth[2])
             self.ui.labelTLiabilities.setText(netWorth[3])
+            self.trigger_refresh_summer()
         else:
             pass
 

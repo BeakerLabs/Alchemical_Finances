@@ -7,6 +7,7 @@ Future Concepts
 """
 
 import os
+import shutil
 
 from Backend.Question import YNTypeQuestion
 from Frontend.AccountsUi import Ui_Accounts
@@ -232,7 +233,11 @@ class AccountsDetails(QDialog):
             sqlCurrentLedgerName = remove_space(self.ui.lEditAN.text())
             obsolete_dir_path = file_destination(['Receipts', self.refUser, self.parentType, sqlCurrentLedgerName])
             obsolete_dir_str = str(obsolete_dir_path)
-            os.remove(obsolete_dir_str)
+            try:
+                shutil.rmtree(obsolete_dir_str)
+            except OSError:
+                error_string = f"Window's Denied Actions. Manual action required once program is closed.\n"
+                self.error_Logger.error(error_string, exc_info=True)
 
             self.ui.listWidgetAccount.clear()
             fill_widget(self.ui.listWidgetAccount, self.listWidget_Statement, True, self.refUserDB, self.error_Logger)
@@ -252,11 +257,11 @@ class AccountsDetails(QDialog):
         execute_sql_statement_list(statement_list, self.refUserDB, self.error_Logger)
 
         # Deletes the Account Worth over time column
-        delete_column("AccountWorth", modifiedAN, self.refUserDB)
+        delete_column("AccountWorth", modifiedAN, self.refUserDB, self.error_Logger)
 
         # Deletes Contribution total over time column
         if self.parentType in ["Equity", "Retirement"]:
-            delete_column("ContributionTotals", modifiedAN, self.refUserDB)
+            delete_column("ContributionTotals", modifiedAN, self.refUserDB, self.error_Logger)
 
     def edit_account(self):
         self.toggle_widgets(True)
@@ -504,9 +509,19 @@ class AccountsDetails(QDialog):
                                 "', '" + accountSubType + \
                                 "', '" + accountOwner + \
                                 "', '" + accountBank + "')"
+
             if sqlCurrentLedgerName != sqlNewLedgerName:
                 ledgerUpdate = "ALTER TABLE " + sqlCurrentLedgerName + " RENAME TO " + sqlNewLedgerName
                 accountWorth = f"ALTER TABLE AccountWorth RENAME COLUMN '{sqlCurrentLedgerName}' TO '{sqlNewLedgerName}'"
+
+                old_dir_path = file_destination(['Receipts', self.refUser, self.parentType, sqlCurrentLedgerName])
+                new_dir_path = file_destination(['Receipts', self.refUser, self.parentType, sqlNewLedgerName])
+
+                old_receipt_dir = str(old_dir_path)
+                new_receipt_dir = str(new_dir_path)
+
+                os.rmdir(new_receipt_dir)
+                os.rename(old_receipt_dir, new_receipt_dir)
             else:
                 ledgerUpdate = f"SELECT Subtype FROM AccountSubType WHERE ParentType='{self.parentType}'"
                 accountWorth = f"ALTER TABLE AccountWorth RENAME COLUMN '{sqlCurrentLedgerName}' TO '{sqlNewLedgerName}'"
@@ -517,15 +532,6 @@ class AccountsDetails(QDialog):
             if self.parentType in ["Equity", "Retirement"]:
                 contribution = f"ALTER TABLE ContributionTotals RENAME COLUMN '{sqlCurrentLedgerName}' TO '{sqlNewLedgerName}'"
                 specific_sql_statement(contribution, self.refUserDB, self.error_Logger)
-
-            old_dir_path = file_destination(['Receipts', self.refUser, self.parentType, sqlCurrentLedgerName])
-            new_dir_path = file_destination(['Receipts', self.refUser, self.parentType, sqlNewLedgerName])
-
-            old_receipt_dir = str(old_dir_path)
-            new_receipt_dir = str(new_dir_path)
-
-            os.rmdir(new_receipt_dir)
-            os.rename(old_receipt_dir, new_receipt_dir)
 
             self.edit_combo_item(self.ui.lEditAN.text())
             self.ui.listWidgetAccount.setCurrentRow(0)

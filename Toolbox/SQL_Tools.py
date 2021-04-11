@@ -104,13 +104,13 @@ def create_table(tableName: str, columns: list, inputType: list, database: str, 
         conn.close()
 
 
-def delete_column(table: str, column: str, database: str):
+def delete_column(table: str, column: str, database: str, error_log):
     """ Sqlite3 doesn't inherently have the ability to delete a column. This is a work around.  """
     temp = "temporary"
 
     # obtain all existing columns
     obtain_columns = f"PRAGMA table_info({table})"
-    column_data_raw = obtain_sql_list(obtain_columns, database)
+    column_data_raw = obtain_sql_list(obtain_columns, database, error_log)
 
     retained_columns = []
     new_table_column_str = ""
@@ -130,17 +130,17 @@ def delete_column(table: str, column: str, database: str):
 
     change_table_name = f"ALTER TABLE {table} RENAME TO {temp}"
     new_table_statement = f"CREATE TABLE IF NOT EXISTS {table}({new_table_column_str})"
-    execute_sql_statement_list([change_table_name, new_table_statement], database)
+    execute_sql_statement_list([change_table_name, new_table_statement], database, error_log)
 
     rowID_Statement = f"SELECT ROWID FROM {temp}"
-    rowID_list = obtain_sql_list(rowID_Statement, database)
+    rowID_list = obtain_sql_list(rowID_Statement, database, error_log)
 
     for rowID in rowID_list:
         insert = f"INSERT INTO {table} SELECT {select_table_column_str} FROM {temp} WHERE ROWID='{rowID[0]}'"
-        specific_sql_statement(insert, database)
+        specific_sql_statement(insert, database, error_log)
 
     drop = f"DROP TABLE {temp}"
-    specific_sql_statement(drop, database)
+    specific_sql_statement(drop, database, error_log)
 
 
 def execute_sql_statement_list(statement_lst: list, database: str, error_log):

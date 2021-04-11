@@ -4,7 +4,7 @@ As the current file name states. This file is to execute the entire program. I w
   PorcelainSupplement = QDialog for Messages
   Porcelaingod = QMainWindow for the programs main hub.
 """
-
+import os
 import sys
 
 from pathlib import Path
@@ -28,10 +28,19 @@ def main():
         errorLog_File = create_log_fileName(sessionCount)
         errorLog_Pathway = file_destination(['Data', 'Error_Log'])
         errorLog_Pathway = Path.cwd() / errorLog_Pathway / errorLog_File
+
         if not errorLog_Pathway.exists():
             log_created = True
+
         else:
-            sessionCount += 1
+            f = open(errorLog_Pathway, "r")
+            if len(f.readlines()) < 1:
+                f.close()
+                os.remove(errorLog_Pathway)
+                log_created = True
+            else:
+                f.close()
+                sessionCount += 1
 
     errorLog_Pathway = str(errorLog_Pathway)
     error_Log = get_logger("AF_ERROR_LOG", errorLog_Pathway)
@@ -47,20 +56,6 @@ def main():
             porcelaingod = AFBackbone(user, messageCount, error_Log)
             porcelaingod.show()
             sys.exit(app.exec_())
-
-# class Screen(QDialog):
-#     def __init__(self):
-#         super().__init__()
-#         self.ui = Ui_Summary()
-#         # self.ui = Ui_MainWindow()
-#         self.ui.setupUi(self)
-#
-#
-# if __name__ == "__main__":
-#     app = QApplication(sys.argv)
-#     display = Screen()
-#     display.show()
-#     sys.exit(app.exec_())
 
 
 if __name__ == "__main__":

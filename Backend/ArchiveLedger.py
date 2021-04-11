@@ -49,9 +49,13 @@ class Archive(QDialog):
                                 "Property": "Property_Account_Details"}
 
         self.fill_combobox(self.ui.comboBAccounts, "Account")
+
         if self.ui.comboBAccounts.currentText() != "":
             self.fill_combobox(self.ui.comboBStatements, "Statement")
+            self.toggle_entire_ledger(True)
             self.display_ledger()
+        else:
+            self.toggle_entire_ledger(False)
 
         self.ui.comboBAccounts.currentIndexChanged.connect(self.change_account)
         self.ui.comboBStatements.currentIndexChanged.connect(self.display_ledger)
@@ -178,8 +182,19 @@ class Archive(QDialog):
         self.ui.comboBAccounts.clear()
         self.ui.comboBStatements.clear()
         self.fill_combobox(self.ui.comboBAccounts, "Accounts")
-        self.fill_combobox(self.ui.comboBStatements, "Statement")
-        self.display_ledger()
+
+        if self.ui.comboBAccounts.currentText() != "":
+            self.fill_combobox(self.ui.comboBStatements, "Statement")
+            self.display_ledger()
+        else:
+            self.toggle_entire_ledger(False)
+
+    def toggle_entire_ledger(self, toggle: bool):
+        self.ui.comboBAccounts.setEnabled(toggle)
+        self.ui.pBDisplayReceipt.setEnabled(toggle)
+        self.ui.pBDelete.setEnabled(toggle)
+        self.ui.pBRestore.setEnabled(toggle)
+        self.ui.comboBStatements.setEnabled(toggle)
 
     def trigger_del_tab(self):
         self.remove_tab_archive.emit("Archive")

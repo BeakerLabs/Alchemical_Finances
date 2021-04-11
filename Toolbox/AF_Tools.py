@@ -186,10 +186,10 @@ def disp_LedgerV2_Table(account_combobox, statement_combobox, tablewidget, datab
         tablewidget.scrollToBottom()
 
 
-def fill_statement_period(accountComboBox, statementComboBox, Ledger, database):
+def fill_statement_period(accountComboBox, statementComboBox, Ledger, database, error_log):
     """ Fills a target combobox with Statement periods based upon the Account Details"""
     account = accountComboBox.currentText()
-    statement_period_list = generate_statement_months(account, Ledger, database)
+    statement_period_list = generate_statement_months(account, Ledger, database, error_log)
     statementComboBox.addItems(statement_period_list)
     statementComboBox.setCurrentIndex(0)
 

@@ -78,15 +78,17 @@ class LedgerV1(QDialog):
         if self.ui.comboBLedger1.currentText() == "":
             self.toggle_entire_ledger(False)
         else:
-            fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB)
+            fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
 
         # Prepare Spending By Category Data Representation.
         if self.parentType != "Property" and self.ui.comboBLedger1.currentText() != "":
             sql_account = remove_space(self.ui.comboBLedger1.currentText())
             years, *_ = category_spending_data(self.refUserDB, sql_account, self.error_Logger)
             self.ui.comboBTab2Year.addItems(years)
-            self.ui.pBToggle.clicked.connect(self.toggle_dialog)
             self.ui.comboBTab2Year.currentIndexChanged.connect(lambda: self.update_spending_tab("Year"))
+
+        if self.parentType != "Property":
+            self.ui.pBToggle.clicked.connect(self.toggle_dialog)
 
         # Ledger Widget Functionality
         self.ui.comboBLedger1.currentIndexChanged.connect(self.change_ledger1_account)
@@ -137,7 +139,7 @@ class LedgerV1(QDialog):
             self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
             fill_widget(self.ui.comboBLedger1, self.comboBoxAccountStatement, True, self.refUserDB, self.error_Logger)
             if self.ui.comboBLedger1.currentText() != "":
-                fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB)
+                fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
                 self.toggle_entire_ledger(True)
             elif self.ui.comboBLedger1.currentText() == "":
                 self.toggle_entire_ledger(False)
@@ -271,8 +273,8 @@ class LedgerV1(QDialog):
                 # 6- Debit -- 7- Credit -- 8 - Balance -- 9- Notes -- 10- Status -- 11- UserDate -- 12- Receipt
                 addStatement = "INSERT INTO " + modifiedLN + " VALUES('"\
                                + self.ui.DateEditTransDate.date().toString("yyyy/MM/dd") + "', '"\
-                               + self.ui.lEditTransDesc.text() + "', '"\
                                + self.ui.lEditTransMethod.text() + "', '"\
+                               + self.ui.lEditTransDesc.text() + "', '"\
                                + self.ui.comboBCategory.currentText() + "', '"\
                                + str(modDebit) + "', '"\
                                + str(modCredit) + "', '"\
@@ -326,7 +328,7 @@ class LedgerV1(QDialog):
             pass
         else:
             self.ui.comboBPeriod.clear()
-            fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB)
+            fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
 
         if self.parentType != "Property":
             self.ui.comboBTab2Year.clear()
@@ -580,7 +582,9 @@ class LedgerV1(QDialog):
             maturity = obtain_sql_value(maturityStatement, self.refUserDB, self.error_Logger)
             if maturity is None:
                 maturity = ["Unknown"]
-            self.ui.lVariable1.setText(maturity[0])
+            else:
+                maturity = str(maturity[0])
+            self.ui.lVariable1.setText(maturity)
         elif self.parentType in setStart:
             startStatement = f"SELECT Starting_Balance FROM {detailsTable} WHERE Account_Name='{self.ui.comboBLedger1.currentText()}'"
             startingBalance = obtain_sql_value(startStatement, self.refUserDB, self.error_Logger)

@@ -75,7 +75,7 @@ class LedgerV2(QDialog):
         if self.ui.comboBLedger2.currentText() == "":
             self.toggle_entire_ledger(False)
         else:
-            fill_statement_period(self.ui.comboBLedger2, self.ui.comboBPeriod, "Ledger", self.refUserDB)
+            fill_statement_period(self.ui.comboBLedger2, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
 
         self.build_tabWidget_display("SubType")
         self.build_tabWidget_display("Investment")
@@ -117,7 +117,7 @@ class LedgerV2(QDialog):
             self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
             fill_widget(self.ui.comboBLedger2, self.comboBoxAccountStatement, True, self.refUserDB, self.error_Logger)
             if self.ui.comboBLedger2.currentText() != "":
-                fill_statement_period(self.ui.comboBLedger2, self.ui.comboBPeriod, "Ledger", self.refUserDB)
+                fill_statement_period(self.ui.comboBLedger2, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
                 self.toggle_entire_ledger(True)
                 self.display_ledger_2()
             elif self.ui.comboBLedger2.currentText() == "":
@@ -279,7 +279,7 @@ class LedgerV2(QDialog):
             pass
         else:
             self.ui.comboBPeriod.clear()
-            fill_statement_period(self.ui.comboBLedger2, self.ui.comboBPeriod, "Ledger", self.refUserDB)
+            fill_statement_period(self.ui.comboBLedger2, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
             ledgerValue = self.net_ledger_value()
             self.ui.lAccountBalance.setText(ledgerValue[1])
             self.ui.lShareBalance.setText(self.net_share_balance())
@@ -491,7 +491,7 @@ class LedgerV2(QDialog):
         self.clear_inputs()
 
         self.ui.comboBPeriod.clear()
-        fill_statement_period(self.ui.comboBLedger2, self.ui.comboBPeriod, "Ledger", self.refUserDB)
+        fill_statement_period(self.ui.comboBLedger2, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
         disp_LedgerV2_Table(self.ui.comboBLedger2, self.ui.comboBPeriod, self.ui.tableWLedger2, self.refUserDB, self.error_Logger)
 
         # Changes the Account Balance to reflect the "posted" balance
