@@ -141,15 +141,12 @@ class LedgerV2(QDialog):
 
         for widget in listA:
             if not check_characters(widget.text(), "general"):
-                print(1)
                 return False  # Input Has Non Alphanumeric characters
 
             if widget.text() == "" or widget.text() == " ":
-                print(2)
                 return False  # Input is Blank
 
             if sqlite3_keyword_check(widget.text()):
-                print(3)
                 return False  # No restricted keywords
                 # Doesn't account for restricted statements. However, should be unlikely.
 
@@ -158,23 +155,18 @@ class LedgerV2(QDialog):
 
         for widget in listB:
             if not check_characters(widget, "general"):
-                print(4)
                 return False  # These are all numerical inputs
 
         if len(self.ui.textEditAddNotes.toPlainText()) > 150:
-            print(5)
             return False  # Limit the Additional Notes field
 
         if check_numerical_inputs(self.ui.lEditDebit.text()) and check_numerical_inputs(self.ui.lEditCredit.text()):
-            print(6)
             return False  # Simultaneous Credit and Debit inputs
 
         if check_numerical_inputs(self.ui.lEditSharePurch.text()) and check_numerical_inputs(self.ui.lEditShareSold.text()):
-            print(7)
             return False  # Simultaneous Share Purchase and Debit Share Sold
 
         if not check_numerical_inputs(self.ui.lEditSharePrice.text()):
-            print(8)
             return False  # Must be numerical
 
         else:
@@ -719,9 +711,11 @@ class LedgerV2(QDialog):
         if target_tab == "SubType":
             label_dict = self.subType_label_dict
             string_data = subType_string_dict
-        else: # target_tab == "Investment"
+            scroll_layout = self.ui.typeScrollLayout
+        else:  # target_tab == "Investment"
             label_dict = self.investment_label_dict
             string_data = investment_string_dict
+            scroll_layout = self.ui.investmentScrollLayout
 
         for count, assetType in enumerate(string_data, start=1):
             try:
@@ -737,7 +731,7 @@ class LedgerV2(QDialog):
                 self.assetTypeLabel.setSizePolicy(tab_sizePolicy)
                 label_dict[assetType] = self.assetTypeLabel
 
-                self.ui.typeScrollLayout.addWidget(self.assetTypeLabel)
+                scroll_layout.addWidget(self.assetTypeLabel)
 
         if len(label_dict) > len(string_data):
             unused_label_count = len(label_dict) - (len(label_dict) - len(string_data))

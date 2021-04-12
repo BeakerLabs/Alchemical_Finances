@@ -5,11 +5,11 @@
 from Toolbox.SQL_Tools import *
 from Toolbox.OS_Tools import *
 from Toolbox.Formatting_Tools import *
-
+from Toolbox.Logging_System import create_log_fileName, get_logger
 import time
 
 
-def update_ledger_balance(targetLedger, database):
+def update_ledger_balance(targetLedger, database, error_log):
     # active_ledger = targetLedger.currentText()
     active_ledger = targetLedger
     sql_active_ledger = remove_space(active_ledger)
@@ -17,20 +17,20 @@ def update_ledger_balance(targetLedger, database):
     running_balance = 0
 
     rowID_Statement = f"SELECT ROWID FROM {sql_active_ledger} Order by Transaction_Date ASC Limit 0, 49999"
-    rowID_list = obtain_sql_list(rowID_Statement, database)
+    rowID_list = obtain_sql_list(rowID_Statement, database, error_log)
 
     for rowID in rowID_list:
         row = rowID[0]
         transaction = f"SELECT SUM(Credit - Debit) FROM {sql_active_ledger} WHERE ROWID='{row}'"
-        CreditDebit = obtain_sql_value(transaction, database)
+        CreditDebit = obtain_sql_value(transaction, database, error_log)
         transaction_balance = running_balance + CreditDebit[0]
         transaction_balance = decimal_places(transaction_balance, 2)
         update_balance = f"UPDATE {sql_active_ledger} SET Balance='{transaction_balance}' WHERE ROWID='{row}'"
-        specific_sql_statement(update_balance, database)
+        specific_sql_statement(update_balance, database, error_log)
         running_balance = float(transaction_balance)
 
 
-def correct_details_tables(database):
+def correct_details_tables(database, error_log):
     details_pages_list = [["Bank_Account_Details",
                            f"CREATE TABLE IF NOT EXISTS Bank_Account_Details (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Interest_Rate REAL)",
                            "Account_Name, Account_Type, Primary_Owner, Bank, Statement_Date, Interest_Rate",
@@ -69,24 +69,24 @@ def correct_details_tables(database):
 
     for table in details_pages_list:
         if table[0] == "Property_Account_Details":
-            specific_sql_statement(table[1], database)
+            specific_sql_statement(table[1], database, error_log)
         else:
             temp = "temporary"
             change_table_name = f"ALTER TABLE {table[0]} RENAME TO {temp}"
             new_table_statement = table[1]
-            execute_sql_statement_list([change_table_name, new_table_statement], database)
+            execute_sql_statement_list([change_table_name, new_table_statement], database, error_log)
             rowID_Statement = f"SELECT ROWID FROM {temp} Order by Account_Name ASC Limit 0, 49999"
-            rowID_list = obtain_sql_list(rowID_Statement, database)
+            rowID_list = obtain_sql_list(rowID_Statement, database, error_log)
 
             for rowID in rowID_list:
                 insert = f"INSERT INTO {table[0]}({table[2]}) SELECT {table[3]} FROM {temp} WHERE ROWID='{rowID[0]}'"
-                specific_sql_statement(insert, database)
+                specific_sql_statement(insert, database, error_log)
 
             drop = f"DROP TABLE {temp}"
-            specific_sql_statement(drop, database)
+            specific_sql_statement(drop, database, error_log)
 
 
-def correct_ledger1_tables(database):
+def correct_ledger1_tables(database, error_log):
     parentType_dict = {
         "Bank": "Bank_Account_Details",
         "Cash": "Cash_Account_Details",
@@ -98,7 +98,7 @@ def correct_ledger1_tables(database):
     temp = "temporaryName"
     for parentType in parentType_dict:
         ledger_list_statement = f"SELECT Account_Name FROM {parentType_dict[parentType]}"
-        ledger_list = obtain_sql_list(ledger_list_statement, database)
+        ledger_list = obtain_sql_list(ledger_list_statement, database, error_log)
 
         for ledger in ledger_list:
             modifiedLN = remove_space(ledger[0])
@@ -109,21 +109,21 @@ def correct_ledger1_tables(database):
                               " Status TEXT, Receipt TEXT, Post_Date NUMERIC, Update_Date NUMERIC)"
 
             change_table_name = f"ALTER TABLE {modifiedLN} RENAME TO {temp}"
-            execute_sql_statement_list([change_table_name, ledgerStatement], database)
+            execute_sql_statement_list([change_table_name, ledgerStatement], database, error_log)
             rowID_Statement = f"SELECT ROWID FROM {temp} ORDER BY Transaction_Date ASC Limit 0, 49999"
-            rowID_list = obtain_sql_list(rowID_Statement, database)
+            rowID_list = obtain_sql_list(rowID_Statement, database, error_log)
 
             for rowID in rowID_list:
                 referenceA = "Transaction_Date, Transaction_Method, Transaction_Description, Category, Debit, Credit, Balance, Note, Status, Receipt, Post_Date, Update_Date"
                 referenceB = "Transaction_Date, Transaction_Method, Transaction_Description, Category, Debit, Credit, 0, Note, Status, Receipt, Post_Date, Update_Date"
                 insert = f"INSERT INTO {modifiedLN}({referenceA}) SELECT {referenceB} FROM {temp} WHERE ROWID='{rowID[0]}'"
-                specific_sql_statement(insert, database)
+                specific_sql_statement(insert, database, error_log)
 
             drop = f"DROP TABLE {temp}"
-            specific_sql_statement(drop, database)
+            specific_sql_statement(drop, database, error_log)
 
 
-def correct_ledger_balance(database):
+def correct_ledger_balance(database, error_log):
     parentType_dict = {
         "Bank": "Bank_Account_Details",
         "Cash": "Cash_Account_Details",
@@ -135,24 +135,27 @@ def correct_ledger_balance(database):
 
     for parentType in parentType_dict:
         ledger_list_statement = f"SELECT Account_Name FROM {parentType_dict[parentType]}"
-        ledger_list = obtain_sql_list(ledger_list_statement, database)
+        ledger_list = obtain_sql_list(ledger_list_statement, database, error_log)
 
         for ledger in ledger_list:
             modifiedLN = remove_space(ledger[0])
-            update_ledger_balance(modifiedLN, database)
+            update_ledger_balance(modifiedLN, database, error_log)
 
 
 if __name__ == "__main__":
+    errorLog_Pathway = "errorlog.txt"
+    error_Log = get_logger("AF_ERROR_LOG", errorLog_Pathway)
+
     database = "b8aem6j45m5r36ghs.db"
-    correct_details_tables(database)
-    correct_ledger1_tables(database)
+    correct_details_tables(database, error_Log)
+    correct_ledger1_tables(database, error_Log)
     # Create Property Value subtypes
     property_subtypes = ["Single Occupancy", "Rental", "Vacation", "Duplex"]
     for subtype in property_subtypes:
         statement = f"INSERT INTO AccountSubType VALUES('{subtype}', 'Property')"
-        specific_sql_statement(statement, database)
+        specific_sql_statement(statement, database, error_Log)
     # Fix Balances on Ledgers
-    correct_ledger_balance(database)
+    correct_ledger_balance(database, error_Log)
 
     # Create Property Value Summary
     #

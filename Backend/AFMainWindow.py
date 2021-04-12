@@ -98,15 +98,15 @@ class AFBackbone(QMainWindow):
                 "Property": ["Example Home", "Single Occupancy", ["Single Occupancy", "Rental", "Vacation", "Duplex"]],
             }
 
-            self.initial_categories(["Initial", "Statement"], ["Bank", "Equity", "Retirement", "CD", "Treasury", "Debt", "Credit", "Cash", "Property"])
+            self.initial_categories(["Initial", "Statement"], ["Bank", "Equity", "Retirement", "CD", "Treasury", "Debt", "Credit", "Cash", "Property"], self.saveState)
 
             for parentType in example_accounts_dict:
-                self.account_subtypes(example_accounts_dict[parentType][2], parentType)
+                self.account_subtypes(example_accounts_dict[parentType][2], parentType, self.saveState)
 
                 # Account Summary Function (below) designed for use with example accounts.
                 summaryStatement = "CREATE TABLE IF NOT EXISTS Account_Summary(ID TEXT, ItemType TEXT, ParentType TEXT, SubType TEXT, Ticker_Symbol TEXT, Balance REAL)"
-                specific_sql_statement(summaryStatement, self.refUserDB, self.error_Logger)
-                self.account_details(parentType, toggle_example=False, subtype='')  # Subtype had no effect when not creating an example account
+                specific_sql_statement(summaryStatement, self.saveState, self.error_Logger)
+                self.account_details(parentType, self.saveState, toggle_example=False, subtype='')  # Subtype had no effect when not creating an example account
 
                 # Example accounts are great for debugging and testing. However, for actual users probably just annoying
                 # self.account_ledger(example_accounts_dict[parentType][0], parentType)
@@ -331,7 +331,7 @@ class AFBackbone(QMainWindow):
             exampleStatement = f"INSERT INTO Account_Summary VALUES('{accountName}', NULL, '{accountType}', NULL, NULL, '0.00')"
             specific_sql_statement(exampleStatement, self.refUserDB, self.error_Logger)
 
-    def account_details(self, parentType, toggle_example, subtype, accountName="Example_Account"):
+    def account_details(self, parentType, database, toggle_example, subtype, accountName="Example_Account"):
         """ Single use Function: Used to Create Parent Type Account Details Table, and Example Account Details
             These details are intended to be Parent Type specific while the Account Summary Table it more general
 
@@ -382,35 +382,35 @@ class AFBackbone(QMainWindow):
                 "Retirement": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', 'Alchemical Finances Bank', '1', 'AFB',  '1.0000')",
                 "Property": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', '123 Finance Street', 'County', 'State 91002', NULL)",
             }
-            specific_sql_statement(detailsTableDict[parentType], self.refUserDB, self.error_Logger)
-            if check_for_data(itemTypeDict[parentType][1], "Account_Name", accountName, self.refUserDB, self.error_Logger) is True:
-                specific_sql_statement(detailsValueDict[parentType], self.refUserDB, self.error_Logger)
-                specific_sql_statement(summaryStatement, self.refUserDB, self.error_Logger)
+            specific_sql_statement(detailsTableDict[parentType], database, self.error_Logger)
+            if check_for_data(itemTypeDict[parentType][1], "Account_Name", accountName, database, self.error_Logger) is True:
+                specific_sql_statement(detailsValueDict[parentType], database, self.error_Logger)
+                specific_sql_statement(summaryStatement, database, self.error_Logger)
         else:
-            specific_sql_statement(detailsTableDict[parentType], self.refUserDB, self.error_Logger)
+            specific_sql_statement(detailsTableDict[parentType], database, self.error_Logger)
 
-    def initial_categories(self, methodList, typeList):
+    def initial_categories(self, methodList, typeList, database):
         """ Single Use Function: Used to create the starting spending Categories for each Parent Type"""
-        create_table("Categories", ["Method", "ParentType", "Tabulate"], ["TEXT", "TEXT", "BOOL"], self.refUserDB, self.error_Logger)
-        if check_for_data("Categories", "ParentType", typeList[0], self.refUserDB, self.error_Logger) is True:
+        create_table("Categories", ["Method", "ParentType", "Tabulate"], ["TEXT", "TEXT", "BOOL"], database, self.error_Logger)
+        if check_for_data("Categories", "ParentType", typeList[0], database, self.error_Logger) is True:
             statementList = []
             for method in methodList:
                 for catType in typeList:
                     statement = f"INSERT INTO Categories VALUES('{method}', '{catType}', 'True')"
                     statementList.append(statement)
-            execute_sql_statement_list(statementList, self.refUserDB, self.error_Logger)
+            execute_sql_statement_list(statementList, database, self.error_Logger)
         else:
             pass
 
-    def account_subtypes(self, subTypes, parentType):
+    def account_subtypes(self, subTypes, parentType, database):
         """ Single Use Function: Used to create the starting list of Account Sub Types for each Parent Type"""
-        create_table("AccountSubType", ["SubType", "ParentType", "Tabulate"], ["TEXT", "TEXT", "BOOL"], self.refUserDB, self.error_Logger)
-        if check_for_data("AccountSubType", "ParentType", parentType, self.refUserDB, self.error_Logger) is True:
+        create_table("AccountSubType", ["SubType", "ParentType", "Tabulate"], ["TEXT", "TEXT", "BOOL"], database, self.error_Logger)
+        if check_for_data("AccountSubType", "ParentType", parentType, database, self.error_Logger) is True:
             statementList = []
             for account in subTypes:
                 dbStatement = f"INSERT INTO AccountSubType VALUES('{account}', '{parentType}', 'True')"
                 statementList.append(dbStatement)
-            execute_sql_statement_list(statementList, self.refUserDB, self.error_Logger)
+            execute_sql_statement_list(statementList, database, self.error_Logger)
         else:
             pass
 

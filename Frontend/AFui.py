@@ -274,7 +274,7 @@ class Ui_MainWindow(object):
         self.actionDebt.setText(_translate("MainWindow", "Debt", None))
         self.actionCredit_Cards.setText(_translate("MainWindow", "Credit Cards", None))
         self.actionCash.setText(_translate("MainWindow", "Cash", None))
-        self.actionSave.setText(_translate("MainWindow", "Save [Future]", None))
+        self.actionSave.setText(_translate("MainWindow", "Save", None))
         self.actionUserManual.setText(_translate("MainWindow", "User Manual", None))
         self.actionUserManual.setToolTip(_translate("MainWindow", "User Manual", None))
         self.actionAbout.setText(_translate("MainWindow", "About", None))

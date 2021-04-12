@@ -222,7 +222,7 @@ class Ui_AboutScreen(object):
         # Background
         self.staticBackground = QtWidgets.QLabel()
         self.staticBackground.setObjectName("staticBackground")
-        self.staticBackground.setText(" Program History")
+        self.staticBackground.setText(" Release Notes")
         self.staticBackground.setAlignment(QtCore.Qt.AlignLeft)
         self.staticBackground.setFont(static_font)
         self.vLayoutOne.addWidget(self.staticBackground)

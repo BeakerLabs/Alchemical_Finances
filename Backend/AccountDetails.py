@@ -127,7 +127,6 @@ class AccountsDetails(QDialog):
                              "', '" + self.ui.comboboxAT.currentText() + \
                              "', '" + self.ui.lEditPO.text() + \
                              "', '" + self.ui.lEditB.text() + \
-                             "', '" + str(self.ui.spinBStatement.value()) + \
                              "', '" + self.ui.lEditV1.text() + \
                              "', '" + self.ui.lEditV2.text() + \
                              "', '" + self.ui.comboboxState.currentText() + \
@@ -213,13 +212,11 @@ class AccountsDetails(QDialog):
                 self.ui.lEditV2.setText(str(account[6]))
 
             elif self.parentType in variant3:
-                spinBox = int(account[4])
-                self.ui.spinBStatement.setValue(spinBox)
-                self.ui.lEditV1.setText(str(account[5]))
-                self.ui.lEditV2.setText(str(account[6]))
-                comboState = account[7]
+                self.ui.lEditV1.setText(str(account[4]))
+                self.ui.lEditV2.setText(str(account[5]))
+                comboState = account[6]
                 self.find_combobox_text(self.ui.comboboxState, comboState)
-                self.ui.lEZipCode.setText(str(account[8]))
+                self.ui.lEZipCode.setText(str(account[7]))
 
             else:  # just a catch all
                 pass

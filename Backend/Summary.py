@@ -396,6 +396,16 @@ class Ledger_Summary(QDialog):
             else:
                 targetlabel.setText("  ($  " + modSubTotal + ")    ")
 
+    def obtain_liability_start(self, col, tableName, accountName):
+        startStatement = "SELECT " + col + " FROM " + tableName + " WHERE Account_Name='" + accountName + "'"
+        start_value_raw = obtain_sql_value(startStatement, self.refUserDB, self.error_Logger)
+        start_value = start_value_raw[0]
+
+        if start_value is None:
+            start_value = 0.00
+
+        return start_value
+
     def user_messages(self):
         accountStatement = "SELECT ID FROM Account_Summary"
         accountList = obtain_sql_list(accountStatement, self.refUserDB, self.error_Logger)

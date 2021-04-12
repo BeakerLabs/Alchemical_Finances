@@ -77,11 +77,10 @@ class LedgerV1(QDialog):
 
         if self.ui.comboBLedger1.currentText() == "":
             self.toggle_entire_ledger(False)
-        else:
-            fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
 
         # Prepare Spending By Category Data Representation.
         if self.parentType != "Property" and self.ui.comboBLedger1.currentText() != "":
+            fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
             sql_account = remove_space(self.ui.comboBLedger1.currentText())
             years, *_ = category_spending_data(self.refUserDB, sql_account, self.error_Logger)
             self.ui.comboBTab2Year.addItems(years)
@@ -89,10 +88,10 @@ class LedgerV1(QDialog):
 
         if self.parentType != "Property":
             self.ui.pBToggle.clicked.connect(self.toggle_dialog)
-
-        # Ledger Widget Functionality
-        self.ui.comboBLedger1.currentIndexChanged.connect(self.change_ledger1_account)
-        self.ui.comboBPeriod.currentIndexChanged.connect(self.display_ledger_1)
+            self.ui.comboBLedger1.currentIndexChanged.connect(self.change_ledger1_account)
+            self.ui.comboBPeriod.currentIndexChanged.connect(self.display_ledger_1)
+        else:
+            self.ui.comboBLedger1.currentIndexChanged.connect(self.display_ledger_1)
 
         self.ui.DateEditTransDate.setDate(QDate.currentDate())
         self.ui.rBPending.setChecked(True)
@@ -112,12 +111,14 @@ class LedgerV1(QDialog):
         self.ui.pBDeleteReceipt.clicked.connect(self.delete_receipt_action)
 
         if self.parentType == "Property":
+            self.ui.comboBPeriod.setHidden(True)
             image_result = self.display_house_image()
             if image_result is True:
                 self.ui.pBUploadHouse.setEnabled(False)
                 self.ui.pBDeleteHouse.setEnabled(True)
             self.ui.pBUploadHouse.clicked.connect(self.upload_house_button)
             self.ui.pBDeleteHouse.clicked.connect(self.delete_house_action)
+            self.display_ledger_1()
 
         self.change_ledger1_account()
 
@@ -138,9 +139,10 @@ class LedgerV1(QDialog):
 
             self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
             fill_widget(self.ui.comboBLedger1, self.comboBoxAccountStatement, True, self.refUserDB, self.error_Logger)
-            if self.ui.comboBLedger1.currentText() != "":
+            if self.ui.comboBLedger1.currentText() != "" and self.parentType != "Property":
                 fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
                 self.toggle_entire_ledger(True)
+
             elif self.ui.comboBLedger1.currentText() == "":
                 self.toggle_entire_ledger(False)
 
@@ -328,12 +330,12 @@ class LedgerV1(QDialog):
             pass
         else:
             self.ui.comboBPeriod.clear()
-            fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
 
         if self.parentType != "Property":
             self.ui.comboBTab2Year.clear()
+            fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
 
-        if self.ui.comboBLedger1.currentText() != "":
+        if self.ui.comboBLedger1.currentText() != "" and self.parentType != "Property":
             sql_account = remove_space(self.ui.comboBLedger1.currentText())
             years, *_ = category_spending_data(self.refUserDB, sql_account, self.error_Logger)
             self.ui.comboBTab2Year.addItems(years)
@@ -341,12 +343,13 @@ class LedgerV1(QDialog):
             self.set_variable2B()
             # Spending_tab1 should auto update due to change in the combobox due to new account
             # Spending_tab2 should auto update due to change in the combobox due to new account
+            self.update_spending_tab("Year")
             self.update_spending_tab("Overall")
 
     def display_ledger_1(self):
         ledger = self.ui.comboBLedger1.currentText()
         statement = self.ui.comboBPeriod.currentText()
-        if ledger == "" or statement == "":
+        if ledger == "" or statement == "" and self.parentType != "Property":
             self.ui.tableWLedger1.clearContents()
             self.ui.lAccountBalance.setText("$ 0.00")
             self.ui.lStatementGraph.setText("Spending During TBD")
@@ -357,19 +360,14 @@ class LedgerV1(QDialog):
                     label.setText("")
 
         else:
-            parentType_statement = f"SELECT ParentType FROM Account_Summary WHERE ID='{ledger}'"
-            parentType_value = obtain_sql_value(parentType_statement, self.refUserDB, self.error_Logger)
-            parentType_value = parentType_value[0]
-
-            self.ui.lStatementGraph.setText(f"Spending During {self.ui.comboBPeriod.currentText()}")
-
-            if parentType_value in ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit", "Property"]:
-                disp_LedgerV1_Table(self.ui.comboBLedger1, self.ui.comboBPeriod, self.ui.tableWLedger1, self.refUserDB, self.error_Logger)
+            if self.parentType in ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit", "Property"]:
+                disp_LedgerV1_Table(self.ui.comboBLedger1, self.ui.comboBPeriod, self.parentType, self.ui.tableWLedger1, self.refUserDB, self.error_Logger)
             else:
                 error = "Parent Type doesn't belong with this ledger"
                 self.input_error_msg(error)
 
         if self.parentType != "Property":
+            self.ui.lStatementGraph.setText(f"Spending During {self.ui.comboBPeriod.currentText()}")
             self.update_spending_tab("Statement")
 
     def transaction_refresh(self):

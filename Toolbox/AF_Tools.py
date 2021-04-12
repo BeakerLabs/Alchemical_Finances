@@ -10,7 +10,7 @@ from Toolbox.Formatting_Tools import cash_format, decimal_places, remove_space
 from Toolbox.SQL_Tools import obtain_sql_value, obtain_sql_list, specific_sql_statement
 
 
-def disp_LedgerV1_Table(account_combobox, statement_combobox, tablewidget, database, error_log):
+def disp_LedgerV1_Table(account_combobox, statement_combobox, parentType, tablewidget, database, error_log):
     """
     Function used to display a given [non equity] account in the tablewidget of Ledger1.
     Function resides in a toolbox to allow access for Ledger 1 and the Archive.
@@ -20,7 +20,6 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, tablewidget, datab
     :param database:
     :return: Displays Table
     """
-
     tablewidget.setRowCount(0)
     centered = [0, 3]
     ledgerName = account_combobox.currentText()
@@ -40,7 +39,11 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, tablewidget, datab
 
         # 0 - TDate 1 - TMeth 2 - TDesc 3 - Cat 4 - Amount 5 - balance 6 - Status - 7 - Receipt - 8 Notes - 9 Date
         complete_ledger = obtain_sql_list(sortTable, database, error_log)
-        target_transactions = statement_range(complete_ledger, month)
+        if parentType != "Property":
+            target_transactions = statement_range(complete_ledger, month)
+        else:
+            target_transactions = complete_ledger
+
         tablewidget.setColumnCount(11)
 
         for data_point in target_transactions:
