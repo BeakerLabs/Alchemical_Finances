@@ -7,6 +7,7 @@ Future Concepts
 """
 
 import os
+import shutil
 import sqlite3
 
 from pathlib import Path
@@ -45,7 +46,12 @@ class AFBackbone(QMainWindow):
         self.dbPathway = Path.cwd() / self.dbPathway / "UAInformation.db"
         self.refUser = user
         self.switchCheck = int(messageCount)
-        self.refUserDB = None
+
+        # This will hold the saved version of the database
+        self.saveState = None
+
+        # A true saveToggle equates to being saved.
+        self.saveToggle = False
         # Data Check is a Legacy Variable that isn't in use.
         self.dataCheck = None
 
@@ -59,6 +65,7 @@ class AFBackbone(QMainWindow):
         self.ui.actionSummary.triggered.connect(lambda: self.switch_tab("Summary"))
         self.ui.actionGenerate.triggered.connect(lambda: user_report_request(self.refUserDB, self.refUser, self.error_Logger))
         self.ui.actionNWG.triggered.connect(lambda: self.switch_tab("OTG"))
+        self.ui.actionSave.triggered.connect(lambda: self.save_database(close=False))
         self.ui.actionClose.triggered.connect(self.close_app)
         # -- Assets - Bank, Equity, Retirement, CD, TB
         self.ui.actionBank.triggered.connect(lambda: self.switch_tab("Bank"))
@@ -114,7 +121,13 @@ class AFBackbone(QMainWindow):
             execute_sql_statement_list([archiveStatement,
                                         nw_graph_statement,
                                         ov_graph_statement,
-                                        contribution_graph_statement], self.refUserDB, self.error_Logger)
+                                        contribution_graph_statement], self.saveState, self.error_Logger)
+
+        # Swap over to temporary Database
+        # This will hold the temporary/active version of the database
+        temp_pathway = self.saveState[:-3] + "-temp.db"
+        shutil.copyfile(self.saveState, temp_pathway)
+        self.refUserDB = temp_pathway
 
         # Initialize appearance upon Loading
         # update_stock_price(self.refUserDB)
@@ -164,9 +177,9 @@ class AFBackbone(QMainWindow):
         try:
             with open(databaseFN_Pathway, mode="rb") as f:
                 codedDN = f.read()
-                self.refUserDB = codedDN.decode('utf-8')
+                self.saveState = codedDN.decode('utf-8')
                 # DataCheck is legacy Variable not currently in use.
-                self.dataCheck = ("Opened File: " + self.refUserDB + " User Key: "
+                self.dataCheck = ("Opened File: " + self.saveState + " User Key: "
                                   + key + " User Name: " + str(self.refUser))
                 f.close()
                 return False
@@ -175,9 +188,9 @@ class AFBackbone(QMainWindow):
                 databaseN_Pathway_string = str(databaseN_Pathway)
                 nf.write(databaseN_Pathway_string.encode('utf-8'))
                 nf.close()
-                self.refUserDB = databaseN_Pathway_string
+                self.saveState = databaseN_Pathway_string
                 # DataCheck is legacy Variable not currently in use.
-                self.dataCheck = ("New File Made: " + str(self.refUserDB))
+                self.dataCheck = ("New File Made: " + str(self.saveState))
                 return True
 
     def create_db_name(self):
@@ -199,6 +212,31 @@ class AFBackbone(QMainWindow):
         databaseName = databaseName + ".db"
         return databaseName
 
+    def save_database(self, close=False):
+        if not self.saveToggle:
+            save_mesg = "Do you wish to save your current information?"
+            reply = QMessageBox.question(self, "Save Account", save_mesg, QMessageBox.Yes, QMessageBox.Cancel)
+            if reply == QMessageBox.Yes:
+                shutil.copyfile(self.refUserDB, self.saveState)
+                complete_mesg = "You work has been saved."
+                done = QMessageBox.information(self, "Save Complete", complete_mesg, QMessageBox.Close, QMessageBox.NoButton)
+                if done == QMessageBox.Close:
+                    self.saveToggle = True
+            else:
+                if close:
+                    doubleCheck = "Are you sure?"
+                    usercheck = QMessageBox.question(self, "Save Before Close", doubleCheck, QMessageBox.Yes, QMessageBox.No)
+                    if usercheck == QMessageBox.Yes:
+                        pass
+                    else:
+                        self.save_database(close=True)
+
+        else:
+            unnecessary = "Your information was already saved."
+            done = QMessageBox.information(self, "Save Complete", unnecessary, QMessageBox.Close, QMessageBox.NoButton)
+            if done == QMessageBox.Close:
+                pass
+
     def close_app(self):
         quit_msg = "Are you sure you want to quit the program?"
         reply = QMessageBox.question(self, 'Quit Message', quit_msg, QMessageBox.Yes, QMessageBox.Cancel)
@@ -211,7 +249,13 @@ class AFBackbone(QMainWindow):
         event.ignore()
         snapshot = set_networth(self.refUserDB, "Account_Summary", toggleformatting=False)
         self.log_netWorth(snapshot, "Logout")
-        event.accept()
+
+        if self.saveToggle:
+            event.accept()
+        else:
+            self.save_database(close=True)
+            os.remove(self.refUserDB)
+            event.accept()
 
     def switch_tab(self, parentType):
         type1 = ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit", "Property"]
@@ -505,6 +549,7 @@ class AFBackbone(QMainWindow):
             self.ui.labelNW.setText(netWorth[1])
             self.ui.labelTAssests.setText(netWorth[2])
             self.ui.labelTLiabilities.setText(netWorth[3])
+            self.saveToggle = False
             self.trigger_refresh_summer()
         else:
             pass

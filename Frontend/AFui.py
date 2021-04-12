@@ -239,7 +239,6 @@ class Ui_MainWindow(object):
         self.menuLiabilities.addAction(self.actionCredit_Cards)
 
         self.menuTools.addAction(self.actionArchive)
-        self.menuTools.addAction(self.actionReports_Future)
         self.menuTools.addAction(self.actionBudgeting_Future)
         self.menuAbout.addAction(self.actionUserManual)
         self.menuAbout.addAction(self.actionAbout)
