@@ -14,6 +14,7 @@ from Toolbox.Error_Tools import check_characters, spacing_check
 from Toolbox.Formatting_Tools import gen_rand_str
 from Toolbox.SQL_Tools import attempt_sql_statement, obtain_sql_value, specific_sql_statement, sqlite3_keyword_check
 from Toolbox.OS_Tools import file_destination
+from StyleSheets.Standard import *
 
 
 class LoginForm(QDialog):
@@ -40,23 +41,36 @@ class LoginForm(QDialog):
         self.error_Logger = error_Log
 
         # Appearance Modifiers
+        self.setStyleSheet(standardAppearance)
+        self.ui.r2frame.setStyleSheet(loginTitleFrame)
         self.show()
 
     """ Button Functions """
     def quit_app(self):
         self.close()
 
-    # def dialog_appearance(self, condition):
-    #     if condition == "initial":  #Initial
-    #         pass
-    #     if condition == "LogError":  # user_login
-    #         pass
-    #     if condition == "New":  # submit_profile
-    #         pass
-    #     if condition == "NewError":  # New_Profile_Error
-    #         pass
-    #     elif condition == "NewLabel":  # New_Profile_Accepted
-    #         pass
+    def dialog_appearance(self, condition):
+        if condition == "initial":  # Initial
+            self.ui.lineEditPassword.setStyleSheet(standardAppearance)
+            self.ui.lineEditConfirmPassword.setStyleSheet(standardAppearance)
+            self.ui.lineEditUserProfile.setStyleSheet(standardAppearance)
+        if condition == "LogError":  # user_login
+            self.ui.lineEditUserProfile.setStyleSheet(generalError)
+            self.ui.lineEditPassword.setStyleSheet(generalError)
+            self.ui.labelResponse.setStyleSheet(generalError)
+        if condition == "New":  # submit_profile
+            self.ui.lineEditPassword.setStyleSheet(standardAppearance)
+            self.ui.lineEditUserProfile.setStyleSheet(standardAppearance)
+        if condition == "NewError":  # New_Profile_Error
+            self.ui.lineEditUserProfile.setStyleSheet(generalError)
+            self.ui.lineEditPassword.setStyleSheet(generalError)
+            self.ui.lineEditConfirmPassword.setStyleSheet(generalError)
+            self.ui.labelResponse.setStyleSheet(generalError)
+        elif condition == "NewLabel":  # New_Profile_Accepted
+            self.ui.lineEditUserProfile.setStyleSheet(standardAppearance)
+            self.ui.lineEditPassword.setStyleSheet(standardAppearance)
+            self.ui.lineEditConfirmPassword.setStyleSheet(standardAppearance)
+            self.ui.labelResponse.setStyleSheet(standardAppearance)
 
     def user_login(self):
         from datetime import datetime
@@ -66,8 +80,8 @@ class LoginForm(QDialog):
         lookupResult = obtain_sql_value(lookupStatement, self.dbPathway, self.error_Logger)
         dateStatement = f"UPDATE Users SET Last_Visit='{currentDate}' WHERE Profile='{self.ui.lineEditUserProfile.text().lower()}'"
         if lookupResult is None:
-            self.ui.labelResponse.setText("Profile & Password Do Not Match.\n Create New User?")
-            # Change appearance here
+            self.ui.labelResponse.setText("Profile & Password Do Not Match: Create New User?")
+            self.dialog_appearance("LogError")
         else:
             specific_sql_statement(dateStatement, self.dbPathway, self.error_Logger)
             print('Jacob has a golden spork')
@@ -88,6 +102,8 @@ class LoginForm(QDialog):
             self.ui.labelUserProfile.setText("Profile Name:")
             self.ui.labelPassword.setText("Password:")
 
+        self.dialog_appearance("initial")
+        self.ui.labelResponse.setText("")
         self.ui.pushButtonLogin.setEnabled(a)
         self.ui.pushButtonLogin.setHidden(b)
         self.ui.pushButtonQuit.setEnabled(a)
@@ -106,25 +122,25 @@ class LoginForm(QDialog):
     def submit_profile(self):
         if self.ui.lineEditPassword.text() != self.ui.lineEditConfirmPassword.text():
             self.ui.labelResponse.setText("Passwords Do Not Match")
-            # Change appearance here
+            self.dialog_appearance("NewError")
         elif len(self.ui.lineEditPassword.text()) < 6:
-            self.ui.labelResponse.setText("Password Rule:\n Greater than 6 Characters")
-            # Change appearance here
+            self.ui.labelResponse.setText("Password Rule: Greater than 6 Characters")
+            self.dialog_appearance("NewError")
         elif isinstance(self.ui.lineEditUserProfile.text(), str) is False:
             self.ui.labelResponse.setText("Profile Names are not Soley Numerical")
-            # Change appearance here
+            self.dialog_appearance("NewError")
         elif spacing_check(self.ui.lineEditUserProfile.text()) is False:
-            self.ui.labelResponse.setText("Profile Name Formatted Wrong: \n No Blank Spaces")
-            # Change appearance here
+            self.ui.labelResponse.setText("Profile Name Formatted Wrong: No Blank Spaces")
+            self.dialog_appearance("NewError")
         elif check_characters(self.ui.lineEditUserProfile.text(), "login") is False:
             self.ui.labelResponse.setText("Password must be alphanumeric")
-            # Change appearance here
+            self.dialog_appearance("NewError")
         elif spacing_check(self.ui.lineEditPassword.text()) is False:
-            self.ui.labelResponse.setText("Password Formatted Wrong: \n No Blank Spaces")
-            # Change appearance here
+            self.ui.labelResponse.setText("Password Formatted Wrong: No Blank Spaces")
+            self.dialog_appearance("NewError")
         elif sqlite3_keyword_check(self.ui.lineEditUserProfile.text()) is True:
-            self.ui.labelResponse.setText("Restricted Keyword: \n Use different Profile Name")
-            # Change appearance here
+            self.ui.labelResponse.setText("Restricted Keyword: Use different Profile Name")
+            self.dialog_appearance("NewError")
         else:
             if self.profile_check() is True:
                 self.add_user()
@@ -133,6 +149,7 @@ class LoginForm(QDialog):
                 self.error_Logger.error(error_string)
 
     def cancel_profile(self):
+        self.dialog_appearance("initial")
         self.ui.pushButtonLogin.setEnabled(True)
         self.ui.pushButtonLogin.setHidden(False)
         self.ui.pushButtonQuit.setEnabled(True)
@@ -146,12 +163,13 @@ class LoginForm(QDialog):
         self.ui.pushButtonCancel.setHidden(True)
         self.ui.pushButtonNewProfile.setEnabled(True)
         self.ui.pushButtonNewProfile.setHidden(False)
-        self.ui.labelUserProfile.setText("New Profile Name:")
+        self.ui.labelUserProfile.setText("Profile Name:")
         self.ui.lineEditUserProfile.setText("")
-        self.ui.labelPassword.setText("New Password:")
+        self.ui.labelPassword.setText("Password:")
         self.ui.lineEditPassword.setText("")
         self.ui.lineEditConfirmPassword.setText("")
         self.ui.lineEditUserProfile.setFocus()
+        self.ui.labelResponse.setText("")
 
     def table_check(self):
         creationStatement = "CREATE TABLE IF NOT EXISTS Users(Profile TEXT, Password TEXT, UserKey TEXT, Message INTEGER, Creation TEXT, Last_Visit TEXT)"
@@ -164,7 +182,7 @@ class LoginForm(QDialog):
         if checkResult is True:
             return True
         else:
-            # change appearance here
+            self.dialog_appearance("NewError")
             self.ui.labelResponse.setText("Username Already in Use")
             return False
 
@@ -179,7 +197,7 @@ class LoginForm(QDialog):
             self.new_profile_appearance(False)
             return True
         else:
-            # change appearance here
+            self.dialog_appearance("NewLabel")
             self.ui.labelResponse.setText("Error Occurred: \nPlease Retry")
             return False
 

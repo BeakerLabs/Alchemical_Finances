@@ -5,14 +5,11 @@ Future Concepts
 1)
 
 """
-import sys
 
 from PySide6 import QtGui, QtCore, QtWidgets
 from PySide6.QtWidgets import QDialog, QFrame, QVBoxLayout, QLabel, QSizePolicy, QSpacerItem, QProgressBar
 from PySide6.QtCore import Slot
 
-# from Frontend.StyleSheets import messagesheet, innerframesheet, progressSheet, parentypeSheet, colheadersheet, subtotalsheet,\
-#     accountsheet
 from Frontend.SummaryUi import Ui_Summary
 
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
@@ -20,6 +17,7 @@ from Toolbox.Formatting_Tools import add_comma, cash_format, decimal_places, rem
 from Toolbox.AF_Tools import set_font
 
 # from Backend.BuildGraphs import nested_snapshot, AF_Canvas
+from StyleSheets.Standard import *
 
 
 class Ledger_Summary(QDialog):
@@ -31,12 +29,17 @@ class Ledger_Summary(QDialog):
         self.ui.setupUi(self)
         self.refUserDB = database
         self.summaryTuple = None
+        self.summaryFrame_width = self.ui.frameSummary.geometry().width()
+        self.progress_width = self.summaryFrame_width * (2/3)
+        self.row = 0
         # label dictionary[AccountName] = label for Account Balances
         self.balancelabeldic = {}
         # label dictionary[ParentType] = label for SubType Balances
         self.subtotaldic = {}
         # label dictionary[AccountName] = label for ProgressBar
         self.progBardic = {}
+        # vBoxLayout dicionary[ParentType] = layout for Accounts
+        self.accountLayoutdic = {}
         self.updateMessages = []
 
         # Program Error Log
@@ -59,7 +62,11 @@ class Ledger_Summary(QDialog):
                            + """ORDER BY "ItemType", "ParentType", "SubType", "Balance" DESC LIMIT 0, 49999"""
         self.summaryTuple = obtain_sql_list(summaryStatement, self.refUserDB, self.error_Logger)
         self.generate_summary()
-
+        self.setStyleSheet(backgroundColor)
+        self.ui.lAsset.setStyleSheet(parentFormat)
+        self.ui.lLiability.setStyleSheet(parentFormat)
+        self.ui.frameAGraph.setStyleSheet(backgroundColor)
+        self.ui.frameLGraph.setStyleSheet(backgroundColor)
         parent.refresh_signal_summary.connect(self.refresh_summary)
 
     def set_formatting(self, target, font, Alignment, stylesheet):
@@ -70,8 +77,6 @@ class Ledger_Summary(QDialog):
         target.setStyleSheet(stylesheet)
 
     def generate_summary(self):
-        summaryFrame_width = self.ui.frameSummary.geometry().width()
-        row = 0
         subTotal = 0
 
         listofBank = [account for account in self.summaryTuple if "Bank" in account]
@@ -89,7 +94,7 @@ class Ledger_Summary(QDialog):
             "Cash": listofCash,
             "Certificate of Deposit": listofCD,
             "Equity": listofEquity,
-            "Treasury Bonds": listofTreasury,
+            "Treasury": listofTreasury,
             "Property": listofProperty,
             "Retirement": listofRetirement,
             "Credit": listofCredit,
@@ -109,14 +114,14 @@ class Ledger_Summary(QDialog):
 
         lMessage.setFont(messagefont)
         lMessage.setAlignment(QtCore.Qt.AlignBottom|QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft)
-        lMessage.setFrameShape(QFrame.Panel)
-        lMessage.setFrameShadow(QFrame.Plain)
+        lMessage.setStyleSheet(messageFormat)
         self.ui.vBLayout5.addWidget(lMessage)
         lMessage.hide()
         self.updateMessages.append(lMessage)
 
-        row += 1
+        self.row += 1
 
+        # Part 1 of Cycle adds Parent Type Header Label
         for parentType in parentType_dict:
             listofAccounts = parentType_dict[parentType]
             if len(listofAccounts) > 0:
@@ -127,13 +132,14 @@ class Ledger_Summary(QDialog):
                 parentfont = QtGui.QFont()
                 set_font(parentfont, 24, True, False)
 
-                lParent.setFont(parentfont)
+                self.set_formatting(lParent, parentfont, QtCore.Qt.AlignLeft, parentFormat)
                 self.ui.vBLayout5.addWidget(lParent)
 
-                row += 1
+                self.row += 1
 
+                # Part 2 of Cycle adds Column Labels for the Parent Type
                 self.headerhBoxLayout = QtWidgets.QHBoxLayout()
-                self.headerhBoxLayout.setObjectName(f"headerBoxLayoutrow{row}")
+                self.headerhBoxLayout.setObjectName(f"headerBoxLayoutrow{self.row}")
                 self.ui.vBLayout5.addLayout(self.headerhBoxLayout)
 
                 lColheader1 = QLabel(self)
@@ -141,17 +147,17 @@ class Ledger_Summary(QDialog):
                 lColheader1.setText("Account Name")
 
                 headerfont = QtGui.QFont()
-                set_font(headerfont, 16, True, True)
+                set_font(headerfont, 16, True, False)
 
                 lColheader1.setFont(headerfont)
-                # self.set_formatting(lColheader1, headerfont, QtCore.Qt.AlignHCenter, colheadersheet)
+                self.set_formatting(lColheader1, headerfont, QtCore.Qt.AlignHCenter, columnHeader)
                 self.headerhBoxLayout.addWidget(lColheader1)
 
                 lColheader2 = QLabel(self)
                 lColheader2.setObjectName("labelAT" + parentType + "header")
                 lColheader2.setText("Account Type")
                 lColheader2.setFont(headerfont)
-                # self.set_formatting(labelColheader2, headerfont, QtCore.Qt.AlignHCenter, colheadersheet)
+                self.set_formatting(lColheader2, headerfont, QtCore.Qt.AlignHCenter, columnHeader)
                 self.headerhBoxLayout.addWidget(lColheader2)
 
                 if parentType in ["Equity", "Retirement"]:
@@ -159,25 +165,33 @@ class Ledger_Summary(QDialog):
                     lColheaderShares.setObjectName(f"labelSB{parentType}header")
                     lColheaderShares.setText("Share Balance")
                     lColheaderShares.setFont(headerfont)
+                    self.set_formatting(lColheaderShares, headerfont, QtCore.Qt.AlignHCenter, columnHeader)
                     self.headerhBoxLayout.addWidget(lColheaderShares)
 
                 lColheader3 = QLabel(self)
                 lColheader3.setObjectName("labelB" + parentType + "header")
                 lColheader3.setText("Balance")
                 lColheader3.setFont(headerfont)
-                # self.set_formatting(labelColheader3, headerfont, QtCore.Qt.AlignHCenter, colheadersheet)
+                self.set_formatting(lColheader3, headerfont, QtCore.Qt.AlignHCenter, columnHeader)
                 self.headerhBoxLayout.addWidget(lColheader3)
 
-                row += 1
+                self.row += 1
+
+                # Part 3 adds a VBoxLayout to add all of the account labels to
+                self.accountVBoxLayout = QtWidgets.QVBoxLayout()
+                self.accountVBoxLayout.setObjectName(f"{self.row}VBoxLayout{parentType}")
+                self.accountLayoutdic[parentType] = self.accountVBoxLayout
+                self.ui.vBLayout5.addLayout(self.accountVBoxLayout)
 
                 for account in listofAccounts:
                     accountID = remove_space(account[3])
 
+                    # Part 3b adds a HBoxLayout per account in the Parent Type
                     self.accountHBoxLayout = QtWidgets.QHBoxLayout()
-                    self.accountHBoxLayout.setObjectName(f"{accountID}BoxLayoutrow{row}")
-                    self.ui.vBLayout5.addLayout(self.accountHBoxLayout)
+                    self.accountHBoxLayout.setObjectName(f"{accountID}BoxLayoutrow{self.row}")
+                    self.accountVBoxLayout.addLayout(self.accountHBoxLayout)
 
-                    # [A/L, ParentType, Subtype, ID, Balance]
+                    # [Asset/Liability, ParentType, Subtype, ID, Balance]
 
                     verticalSpacer = QSpacerItem(0, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
                     self.accountHBoxLayout.addItem(verticalSpacer)
@@ -189,16 +203,17 @@ class Ledger_Summary(QDialog):
                     lID.setObjectName(f"labelAN{accountID}")
                     lID.setText(account[3].title())
                     lID.setFont(accountFont)
-                    lID.setAlignment(QtCore.Qt.AlignVCenter|QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft)
-                    # labelID.setStyleSheet(accountsheet)
+                    lID.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft)
+                    lID.setStyleSheet(accountDetails)
+                    lID.setWordWrap(True)
                     self.accountHBoxLayout.addWidget(lID)
 
                     lSubType = QLabel(self)
                     lSubType.setObjectName(f"labelAT{accountID}")
                     lSubType.setText(account[2].title())
                     lSubType.setFont(accountFont)
-                    lSubType.setAlignment(QtCore.Qt.AlignVCenter|QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft)
-                    # lSubType.setStyleSheet(accountsheet)
+                    lSubType.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignHCenter)
+                    lSubType.setStyleSheet(accountDetails)
                     self.accountHBoxLayout.addWidget(lSubType)
 
                     if parentType in ["Equity", "Retirement"]:
@@ -213,7 +228,8 @@ class Ledger_Summary(QDialog):
                         lShareBalance.setObjectName(f"lShareBalance{accountID}")
                         lShareBalance.setText(str(shareBalance))
                         lShareBalance.setFont(accountFont)
-                        lShareBalance.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft)
+                        lShareBalance.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignHCenter)
+                        lShareBalance.setStyleSheet(accountDetails)
                         self.accountHBoxLayout.addWidget(lShareBalance)
 
                     lBalance = QLabel(self)
@@ -234,18 +250,19 @@ class Ledger_Summary(QDialog):
 
                     lBalance.setFont(accountFont)
                     lBalance.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignRight)
+                    lBalance.setStyleSheet(accountDetails)
                     self.accountHBoxLayout.addWidget(lBalance)
 
-                    row += 1
+                    self.row += 1
 
-                    self.accountHBoxLayout = QtWidgets.QHBoxLayout()
-                    self.accountHBoxLayout.setObjectName(f"{accountID}BoxLayoutrow{row}")
-                    self.ui.vBLayout5.addLayout(self.accountHBoxLayout)
-
+                    # Part 3C adds a progress bar for the Debt and Credit accounts
                     if parentType == "Debt" or parentType == "Credit":
-                        progress_width = summaryFrame_width * (2 / 3)
-                        self.hSpacer = QtWidgets.QSpacerItem(progress_width, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-                        self.accountHBoxLayout.addItem(self.hSpacer)
+                        self.progressHBoxLayout = QtWidgets.QHBoxLayout()
+                        self.progressHBoxLayout.setObjectName(f"{accountID}BoxLayoutrow{self.row}")
+                        self.accountVBoxLayout.addLayout(self.progressHBoxLayout)
+
+                        self.hSpacer = QtWidgets.QSpacerItem(self.progress_width, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+                        self.progressHBoxLayout.addItem(self.hSpacer)
 
                         labelprogress = QLabel(self)
                         labelprogress.setObjectName("labelProg" + accountID)
@@ -257,7 +274,7 @@ class Ledger_Summary(QDialog):
                         set_font(progressfont, 12, True, False)
                         labelprogress.setFont(progressfont)
                         labelprogress.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignRight)
-                        self.accountHBoxLayout.addWidget(labelprogress)
+                        self.progressHBoxLayout.addWidget(labelprogress)
 
                         debtprogressBar = QProgressBar(self)
                         debtprogressBar.setMinimum(0)
@@ -280,17 +297,17 @@ class Ledger_Summary(QDialog):
                         debtprogressBar.setObjectName("progressBar" + accountID)
                         # label dictionary[AccountName] = label for ProgressBar
                         self.progBardic[account[3]] = debtprogressBar
-                        self.accountHBoxLayout.addWidget(debtprogressBar)
+                        self.progressHBoxLayout.addWidget(debtprogressBar)
 
-                    row += 1
+                    self.row += 1
 
-                self.accountHBoxLayout = QtWidgets.QHBoxLayout()
-                self.accountHBoxLayout.setObjectName(f"{accountID}BoxLayoutrow{row}")
-                self.ui.vBLayout5.addLayout(self.accountHBoxLayout)
+                self.subTotalHBoxLayout = QtWidgets.QHBoxLayout()
+                self.subTotalHBoxLayout.setObjectName(f"{accountID}BoxLayoutrow{self.row}")
+                self.ui.vBLayout5.addLayout(self.subTotalHBoxLayout)
 
-                subtotalSpacer_width = summaryFrame_width * (2/3)
+                subtotalSpacer_width = self.summaryFrame_width * (2/3)
                 self.hSpacer = QtWidgets.QSpacerItem(subtotalSpacer_width, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-                self.accountHBoxLayout.addItem(self.hSpacer)
+                self.subTotalHBoxLayout.addItem(self.hSpacer)
 
                 labelTotal = QLabel(self)
                 labelTotal.setObjectName("label" + parentType + "total")
@@ -299,7 +316,7 @@ class Ledger_Summary(QDialog):
                 set_font(totalfont, 16, True, False)
                 labelTotal.setFont(totalfont)
                 labelTotal.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignRight)
-                self.accountHBoxLayout.addWidget(labelTotal)
+                self.subTotalHBoxLayout.addWidget(labelTotal)
 
                 labelSubTotal = QLabel(self)
                 labelSubTotal.setObjectName("label" + parentType + "Subtotal")
@@ -312,19 +329,140 @@ class Ledger_Summary(QDialog):
                 subTotal = cash_format(subTotal, 2)
                 labelSubTotal.setText(subTotal[2])
 
-                labelSubTotal.setFont(accountFont)
+                labelSubTotal.setFont(totalfont)
                 labelSubTotal.setFrameShape(QFrame.Panel)
                 labelSubTotal.setFrameShadow(QFrame.Sunken)
                 labelSubTotal.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignRight)
-                # labelSubTotal.setStyleSheet(subtotalsheet)
-                self.accountHBoxLayout.addWidget(labelSubTotal)
+                labelSubTotal.setStyleSheet(subtotalBalanceFormat)
+                self.subTotalHBoxLayout.addWidget(labelSubTotal)
 
-                row += 1
+                self.row += 1
                 subTotal = 0
             else:
                 pass
 
     def refresh_balance_labels(self):
+        current_accounts_statement = f"SELECT ItemType, ParentType, SubType, ID, Balance FROM Account_Summary"
+        current_accounts_raw = obtain_sql_list(current_accounts_statement, self.refUserDB, self.error_Logger)
+
+        for account in current_accounts_raw:
+            if account[3] in self.balancelabeldic:
+                current_accounts_raw.remove(account)
+
+        if len(current_accounts_raw) > 0:
+            for account in current_accounts_raw:
+                target_layout = self.accountLayoutdic[account[1]]
+                self.row += 1
+                parentType = account[1]
+                accountID = remove_space(account[3])
+
+                self.accountHBoxLayout = QtWidgets.QHBoxLayout()
+                self.accountHBoxLayout.setObjectName(f"{accountID}BoxLayoutrow{self.row}")
+                target_layout.addLayout(self.accountHBoxLayout)
+
+                # [Asset/Liability, ParentType, Subtype, ID, Balance]
+                verticalSpacer = QSpacerItem(0, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
+                self.accountHBoxLayout.addItem(verticalSpacer)
+
+                accountFont = QtGui.QFont()
+                set_font(accountFont, 16, False, False)
+
+                lID = QLabel(self)
+                lID.setObjectName(f"labelAN{accountID}")
+                lID.setText(account[3].title())
+                lID.setFont(accountFont)
+                lID.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft)
+                lID.setStyleSheet(accountDetails)
+                self.accountHBoxLayout.addWidget(lID)
+
+                lSubType = QLabel(self)
+                lSubType.setObjectName(f"labelAT{accountID}")
+                lSubType.setText(account[2].title())
+                lSubType.setFont(accountFont)
+                lSubType.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft)
+                lSubType.setStyleSheet(accountDetails)
+                self.accountHBoxLayout.addWidget(lSubType)
+
+                if parentType in ["Equity", "Retirement"]:
+                    shareBalance_Statement = f"SELECT SUM(Purchased - Sold) FROM {accountID}"
+                    shareBalance_raw = obtain_sql_value(shareBalance_Statement, self.refUserDB, self.error_Logger)
+                    if shareBalance_raw[0] is None:
+                        shareBalance_checked = 0
+                    else:
+                        shareBalance_checked = shareBalance_raw[0]
+                    shareBalance = decimal_places(shareBalance_checked, 4)
+                    lShareBalance = QLabel(self)
+                    lShareBalance.setObjectName(f"lShareBalance{accountID}")
+                    lShareBalance.setText(str(shareBalance))
+                    lShareBalance.setFont(accountFont)
+                    lShareBalance.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft)
+                    lShareBalance.setStyleSheet(accountDetails)
+                    self.accountHBoxLayout.addWidget(lShareBalance)
+
+                lBalance = QLabel(self)
+                lBalance.setObjectName("labelBal" + accountID)
+                self.balancelabeldic[account[3]] = lBalance
+
+                if account[0] == "Liability":
+                    raw_Balance = - account[4]
+                else:
+                    raw_Balance = account[4]
+
+                raw_Balance = float(raw_Balance)
+                balance_formatted = cash_format(raw_Balance, 2)
+                lBalance.setText(balance_formatted[2])
+
+                lBalance.setFont(accountFont)
+                lBalance.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignRight)
+                lBalance.setStyleSheet(accountDetails)
+                self.accountHBoxLayout.addWidget(lBalance)
+
+                self.row += 1
+
+                if parentType == "Debt" or parentType == "Credit":
+                    self.progressHBoxLayout = QtWidgets.QHBoxLayout()
+                    self.progressHBoxLayout.setObjectName(f"{accountID}BoxLayoutrow{self.row}")
+                    target_layout.addLayout(self.progressHBoxLayout)
+
+                    self.hSpacer = QtWidgets.QSpacerItem(self.progress_width, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+                    self.progressHBoxLayout.addItem(self.hSpacer)
+
+                    labelprogress = QLabel(self)
+                    labelprogress.setObjectName("labelProg" + accountID)
+                    if parentType == "Debt":
+                        labelprogress.setText("Percent Remaining:")
+                    else:
+                        labelprogress.setText("Credit Available:")
+
+                    progressfont = QtGui.QFont()
+                    set_font(progressfont, 12, True, False)
+                    labelprogress.setFont(progressfont)
+                    labelprogress.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignRight)
+                    self.progressHBoxLayout.addWidget(labelprogress)
+
+                    debtprogressBar = QProgressBar(self)
+                    debtprogressBar.setMinimum(0)
+                    debtprogressBar.setMaximum(100)
+
+                    if parentType == "Debt":
+                        start_statement = f"SELECT Starting_Balance FROM Debt_Account_Details WHERE Account_Name='{account[3]}'"
+                        start = obtain_sql_value(start_statement, self.refUserDB, self.error_Logger)
+                        start = start[0]
+                        progress = (decimal_places(account[4], 2) / decimal_places(start, 2)) * 100
+                        progress = int(progress)
+                    else:
+                        start_statement = f"SELECT Credit_Limit FROM Credit_Account_Details WHERE Account_Name='{account[3]}'"
+                        start = obtain_sql_value(start_statement, self.refUserDB, self.error_Logger)
+                        start = start[0]
+                        progress = 100 - ((decimal_places(account[4], 2) / decimal_places(start, 2)) * 100)
+                        progress = int(progress)
+
+                    debtprogressBar.setProperty("value", progress)
+                    debtprogressBar.setObjectName("progressBar" + accountID)
+                    # label dictionary[AccountName] = label for ProgressBar
+                    self.progBardic[account[3]] = debtprogressBar
+                    self.progressHBoxLayout.addWidget(debtprogressBar)
+
         for account in self.balancelabeldic:
             balanceStatement = f"SELECT Balance, ItemType, ParentType FROM Account_Summary WHERE ID='{account}'"
             accountInfo = obtain_sql_value(balanceStatement, self.refUserDB, self.error_Logger)
@@ -463,7 +601,7 @@ class Ledger_Summary(QDialog):
         else:
             print("Error: Summary_Func: refresh_summary")
 
-    # --- PyQt5 signal to remove ParentType Ledger from tabdic ---------------------------------------------------------
+    # --- Pyside6 signal to remove ParentType Ledger from tabdic ---------------------------------------------------------
     def trigger_del_tab(self):
         self.remove_tab_LS.emit("Summary")
 

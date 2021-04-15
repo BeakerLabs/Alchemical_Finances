@@ -67,13 +67,14 @@ class Ui_LoginScreen(object):
         self.labelTitle = QtWidgets.QLabel(Dialog)
         self.labelTitle.setObjectName("labelTitle")
         title_font = QtGui.QFont()
+        title_font.setBold(True)
         title_font.setPointSize(24)
         self.labelTitle.setAlignment(QtCore.Qt.AlignCenter)
         self.labelTitle.setFont(title_font)
         self.vlr2.addWidget(self.labelTitle)
 
         general_font = QtGui.QFont()
-        general_font.setPointSize(18)
+        general_font.setPointSize(16)
 
         self.labelSubTitle = QtWidgets.QLabel(Dialog)
         self.labelSubTitle.setObjectName("labelSubTitle")
@@ -92,12 +93,12 @@ class Ui_LoginScreen(object):
         self.middleSpacer = QtWidgets.QSpacerItem(grid_width, 15, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.hlr3.addItem(self.middleSpacer)
 
-        # GridLayout -- Row 4 -- HL1 -- Spacer -- Username Label // HL2 -- Line Edit
+        # GridLayout -- Row 4 -- HL1 -- Spacer -- Username Label  -- Line Edit -- Spacer
         self.hlr4 = QtWidgets.QHBoxLayout()
         self.hlr4.setObjectName("hlr4")
-        self.gridLayout.addLayout(self.hlr4, 4, 2, 1, 2, alignment=QtCore.Qt.Alignment())
+        self.gridLayout.addLayout(self.hlr4, 4, 2, 1, 4, alignment=QtCore.Qt.Alignment())
 
-        self.ProfileSpacer = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.ProfileSpacer = QtWidgets.QSpacerItem(75, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.hlr4.addItem(self.ProfileSpacer)
 
         self.labelUserProfile = QtWidgets.QLabel(Dialog)
@@ -108,26 +109,22 @@ class Ui_LoginScreen(object):
         self.labelUserProfile.setFont(general_font)
         self.hlr4.addWidget(self.labelUserProfile)
 
-        self.hl2r4 = QtWidgets.QHBoxLayout()
-        self.hl2r4.setObjectName("hlr4")
-        self.gridLayout.addLayout(self.hl2r4, 4, 4, 1, 2, alignment=QtCore.Qt.Alignment())
-
         self.lineEditUserProfile = QtWidgets.QLineEdit(Dialog)
         self.lineEditUserProfile.setObjectName("lineEditUserProfile")
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.lineEditUserProfile.setSizePolicy(sizePolicy)
         self.lineEditUserProfile.setFont(general_font)
-        self.hl2r4.addWidget(self.lineEditUserProfile)
+        self.hlr4.addWidget(self.lineEditUserProfile)
 
-        self.LineEditUserSpacer = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.hl2r4.addItem(self.LineEditUserSpacer)
+        self.LineEditUserSpacer = QtWidgets.QSpacerItem(75, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.hlr4.addItem(self.LineEditUserSpacer)
 
-        # GridLayout -- Row 5 -- HL1 -- Spacer -- Password Label // HL2 -- Line Edit
+        # GridLayout -- Row 5 -- HL1 -- Spacer -- Password Label -- Line Edit -- Spacer
         self.hlr5 = QtWidgets.QHBoxLayout()
         self.hlr5.setObjectName("hlr5")
-        self.gridLayout.addLayout(self.hlr5, 5, 2, 1, 2, alignment=QtCore.Qt.Alignment())
+        self.gridLayout.addLayout(self.hlr5, 5, 2, 1, 4, alignment=QtCore.Qt.Alignment())
 
-        self.PasswordSpacer = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.PasswordSpacer = QtWidgets.QSpacerItem(75, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.hlr5.addItem(self.PasswordSpacer)
 
         self.labelPassword = QtWidgets.QLabel(Dialog)
@@ -138,29 +135,24 @@ class Ui_LoginScreen(object):
         self.labelPassword.setFont(general_font)
         self.hlr5.addWidget(self.labelPassword)
 
-        self.hl2r5 = QtWidgets.QHBoxLayout()
-        self.hl2r5.setObjectName("hlr5")
-        self.gridLayout.addLayout(self.hl2r5, 5, 4, 1, 2, alignment=QtCore.Qt.Alignment())
-
         self.lineEditPassword = QtWidgets.QLineEdit(Dialog)
         self.lineEditPassword.setEchoMode(QtWidgets.QLineEdit.PasswordEchoOnEdit)
         self.lineEditPassword.setObjectName("lineEditPassword")
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.lineEditPassword.setSizePolicy(sizePolicy)
         self.lineEditPassword.setFont(general_font)
-        self.hl2r5.addWidget(self.lineEditPassword)
+        self.hlr5.addWidget(self.lineEditPassword)
 
-        self.LineEditPassSpacer = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.hl2r5.addItem(self.LineEditPassSpacer)
+        self.LineEditPassSpacer = QtWidgets.QSpacerItem(75, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.hlr5.addItem(self.LineEditPassSpacer)
 
-        # GridLayout -- Row 6  -- HL1 -- Spacer -- Confirm Label // HL2 -- Line Edit
+        # GridLayout -- Row 6  -- HL1 -- Spacer -- Confirm Label  -- Line Edit -- Spacer
         self.hlr6 = QtWidgets.QHBoxLayout()
         self.hlr6.setObjectName("hlr6")
-        self.gridLayout.addLayout(self.hlr6, 6, 2, 1, 2, alignment=QtCore.Qt.Alignment())
+        self.gridLayout.addLayout(self.hlr6, 6, 2, 1, 4, alignment=QtCore.Qt.Alignment())
 
         # keeps alignment for when confirm password is disabled and hidden
-        self.r6spacer = QtWidgets.QSpacerItem(25, 40, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        #self.gridLayout.addItem(self.r6spacer, 6, 1, 1, 1)
+        self.r6spacer = QtWidgets.QSpacerItem(75, 40, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.hlr6.addSpacerItem(self.r6spacer)
 
         self.labelConfirmPassword = QtWidgets.QLabel(Dialog)
@@ -175,10 +167,6 @@ class Ui_LoginScreen(object):
         self.labelConfirmPassword.setHidden(True)
         self.hlr6.addWidget(self.labelConfirmPassword)
 
-        self.hl2r6 = QtWidgets.QHBoxLayout()
-        self.hl2r6.setObjectName("hlr6")
-        self.gridLayout.addLayout(self.hl2r6, 6, 4, 1, 2, alignment=QtCore.Qt.Alignment())
-
         self.lineEditConfirmPassword = QtWidgets.QLineEdit(Dialog)
         self.lineEditConfirmPassword.setEchoMode(QtWidgets.QLineEdit.PasswordEchoOnEdit)
         self.lineEditConfirmPassword.setObjectName("lineEditConfirmPassword")
@@ -188,25 +176,38 @@ class Ui_LoginScreen(object):
         self.lineEditConfirmPassword.setFont(general_font)
         self.lineEditConfirmPassword.setEnabled(False)
         self.lineEditConfirmPassword.setHidden(True)
-        self.hl2r6.addWidget(self.lineEditConfirmPassword)
+        self.hlr6.addWidget(self.lineEditConfirmPassword)
 
-        self.LineEditConfirmSpacer = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.hl2r6.addItem(self.LineEditConfirmSpacer)
+        self.LineEditConfirmSpacer = QtWidgets.QSpacerItem(75, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.hlr6.addItem(self.LineEditConfirmSpacer)
 
-        # GridLayout -- Row 7 -- Spacer
+        self.labelConfirmPassword.setFixedWidth(200)
+        self.labelUserProfile.setFixedWidth(200)
+        self.labelPassword.setFixedWidth(200)
+
+        # Grid -- Row 7 -- hlr7 -- Response Label
         self.hlr7 = QtWidgets.QHBoxLayout()
-        self.hlr7.setObjectName("hlr7")
-        self.gridLayout.addLayout(self.hlr7, 7, 1, 1, 6, alignment=QtCore.Qt.Alignment())
+        self.hlr7.setObjectName("hlr8")
+        self.gridLayout.addLayout(self.hlr7, 7, 2, 1, 4, alignment=QtCore.Qt.Alignment())
 
-        self.topButtonSpacer = QtWidgets.QSpacerItem(grid_width, 15, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.hlr7.addItem(self.topButtonSpacer)
+        error_font = QtGui.QFont()
+        error_font.setPointSize(12)
+
+        self.labelResponse = QtWidgets.QLabel()
+        self.labelResponse.setObjectName("labelResponse")
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.labelResponse.setSizePolicy(sizePolicy)
+        self.labelResponse.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        self.labelResponse.setFont(error_font)
+        self.labelResponse.setText("")
+        self.hlr7.addWidget(self.labelResponse)
 
         # GridLayout -- Row 8 -- Buttons -- Login and Quit
         self.hlr8 = QtWidgets.QHBoxLayout()
         self.hlr8.setObjectName("hlr8")
-        self.gridLayout.addLayout(self.hlr8, 8, 2, 1, 2, alignment=QtCore.Qt.Alignment())
+        self.gridLayout.addLayout(self.hlr8, 8, 2, 1, 4, alignment=QtCore.Qt.Alignment())
 
-        self.pushButtonSpacerr8 = QtWidgets.QSpacerItem(0, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.pushButtonSpacerr8 = QtWidgets.QSpacerItem(0, 25, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.hlr8.addSpacerItem(self.pushButtonSpacerr8)
 
         self.pushButtonLogin = QtWidgets.QPushButton(Dialog)
@@ -245,13 +246,18 @@ class Ui_LoginScreen(object):
         self.pushButtonCancel.setEnabled(True)
         self.hlr8.addWidget(self.pushButtonCancel)
 
+        self.pushButtonSpacerr9 = QtWidgets.QSpacerItem(0, 25, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.hlr8.addSpacerItem(self.pushButtonSpacerr9)
+
         # GridLayout -- Row 9 -- Button -- New Profile
         self.hlr9 = QtWidgets.QHBoxLayout()
         self.hlr9.setObjectName("hlr9")
-        self.gridLayout.addLayout(self.hlr9, 9, 2, 1, 2, alignment=QtCore.Qt.Alignment())
+        self.gridLayout.addLayout(self.hlr9, 9, 2, 1, 4, alignment=QtCore.Qt.Alignment())
 
-        self.pushButtonSpacerr9 = QtWidgets.QSpacerItem(0, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
-        self.hlr9.addSpacerItem(self.pushButtonSpacerr9)
+        spacer_width = (grid_width/4) + 6
+
+        self.pushButtonSpacerr10 = QtWidgets.QSpacerItem(spacer_width, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.hlr9.addSpacerItem(self.pushButtonSpacerr10)
 
         self.pushButtonNewProfile = QtWidgets.QPushButton(Dialog)
         self.pushButtonNewProfile.setObjectName("pushButtonNewProfile")
@@ -260,24 +266,10 @@ class Ui_LoginScreen(object):
         self.pushButtonNewProfile.setEnabled(True)
         self.hlr9.addWidget(self.pushButtonNewProfile)
 
-        # GridLayout -- Rows 8&9 -- Columns 4&5
-        self.hBLayoutResponse = QtWidgets.QHBoxLayout()
-        self.hBLayoutResponse.setObjectName("vBLayout")
-        self.gridLayout.addLayout(self.hBLayoutResponse, 8, 4, 2, 2, alignment=QtCore.Qt.Alignment())
+        self.pushButtonSpacerr11 = QtWidgets.QSpacerItem(spacer_width, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.hlr9.addSpacerItem(self.pushButtonSpacerr11)
 
-        error_font = QtGui.QFont()
-        error_font.setPointSize(12)
-
-        self.labelResponse = QtWidgets.QLabel()
-        self.labelResponse.setObjectName("labelResponse")
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.labelResponse.setSizePolicy(sizePolicy)
-        self.labelResponse.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
-        self.labelResponse.setFont(error_font)
-        self.labelResponse.setText("")
-        self.hBLayoutResponse.addWidget(self.labelResponse)
-
-        # GridLayout -- Row 10 -- Spacer
+        # GridLayout -- Row 11 -- Spacer
         self.hlr10 = QtWidgets.QHBoxLayout()
         self.hlr10.setObjectName("hlr10")
         self.gridLayout.addLayout(self.hlr10, 10, 1, 1, 6, alignment=QtCore.Qt.Alignment())
@@ -307,12 +299,12 @@ class Ui_LoginScreen(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("LoginScreen", "Alchemical Finances- User Login", None))
-        self.labelUserProfile.setText(_translate("Dialog", "User Profile:"))
+        self.labelUserProfile.setText(_translate("Dialog", "Profile Name:"))
         self.labelPassword.setText(_translate("Dialog", "Password:"))
         self.pushButtonLogin.setText(_translate("Dialog", "Login"))
         self.pushButtonQuit.setText(_translate("Dialog", "Quit"))
         self.pushButtonNewProfile.setText(_translate("Dialog", "New Profile"))
-        self.labelTitle.setText(_translate("Dialog", "Alchemical Finances  - Reformulated"))
+        self.labelTitle.setText(_translate("Dialog", "Alchemical Finances"))
         self.labelSubTitle.setText(_translate("Dialog", "\"Hands On Personal Finance\""))
 
 

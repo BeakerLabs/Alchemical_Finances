@@ -27,7 +27,7 @@ class Ui_Summary(object):
         general_font.setBold(False)
 
         header_font = QtGui.QFont()
-        header_font.setPointSize(16)
+        header_font.setPointSize(24)
         header_font.setBold(True)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -54,7 +54,7 @@ class Ui_Summary(object):
         self.summaryScroll = QtWidgets.QScrollArea()
         self.summaryScroll.setObjectName("summaryScroll")
         self.summaryScroll.horizontalScrollBar().setEnabled(False)
-        self.summaryScroll.setFrameStyle(1)
+        # self.summaryScroll.setFrameStyle(1)
         self.vBLayout1.addWidget(self.summaryScroll)
 
         widget = QtWidgets.QWidget()
@@ -88,7 +88,7 @@ class Ui_Summary(object):
         self.frameAsset = QtWidgets.QFrame()
         self.frameAsset.setObjectName("FrameAsset")
         self.frameAsset.setFrameShape(QtWidgets.QFrame.Panel)
-        self.frameAsset.setLineWidth(1)
+        # self.frameAsset.setLineWidth(1)
         self.hBLayout2.addWidget(self.frameAsset)
 
         self.hSpacer4 = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
@@ -97,7 +97,7 @@ class Ui_Summary(object):
         self.frameLiability = QtWidgets.QFrame()
         self.frameLiability.setObjectName("FrameLiability")
         self.frameLiability.setFrameShape(QtWidgets.QFrame.Panel)
-        self.frameLiability.setLineWidth(1)
+        # self.frameLiability.setLineWidth(1)
         self.hBLayout2.addWidget(self.frameLiability)
 
         self.hSpacer5 = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
@@ -119,7 +119,7 @@ class Ui_Summary(object):
         self.frameAGraph = QtWidgets.QFrame()
         self.frameAGraph.setObjectName("frameAGraph")
         self.frameAGraph.setFrameShape(QtWidgets.QFrame.Panel)
-        self.frameAGraph.setLineWidth(3)
+        # self.frameAGraph.setLineWidth(3)
         self.vBLayout3.addWidget(self.frameAGraph)
 
         # FrameLiability --> vBoxLayout4
@@ -135,23 +135,24 @@ class Ui_Summary(object):
         self.lLiability.setSizePolicy(sizePolicy)
         self.vBLayout4.addWidget(self.lLiability)
 
-        self.frameAGraph = QtWidgets.QFrame()
-        self.frameAGraph.setObjectName("frameALiability")
-        self.frameAGraph.setFrameShape(QtWidgets.QFrame.Panel)
-        self.frameAGraph.setLineWidth(3)
-        self.vBLayout3.addWidget(self.frameAGraph)
+        self.frameLGraph = QtWidgets.QFrame()
+        self.frameLGraph.setObjectName("frameALiability")
+        self.frameLGraph.setFrameShape(QtWidgets.QFrame.Panel)
+        # self.frameLGraph.setLineWidth(3)
+        self.vBLayout4.addWidget(self.frameLGraph)
 
         # hBLayout3 --> hspacer6 -- FrameSummary -- hspacer7
-        self.hSpacer6 = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.hSpacer6 = QtWidgets.QSpacerItem(350, 0, QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Expanding)
+
         self.hBLayout3.addSpacerItem(self.hSpacer6)
 
         self.frameSummary = QtWidgets.QFrame()
         self.frameSummary.setObjectName("frameSummary")
         self.frameSummary.setFrameShape(QtWidgets.QFrame.Panel)
-        self.frameSummary.setLineWidth(1)
+        # self.frameSummary.setLineWidth(1)
         self.hBLayout3.addWidget(self.frameSummary)
 
-        self.hSpacer7 = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.hSpacer7 = QtWidgets.QSpacerItem(350, 0, QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Expanding)
         self.hBLayout3.addSpacerItem(self.hSpacer7)
 
         # vBoxLayout5 --> FrameSummary

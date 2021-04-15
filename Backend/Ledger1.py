@@ -329,22 +329,18 @@ class LedgerV1(QDialog):
         elif self.ui.comboBLedger1.currentText() == "":
             pass
         else:
-            self.ui.comboBPeriod.clear()
-
-        if self.parentType != "Property":
-            self.ui.comboBTab2Year.clear()
-            fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
-
-        if self.ui.comboBLedger1.currentText() != "" and self.parentType != "Property":
-            sql_account = remove_space(self.ui.comboBLedger1.currentText())
-            years, *_ = category_spending_data(self.refUserDB, sql_account, self.error_Logger)
-            self.ui.comboBTab2Year.addItems(years)
-            self.set_variable1B()
-            self.set_variable2B()
-            # Spending_tab1 should auto update due to change in the combobox due to new account
-            # Spending_tab2 should auto update due to change in the combobox due to new account
-            self.update_spending_tab("Year")
-            self.update_spending_tab("Overall")
+            if self.parentType != "Property":
+                self.ui.comboBTab2Year.clear()
+                fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
+                sql_account = remove_space(self.ui.comboBLedger1.currentText())
+                years, *_ = category_spending_data(self.refUserDB, sql_account, self.error_Logger)
+                self.ui.comboBTab2Year.addItems(years)
+                self.set_variable1B()
+                self.set_variable2B()
+                # Spending_tab1 should auto update due to change in the combobox due to new account
+                # Spending_tab2 should auto update due to change in the combobox due to new account
+                self.update_spending_tab("Year")
+                self.update_spending_tab("Overall")
 
     def display_ledger_1(self):
         ledger = self.ui.comboBLedger1.currentText()

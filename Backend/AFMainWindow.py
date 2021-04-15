@@ -32,6 +32,8 @@ from Toolbox.AF_Tools import set_networth
 from Toolbox.SQL_Tools import check_for_data, create_table, execute_sql_statement_list, specific_sql_statement, obtain_sql_list, obtain_sql_value
 from Toolbox.Formatting_Tools import decimal_places, remove_space
 
+from StyleSheets.Standard import *
+
 
 class AFBackbone(QMainWindow):
     refresh_signal_summary = QtCore.Signal(str)
@@ -130,7 +132,7 @@ class AFBackbone(QMainWindow):
         self.refUserDB = temp_pathway
 
         # Initialize appearance upon Loading
-        # update_stock_price(self.refUserDB)
+        self.setStyleSheet(mainWindow)
         self.statusBar().showMessage("Stock Prices Updated")
 
         summary = Ledger_Summary(self, self.refUserDB, self.error_Logger)
@@ -215,7 +217,7 @@ class AFBackbone(QMainWindow):
     def save_database(self, close=False):
         if not self.saveToggle:
             save_mesg = "Do you wish to save your current information?"
-            reply = QMessageBox.question(self, "Save Account", save_mesg, QMessageBox.Yes, QMessageBox.Cancel)
+            reply = QMessageBox.question(self, "Save Account", save_mesg, QMessageBox.Yes, QMessageBox.No)
             if reply == QMessageBox.Yes:
                 shutil.copyfile(self.refUserDB, self.saveState)
                 complete_mesg = "You work has been saved."

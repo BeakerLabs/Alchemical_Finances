@@ -6,15 +6,17 @@ Future Concepts
 """
 
 import pickle
-import sys
 
 from pathlib import Path
 from Frontend.WelcomeMessageUi import Ui_WelcomeMessage
 
-from PySide6.QtWidgets import QDialog, QApplication
+from PySide6.QtWidgets import QDialog
 
 from Toolbox.OS_Tools import file_destination
 from Toolbox.SQL_Tools import obtain_sql_value, specific_sql_statement
+
+from StyleSheets.Standard import *
+
 
 
 class Message(QDialog):
@@ -48,6 +50,9 @@ class Message(QDialog):
             self.ui.pushButtonNext.setHidden(True)
             self.ui.pushButtonNext.setEnabled(False)
 
+        self.setStyleSheet(standardAppearance)
+        self.ui.scrollFrame.setStyleSheet(welcomeMesgFrame)
+        self.ui.messageScroll.setStyleSheet(welcomeMesgFrame)
         self.show()
 
     def disp_next_message(self):

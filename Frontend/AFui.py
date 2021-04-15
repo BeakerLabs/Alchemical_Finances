@@ -19,21 +19,21 @@ class Ui_MainWindow(object):
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        # sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
+
+        altSizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+
         MainWindow.setSizePolicy(sizePolicy)
         MainWindow.setMinimumSize(QtCore.QSize(int(adjusted_width * 0.8), int(adjusted_height * 0.80)))
         MainWindow.setMaximumSize(QtCore.QSize(16777215, 16777215))
 
         MainWindow.setWindowIcon(QtGui.QIcon('AF Logo.png'))
 
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        # Central Widget --> verticalLayout --> horizontal layout
+        self.centralwidget = QtWidgets.QWidget()
         self.centralwidget.setObjectName("Centralwidget")
         MainWindow.setCentralWidget(self.centralwidget)
 
-        self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
-        self.gridLayout.setObjectName("gridLayout")
-
-        self.verticalLayout = QtWidgets.QVBoxLayout()
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName("verticalLayout")
         self.verticalLayout.setSizeConstraint(QtWidgets.QLayout.SetNoConstraint)
 
@@ -41,50 +41,58 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.verticalLayout.addLayout(self.horizontalLayout)
 
-        self.divider = QtWidgets.QFrame(self.centralwidget)
-        self.divider.setObjectName("divider")
-        self.dividerB = QtWidgets.QFrame(self.centralwidget)
-        self.dividerB.setObjectName("dividerB")
-        self.dividerC = QtWidgets.QFrame(self.centralwidget)
-        self.dividerC.setObjectName("dividerC")
-        self.dividerD = QtWidgets.QFrame(self.centralwidget)
-        self.dividerD.setObjectName("dividerD")
+        # Central Widget --> verticalLayout --> horizontal layout --> --> assetHLayout -- liabilitiesHLayout -- netWorthHLayout
+        # netWorthHLayout -- netWorthFrame
+        self.netWorthHLayout = QtWidgets.QHBoxLayout()
+        self.netWorthHLayout.setObjectName("nettWorthHLayout")
+        self.horizontalLayout.addLayout(self.netWorthHLayout)
 
-        dividers = [self.divider,
-                    self.dividerB,
-                    self.dividerC,
-                    self.dividerD]
+        # assetHLayout --> asstFrame
+        self.assetHLayout = QtWidgets.QHBoxLayout()
+        self.assetHLayout.setObjectName("assetHLayout")
+        self.horizontalLayout.addLayout(self.assetHLayout)
 
-        for line in dividers:
-            line.setGeometry(QtCore.QRect(0, 0, 6, 200))
-            line.setFrameShadow(QtWidgets.QFrame.Plain)
-            line.setLineWidth(4)
-            line.setFrameShape(QtWidgets.QFrame.VLine)
+        # liabilitiesHLayout --> liabilities Frame
+        self.liabilitiesHLayout = QtWidgets.QHBoxLayout()
+        self.liabilitiesHLayout.setObjectName("liabilitiesHLayout")
+        self.horizontalLayout.addLayout(self.liabilitiesHLayout)
 
-        self.labelStaticTA = QtWidgets.QLabel(self.centralwidget)
+        # netWorthFrame --> Static Label -- variable label
+        self.labelStaticTN = QtWidgets.QLabel()
+        self.labelStaticTN.setObjectName("labelStaticTN")
+        self.labelStaticTN.setText("Net Worth: ")
+        self.labelStaticTN.setSizePolicy(altSizePolicy)
+
+        self.labelNW = QtWidgets.QLabel()
+        self.labelNW.setObjectName("labelNW")
+        self.labelNW.setSizePolicy(altSizePolicy)
+
+        # assetFrame --> Static Label -- variable label
+        self.labelStaticTA = QtWidgets.QLabel()
         self.labelStaticTA.setObjectName("labelStaticTA")
-        self.labelStaticTA.setText("     Total Assets: ")
-        self.labelTAssests = QtWidgets.QLabel(self.centralwidget)
-        self.labelTAssests.setObjectName("labelTAssests")
+        self.labelStaticTA.setText("Total Assets: ")
+        self.labelStaticTA.setSizePolicy(altSizePolicy)
 
-        self.labelStaticTL = QtWidgets.QLabel(self.centralwidget)
+        self.labelTAssests = QtWidgets.QLabel()
+        self.labelTAssests.setObjectName("labelTAssests")
+        self.labelTAssests.setSizePolicy(altSizePolicy)
+
+        # liabilitiesFrame --> Static Label -- variable label
+        self.labelStaticTL = QtWidgets.QLabel()
         self.labelStaticTL.setObjectName("labelStaticTL")
         self.labelStaticTL.setText("Total Liabilities: ")
-        self.labelTLiabilities = QtWidgets.QLabel(self.centralwidget)
+        self.labelStaticTL.setSizePolicy(altSizePolicy)
+
+        self.labelTLiabilities = QtWidgets.QLabel()
         self.labelTLiabilities.setObjectName("labelTLiabilities")
+        self.labelTLiabilities.setSizePolicy(altSizePolicy)
 
-        self.labelStaticTN = QtWidgets.QLabel(self.centralwidget)
-        self.labelStaticTN.setObjectName("labelStaticTN")
-        self.labelStaticTN.setText("        Net Worth: ")
-        self.labelNW = QtWidgets.QLabel(self.centralwidget)
-        self.labelNW.setObjectName("labelNW")
-
-        label_construction = [(self.labelStaticTA, "standard", "R"),
-                              (self.labelTAssests, "standard", "L"),
-                              (self.labelStaticTL, "standard", "R"),
-                              (self.labelTLiabilities, "standard", "L"),
-                              (self.labelStaticTN, "highlight", "R"),
-                              (self.labelNW, "highlight", "L")]
+        label_construction = [(self.labelStaticTA, "highlight", "C"),
+                              (self.labelTAssests, "standard", "R"),
+                              (self.labelStaticTL, "highlight", "C"),
+                              (self.labelTLiabilities, "standard", "R"),
+                              (self.labelStaticTN, "highlight", "C"),
+                              (self.labelNW, "highlight", "R")]
 
         # Debugging placeholders. Used for spacing checks
         self.labelNW.setText("$10,000,000.00")
@@ -108,20 +116,16 @@ class Ui_MainWindow(object):
             label[0].setGeometry(QtCore.QRect(initial_x, constant_y, label_length, label_height))
             label[0].setFont(font)
             if label[2] == "R":
-                label[0].setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignBottom)
+                label[0].setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
             else:
-                label[0].setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignBottom)
+                label[0].setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
 
-        self.horizontalLayout.addWidget(self.divider)
-        self.horizontalLayout.addWidget(self.labelStaticTA)
-        self.horizontalLayout.addWidget(self.labelTAssests)
-        self.horizontalLayout.addWidget(self.dividerB)
-        self.horizontalLayout.addWidget(self.labelStaticTL)
-        self.horizontalLayout.addWidget(self.labelTLiabilities)
-        self.horizontalLayout.addWidget(self.dividerC)
-        self.horizontalLayout.addWidget(self.labelStaticTN)
-        self.horizontalLayout.addWidget(self.labelNW)
-        self.horizontalLayout.addWidget(self.dividerD)
+        self.assetHLayout.addWidget(self.labelStaticTA)
+        self.assetHLayout.addWidget(self.labelTAssests)
+        self.liabilitiesHLayout.addWidget(self.labelStaticTL)
+        self.liabilitiesHLayout.addWidget(self.labelTLiabilities)
+        self.netWorthHLayout.addWidget(self.labelStaticTN)
+        self.netWorthHLayout.addWidget(self.labelNW)
 
         self.mdiArea = QtWidgets.QMdiArea(self.centralwidget)
         self.mdiArea.setObjectName("mdiArea")
@@ -138,8 +142,6 @@ class Ui_MainWindow(object):
         self.mdiArea.setTabsClosable(True)
         self.mdiArea.setTabsMovable(True)
         self.verticalLayout.addWidget(self.mdiArea)
-
-        self.gridLayout.addLayout(self.verticalLayout, 0, 0, 1, 1)
 
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1200, 18))
@@ -186,7 +188,6 @@ class Ui_MainWindow(object):
         self.actionTreasury_Bonds.setObjectName("actionTreasury_Bonds")
         self.actionRetirement = QtWidgets.QWidgetAction(MainWindow)
         self.actionRetirement.setObjectName("actionRetirement")
-
 
         self.actionDebt = QtWidgets.QWidgetAction(MainWindow)
         self.actionDebt.setObjectName("actionDebt")
