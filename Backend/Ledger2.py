@@ -31,6 +31,9 @@ from Toolbox.Formatting_Tools import add_comma, decimal_places, remove_comma, re
 from Toolbox.SQL_Tools import execute_sql_statement_list, obtain_sql_value, specific_sql_statement, sqlite3_keyword_check
 from Toolbox.OS_Tools import file_destination
 
+from StyleSheets.Standard import standardAppearance
+from StyleSheets.LedgerCSS import transFrame, spendingLabel
+
 
 class LedgerV2(QDialog):
     refresh_signal_L2 = QtCore.Signal(str)
@@ -106,6 +109,13 @@ class LedgerV2(QDialog):
         self.tickerPrice = self.obtain_ticker_price()
         self.ui.lVariable1.setText("$ " + self.tickerPrice)
         self.display_ledger_2()
+
+        self.setStyleSheet(standardAppearance)
+        self.ui.lInputFrame.setStyleSheet(transFrame)
+        self.ui.rInputFrame.setStyleSheet(transFrame)
+        self.ui.leftDisplayFrame.setStyleSheet(transFrame)
+        self.ui.centerDisplayFrame.setStyleSheet(transFrame)
+        self.ui.rightDisplayFrame.setStyleSheet(transFrame)
 
     # Opens Modal Dialogs for ledger Modification
     def accounts_dialog(self):
@@ -678,8 +688,9 @@ class LedgerV2(QDialog):
                 self.assetTypeLabel.setObjectName(f"lAssetType{count}")
                 self.assetTypeLabel.setText(subType_string_dict[assetType])
                 self.assetTypeLabel.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
-                self.assetTypeLabel.setFixedHeight(40)
+                # self.assetTypeLabel.setFixedHeight(40)
                 self.assetTypeLabel.setFont(label_font)
+                self.assetTypeLabel.setStyleSheet(spendingLabel)
                 self.assetTypeLabel.setSizePolicy(tab_sizePolicy)
                 self.subType_label_dict[count] = self.assetTypeLabel
 
@@ -691,8 +702,9 @@ class LedgerV2(QDialog):
                 self.investmentLabel.setObjectName(f"investmentLabel{count}")
                 self.investmentLabel.setText(investment_string_dict[investment])
                 self.investmentLabel.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
-                self.investmentLabel.setFixedHeight(60)
+                # self.investmentLabel.setFixedHeight(60)
                 self.investmentLabel.setFont(label_font)
+                self.investmentLabel.setStyleSheet(spendingLabel)
                 self.investmentLabel.setSizePolicy(tab_sizePolicy)
                 self.investment_label_dict[count] = self.investmentLabel
 
@@ -726,8 +738,9 @@ class LedgerV2(QDialog):
                 self.assetTypeLabel.setObjectName(f"lAssetType{count}")
                 self.assetTypeLabel.setText(string_data[assetType])
                 self.assetTypeLabel.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
-                self.assetTypeLabel.setFixedHeight(40)
+                # self.assetTypeLabel.setFixedHeight(40)
                 self.assetTypeLabel.setFont(label_font)
+                self.assetTypeLabel.setStyleSheet(spendingLabel)
                 self.assetTypeLabel.setSizePolicy(tab_sizePolicy)
                 label_dict[assetType] = self.assetTypeLabel
 

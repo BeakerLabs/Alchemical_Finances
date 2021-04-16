@@ -20,7 +20,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
 
-        altSizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        altSizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
 
         MainWindow.setSizePolicy(sizePolicy)
         MainWindow.setMinimumSize(QtCore.QSize(int(adjusted_width * 0.8), int(adjusted_height * 0.80)))
@@ -41,23 +41,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.verticalLayout.addLayout(self.horizontalLayout)
 
-        # Central Widget --> verticalLayout --> horizontal layout --> --> assetHLayout -- liabilitiesHLayout -- netWorthHLayout
-        # netWorthHLayout -- netWorthFrame
-        self.netWorthHLayout = QtWidgets.QHBoxLayout()
-        self.netWorthHLayout.setObjectName("nettWorthHLayout")
-        self.horizontalLayout.addLayout(self.netWorthHLayout)
-
-        # assetHLayout --> asstFrame
-        self.assetHLayout = QtWidgets.QHBoxLayout()
-        self.assetHLayout.setObjectName("assetHLayout")
-        self.horizontalLayout.addLayout(self.assetHLayout)
-
-        # liabilitiesHLayout --> liabilities Frame
-        self.liabilitiesHLayout = QtWidgets.QHBoxLayout()
-        self.liabilitiesHLayout.setObjectName("liabilitiesHLayout")
-        self.horizontalLayout.addLayout(self.liabilitiesHLayout)
-
-        # netWorthFrame --> Static Label -- variable label
+        # horizontalLayout --> Static Label -- variable label
         self.labelStaticTN = QtWidgets.QLabel()
         self.labelStaticTN.setObjectName("labelStaticTN")
         self.labelStaticTN.setText("Net Worth: ")
@@ -67,7 +51,7 @@ class Ui_MainWindow(object):
         self.labelNW.setObjectName("labelNW")
         self.labelNW.setSizePolicy(altSizePolicy)
 
-        # assetFrame --> Static Label -- variable label
+        # horizontalLayout --> Static Label -- variable label
         self.labelStaticTA = QtWidgets.QLabel()
         self.labelStaticTA.setObjectName("labelStaticTA")
         self.labelStaticTA.setText("Total Assets: ")
@@ -77,7 +61,7 @@ class Ui_MainWindow(object):
         self.labelTAssests.setObjectName("labelTAssests")
         self.labelTAssests.setSizePolicy(altSizePolicy)
 
-        # liabilitiesFrame --> Static Label -- variable label
+        # horizontalLayout --> Static Label -- variable label
         self.labelStaticTL = QtWidgets.QLabel()
         self.labelStaticTL.setObjectName("labelStaticTL")
         self.labelStaticTL.setText("Total Liabilities: ")
@@ -102,7 +86,7 @@ class Ui_MainWindow(object):
         for label in label_construction:
             font = QtGui.QFont()
             if label[1] == "standard":
-                font.setPointSize(18)
+                font.setPointSize(20)
                 font.setBold(False)
             else:
                 font.setPointSize(20)
@@ -120,12 +104,20 @@ class Ui_MainWindow(object):
             else:
                 label[0].setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
 
-        self.assetHLayout.addWidget(self.labelStaticTA)
-        self.assetHLayout.addWidget(self.labelTAssests)
-        self.liabilitiesHLayout.addWidget(self.labelStaticTL)
-        self.liabilitiesHLayout.addWidget(self.labelTLiabilities)
-        self.netWorthHLayout.addWidget(self.labelStaticTN)
-        self.netWorthHLayout.addWidget(self.labelNW)
+        self.SpotlightSpacer = QtWidgets.QSpacerItem(75, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.horizontalLayout.addItem(self.SpotlightSpacer)
+
+        self.horizontalLayout.setSpacing(0)
+        self.horizontalLayout.setContentsMargins(0, 10, 0, 10)
+        self.horizontalLayout.addWidget(self.labelStaticTN)
+        self.horizontalLayout.addWidget(self.labelNW)
+        self.horizontalLayout.addWidget(self.labelStaticTA)
+        self.horizontalLayout.addWidget(self.labelTAssests)
+        self.horizontalLayout.addWidget(self.labelStaticTL)
+        self.horizontalLayout.addWidget(self.labelTLiabilities)
+
+        self.SpotlightSpacer2 = QtWidgets.QSpacerItem(75, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.horizontalLayout.addItem(self.SpotlightSpacer2)
 
         self.mdiArea = QtWidgets.QMdiArea(self.centralwidget)
         self.mdiArea.setObjectName("mdiArea")

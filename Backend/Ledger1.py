@@ -33,6 +33,9 @@ from Toolbox.Formatting_Tools import add_comma, decimal_places, remove_comma, re
 from Toolbox.SQL_Tools import obtain_sql_value, specific_sql_statement, sqlite3_keyword_check
 from Toolbox.OS_Tools import file_destination
 
+from StyleSheets.Standard import standardAppearance
+from StyleSheets.LedgerCSS import transFrame, spendingLabel
+
 
 class LedgerV1(QDialog):
     refresh_signal = QtCore.Signal(str)
@@ -68,6 +71,7 @@ class LedgerV1(QDialog):
 
         # Program Error Logger
         self.error_Logger = error_log
+        print(self.parentType)
 
         # Prepare Widgets for initial Use
         self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
@@ -77,6 +81,8 @@ class LedgerV1(QDialog):
 
         if self.ui.comboBLedger1.currentText() == "":
             self.toggle_entire_ledger(False)
+        else:
+            self.toggle_entire_ledger(True)
 
         # Prepare Spending By Category Data Representation.
         if self.parentType != "Property" and self.ui.comboBLedger1.currentText() != "":
@@ -86,12 +92,15 @@ class LedgerV1(QDialog):
             self.ui.comboBTab2Year.addItems(years)
             self.ui.comboBTab2Year.currentIndexChanged.connect(lambda: self.update_spending_tab("Year"))
 
+            self.update_spending_tab("Year")
+            self.update_spending_tab("Overall")
+
         if self.parentType != "Property":
             self.ui.pBToggle.clicked.connect(self.toggle_dialog)
             self.ui.comboBLedger1.currentIndexChanged.connect(self.change_ledger1_account)
             self.ui.comboBPeriod.currentIndexChanged.connect(self.display_ledger_1)
         else:
-            self.ui.comboBLedger1.currentIndexChanged.connect(self.display_ledger_1)
+            self.ui.comboBLedger1.currentIndexChanged.connect(self.change_ledger1_account)
 
         self.ui.DateEditTransDate.setDate(QDate.currentDate())
         self.ui.rBPending.setChecked(True)
@@ -118,15 +127,22 @@ class LedgerV1(QDialog):
                 self.ui.pBDeleteHouse.setEnabled(True)
             self.ui.pBUploadHouse.clicked.connect(self.upload_house_button)
             self.ui.pBDeleteHouse.clicked.connect(self.delete_house_action)
-            self.display_ledger_1()
 
-        self.change_ledger1_account()
+        self.display_ledger_1()
+
 
         self.initialMoneyList = self.net_ledger_value()
         self.ui.lAccountBalance.setText(self.initialMoneyList[1])
         if self.ui.comboBLedger1.currentText() != "":
             self.set_variable1B()  # self.ui.lInterestRate
             self.set_variable2B()  # self.ui.lVariable1
+
+        self.setStyleSheet(standardAppearance)
+        self.ui.lInputFrame.setStyleSheet(transFrame)
+        self.ui.rInputFrame.setStyleSheet(transFrame)
+        self.ui.leftDisplayFrame.setStyleSheet(transFrame)
+        self.ui.centerDisplayFrame.setStyleSheet(transFrame)
+        self.ui.rightDisplayFrame.setStyleSheet(transFrame)
         self.set_ledger1_appearance()
 
     # Opens Modal Dialogs for ledger Modification
@@ -341,14 +357,21 @@ class LedgerV1(QDialog):
                 # Spending_tab2 should auto update due to change in the combobox due to new account
                 self.update_spending_tab("Year")
                 self.update_spending_tab("Overall")
+                self.display_ledger_1()
+            else:
+                self.set_variable1B()
+                self.set_variable2B()
+                self.display_ledger_1()
 
     def display_ledger_1(self):
         ledger = self.ui.comboBLedger1.currentText()
         statement = self.ui.comboBPeriod.currentText()
-        if ledger == "" or statement == "" and self.parentType != "Property":
+        if ledger == "" or statement == "":
+
             self.ui.tableWLedger1.clearContents()
             self.ui.lAccountBalance.setText("$ 0.00")
-            self.ui.lStatementGraph.setText("Spending During TBD")
+            if self.parentType != "Property":
+                self.ui.lStatementGraph.setText("Spending During TBD")
 
             for dictionary in [self.statement_label_dict, self.year_label_dict, self.overall_label_dict]:
                 for key in dictionary:
@@ -620,8 +643,9 @@ class LedgerV1(QDialog):
                 self.spendingLabel.setObjectName(f"lspending{target_tab}Type{count}")
                 self.spendingLabel.setText(spending_statement_string[value[0]])
                 self.spendingLabel.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
-                self.spendingLabel.setFixedHeight(40)
+                # self.spendingLabel.setFixedHeight(40)
                 self.spendingLabel.setFont(label_font)
+                self.spendingLabel.setStyleSheet(spendingLabel)
                 self.spendingLabel.setSizePolicy(tab_sizePolicy)
                 label_dict[count] = self.spendingLabel
 
@@ -672,8 +696,9 @@ class LedgerV1(QDialog):
                     self.spendingLabel.setObjectName(f"lspending{target_tab}Type{count}")
                     self.spendingLabel.setText(spending_statement_string[value[0]])
                     self.spendingLabel.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
-                    self.spendingLabel.setFixedHeight(40)
+                    # self.spendingLabel.setFixedHeight(40)
                     self.spendingLabel.setFont(label_font)
+                    self.spendingLabel.setStyleSheet(spendingLabel)
                     self.spendingLabel.setSizePolicy(tab_sizePolicy)
                     label_dict[count] = self.spendingLabel
 

@@ -14,7 +14,10 @@ from Toolbox.Error_Tools import check_characters, spacing_check
 from Toolbox.Formatting_Tools import gen_rand_str
 from Toolbox.SQL_Tools import attempt_sql_statement, obtain_sql_value, specific_sql_statement, sqlite3_keyword_check
 from Toolbox.OS_Tools import file_destination
-from StyleSheets.Standard import *
+
+from StyleSheets.Standard import standardAppearance
+from StyleSheets.LoginCSS import loginTitleFrame
+from StyleSheets.ErrorCSS import generalError
 
 
 class LoginForm(QDialog):

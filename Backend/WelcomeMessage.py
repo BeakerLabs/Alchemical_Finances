@@ -15,8 +15,8 @@ from PySide6.QtWidgets import QDialog
 from Toolbox.OS_Tools import file_destination
 from Toolbox.SQL_Tools import obtain_sql_value, specific_sql_statement
 
-from StyleSheets.Standard import *
-
+from StyleSheets.Standard import standardAppearance
+from StyleSheets.WelcomeCSS import welcomeMesgFrame
 
 
 class Message(QDialog):

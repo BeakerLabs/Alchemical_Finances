@@ -17,7 +17,7 @@ from Toolbox.Formatting_Tools import add_comma, cash_format, decimal_places, rem
 from Toolbox.AF_Tools import set_font
 
 # from Backend.BuildGraphs import nested_snapshot, AF_Canvas
-from StyleSheets.Standard import *
+from StyleSheets.SummaryCSS import summarySTD, parentFormat, columnHeader, accountDetails, messageFormat, subtotalBalanceFormat
 
 
 class Ledger_Summary(QDialog):
@@ -62,11 +62,11 @@ class Ledger_Summary(QDialog):
                            + """ORDER BY "ItemType", "ParentType", "SubType", "Balance" DESC LIMIT 0, 49999"""
         self.summaryTuple = obtain_sql_list(summaryStatement, self.refUserDB, self.error_Logger)
         self.generate_summary()
-        self.setStyleSheet(backgroundColor)
+        self.setStyleSheet(summarySTD)
         self.ui.lAsset.setStyleSheet(parentFormat)
         self.ui.lLiability.setStyleSheet(parentFormat)
-        self.ui.frameAGraph.setStyleSheet(backgroundColor)
-        self.ui.frameLGraph.setStyleSheet(backgroundColor)
+        self.ui.frameAGraph.setStyleSheet(summarySTD)
+        self.ui.frameLGraph.setStyleSheet(summarySTD)
         parent.refresh_signal_summary.connect(self.refresh_summary)
 
     def set_formatting(self, target, font, Alignment, stylesheet):

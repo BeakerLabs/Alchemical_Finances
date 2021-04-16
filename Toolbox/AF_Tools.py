@@ -202,6 +202,8 @@ def fill_widget(widget, statement: str, sorted: bool, database: str, error_log):
     raw_widget_list = obtain_sql_list(statement, database, error_log)
     unsorted_widget_list = []
 
+    print("what the heck")
+
     if raw_widget_list is None:
         return unsorted_widget_list
     else:

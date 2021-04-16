@@ -29,7 +29,7 @@ class Ui_Ledger2(object):
         graph_header_font.setBold(True)
 
         general_font = QtGui.QFont()
-        general_font.setPointSize(14)
+        general_font.setPointSize(12)
         general_font.setBold(False)
 
         pushButton_font = QtGui.QFont()
@@ -135,7 +135,7 @@ class Ui_Ledger2(object):
         self.hBLayout2.addWidget(self.leftDisplayFrame)
 
         self.centerDisplayFrame = QtWidgets.QFrame()
-        self.centerDisplayFrame.setObjectName("CenterFrame")
+        self.centerDisplayFrame.setObjectName("centerFrame")
         self.centerDisplayFrame.setFrameShape(QtWidgets.QFrame.Panel)
         self.centerDisplayFrame.setLineWidth(1)
         self.centerDisplayFrame.setFixedWidth((ledger_width - 350) / 3)
@@ -143,7 +143,7 @@ class Ui_Ledger2(object):
         self.hBLayout2.addWidget(self.centerDisplayFrame)
 
         self.rightDisplayFrame = QtWidgets.QFrame()
-        self.rightDisplayFrame.setObjectName("leftFrame")
+        self.rightDisplayFrame.setObjectName("rightFrame")
         self.rightDisplayFrame.setFrameShape(QtWidgets.QFrame.Panel)
         self.rightDisplayFrame.setLineWidth(1)
         self.rightDisplayFrame.setFixedWidth((ledger_width - 350) / 3)
@@ -210,6 +210,7 @@ class Ui_Ledger2(object):
         # LedgerFrame --  vBLayout1 -- hbLayout3 --> hSpacer -- lInputFrame -- rInputFrame -- hSpacer
         self.hBLayout3 = QtWidgets.QHBoxLayout()
         self.hBLayout3.setObjectName("hBlayout3")
+        self.hBLayout3.setSpacing(0)
         self.vBLayout1.addLayout(self.hBLayout3)
 
         self.hSpacer6 = QtWidgets.QSpacerItem(25, 40, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
@@ -218,14 +219,14 @@ class Ui_Ledger2(object):
         inputFrameWidth = (ledger_width - 25) / 2
 
         self.lInputFrame = QtWidgets.QFrame()
-        self.lInputFrame.setObjectName("LInputFrame")
+        self.lInputFrame.setObjectName("lInputFrame")
         self.lInputFrame.setFixedWidth(inputFrameWidth)
         # self.lInputFrame.setFrameShape(QtWidgets.QFrame.Panel)
         # self.lInputFrame.setLineWidth(1)
         self.hBLayout3.addWidget(self.lInputFrame)
 
         self.rInputFrame = QtWidgets.QFrame()
-        self.rInputFrame.setObjectName("LInputFrame")
+        self.rInputFrame.setObjectName("rInputFrame")
         self.rInputFrame.setFixedWidth(inputFrameWidth)
         # self.rInputFrame.setFrameShape(QtWidgets.QFrame.Panel)
         # self.rInputFrame.setLineWidth(1)
@@ -251,7 +252,7 @@ class Ui_Ledger2(object):
         # Inputs A - Row # 2 -- Label (c2) -- ComboBox (C3-4)
         self.lTransDate = QtWidgets.QLabel()
         self.lTransDate.setObjectName("lTransDate")
-        self.lTransDate.setText("Transaction Date: ")
+        self.lTransDate.setText("Trans. Date: ")
         self.lTransDate.setFont(general_font)
         self.lTransDate.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.lTransDate.setSizePolicy(altSizePolicy)
@@ -263,15 +264,16 @@ class Ui_Ledger2(object):
         self.DateEditTransDate.setSizePolicy(altSizePolicy)
         self.DateEditTransDate.setCorrectionMode(QtWidgets.QAbstractSpinBox.CorrectToNearestValue)
         self.DateEditTransDate.setDateTime(QtCore.QDateTime(QtCore.QDate(2019, 1, 1), QtCore.QTime(0, 0, 0)))
-        self.DateEditTransDate.setDisplayFormat("yyyy/MM/dd")
+        self.DateEditTransDate.setDisplayFormat("MM/dd/yyyy")
         self.DateEditTransDate.setCurrentSection(QtWidgets.QDateTimeEdit.YearSection)
         self.DateEditTransDate.setCalendarPopup(True)
+        self.DateEditTransDate.setFixedHeight(33)
         self.gridLayout2.addWidget(self.DateEditTransDate, 2, 3, 1, 1)
 
         # Inputs A - Row # 3 -- Label (c1) -- LineEdit (C2-3)
         self.lTransDesc = QtWidgets.QLabel()
         self.lTransDesc.setObjectName("lTransDesc")
-        self.lTransDesc.setText("Transaction Description: ")
+        self.lTransDesc.setText("Trans. Description: ")
         self.lTransDesc.setFont(general_font)
         self.lTransDesc.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.lTransDesc.setSizePolicy(altSizePolicy)
@@ -299,6 +301,7 @@ class Ui_Ledger2(object):
         self.comboBCategory.setObjectName("comboBTCategory")
         self.comboBCategory.setFont(general_font)
         self.comboBCategory.setSizePolicy(altSizePolicy)
+        self.comboBCategory.setFixedHeight(33)
         self.gridLayout2.addWidget(self.comboBCategory, 4, 3, 1, 1)
 
         self.pBCatModify = QtWidgets.QPushButton()
@@ -521,9 +524,9 @@ class Ui_Ledger2(object):
 
         self.comboBPeriod = QtWidgets.QComboBox()
         self.comboBPeriod.setObjectName("comboBLedger1")
-        self.comboBPeriod.setFont(header_font)
+        self.comboBPeriod.setFont(general_font)
         self.comboBPeriod.setFixedWidth(300)
-        self.comboBPeriod.setFixedHeight(40)
+        self.comboBPeriod.setFixedHeight(33)
         self.comboBPeriod.setSizePolicy(sizePolicy)
         self.hBLayout4.addWidget(self.comboBPeriod)
 

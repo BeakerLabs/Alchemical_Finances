@@ -116,7 +116,7 @@ class Archive(QDialog):
             type1 = ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit"]
             type2 = ["Equity", "Retirement"]
             if parentType_value in type1:
-                disp_LedgerV1_Table(self.ui.comboBAccounts, self.ui.comboBStatements, self.ui.tWArchive, self.refUserDB, self.error_Logger)
+                disp_LedgerV1_Table(self.ui.comboBAccounts, self.ui.comboBStatements, parentType_value, self.ui.tWArchive, self.refUserDB, self.error_Logger)
             elif parentType_value in type2:
                 disp_LedgerV2_Table(self.ui.comboBAccounts, self.ui.comboBStatements, self.ui.tWArchive, self.refUserDB, self.error_Logger)
             else:

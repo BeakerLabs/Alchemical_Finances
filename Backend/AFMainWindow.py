@@ -32,7 +32,7 @@ from Toolbox.AF_Tools import set_networth
 from Toolbox.SQL_Tools import check_for_data, create_table, execute_sql_statement_list, specific_sql_statement, obtain_sql_list, obtain_sql_value
 from Toolbox.Formatting_Tools import decimal_places, remove_space
 
-from StyleSheets.Standard import *
+from StyleSheets.MainWindowCSS import mainWindow
 
 
 class AFBackbone(QMainWindow):
