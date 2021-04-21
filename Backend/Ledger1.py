@@ -71,7 +71,6 @@ class LedgerV1(QDialog):
 
         # Program Error Logger
         self.error_Logger = error_log
-        print(self.parentType)
 
         # Prepare Widgets for initial Use
         self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
@@ -151,7 +150,8 @@ class LedgerV1(QDialog):
         if alf.exec_() == QDialog.Accepted:
             self.ui.comboBLedger1.clear()
             self.ui.comboBPeriod.clear()
-            self.ui.comboBTab2Year.clear()
+            if self.parentType != "Property":
+                self.ui.comboBTab2Year.clear()
 
             self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
             fill_widget(self.ui.comboBLedger1, self.comboBoxAccountStatement, True, self.refUserDB, self.error_Logger)

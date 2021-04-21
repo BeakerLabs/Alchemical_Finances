@@ -18,7 +18,7 @@ from Toolbox.AF_Tools import disp_LedgerV1_Table, disp_LedgerV2_Table, generate_
 from Toolbox.SQL_Tools import execute_sql_statement_list, move_sql_tables, obtain_sql_value, obtain_sql_list
 from Toolbox.Formatting_Tools import remove_space
 
-# from Frontend.StyleSheets import UniversalStyleSheet
+from StyleSheets.Standard import standardAppearance
 
 
 class Archive(QDialog):
@@ -62,6 +62,8 @@ class Archive(QDialog):
         self.ui.pBRestore.clicked.connect(self.restore_account)
         self.ui.pBDelete.clicked.connect(self.delete_account)
         self.ui.pBDisplayReceipt.clicked.connect(self.display_receipt)
+
+        self.setStyleSheet(standardAppearance)
 
     def closeEvent(self, event):
         event.ignore()

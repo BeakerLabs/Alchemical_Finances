@@ -64,7 +64,7 @@ def correct_details_tables(database, error_log):
                            "Account_Name, Account_Type, Primary_Owner, Bank, Statement_Date, Ticker_Symbol, Stock_Price",
                            "Account_Name, Account_Type, Primary_Owner, Bank, 1, Ticker_Symbol, Stock_Price"],
                           ["Property_Account_Details",
-                           f"CREATE TABLE IF NOT EXISTS Property_Account_Details (Account_Name TEXT, Account_Type TEXT, Primary_Ownder TEXT, Bank TEXT, Statement_Date INTEGER, Address_1 TEXT, County TEXT, State_Initials TEXT,"
+                           f"CREATE TABLE IF NOT EXISTS Property_Account_Details (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Address_1 TEXT, County TEXT, State_Initials TEXT,"
                            f" Zip_Code INTEGER, Image TEXT)"]]
 
     for table in details_pages_list:

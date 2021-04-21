@@ -35,7 +35,7 @@ class YNTypeQuestion(QDialog):
     def addType(self, tableName):
         type, ok = QInputDialog.getText(self, "Add", "Enter Account Type:")
         if ok and type != "":
-            addStatement = f"INSERT INTO {tableName} VALUES('{type}', '{self.parentType}', 'True')"
+            addStatement = f"INSERT INTO {tableName} VALUES('{type}', '{self.parentType}')"
             specific_sql_statement(addStatement, self.refUserDB, self.error_Logger)
         else:
             # canceled and not submitted

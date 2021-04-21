@@ -72,8 +72,8 @@ class Ui_Ledger1(object):
 
         self.categoryFrame = QtWidgets.QFrame()
         self.categoryFrame.setObjectName("LedgerFrame")
-        self.categoryFrame.setFrameShape(QtWidgets.QFrame.Panel)
-        self.categoryFrame.setLineWidth(1)
+        # self.categoryFrame.setFrameShape(QtWidgets.QFrame.Panel)
+        # self.categoryFrame.setLineWidth(1)
         self.categoryFrame.setFixedWidth(width_wo_border * 0.25)
         self.gridLayout.addWidget(self.categoryFrame, 2, 3, 1, 1)
 
@@ -625,8 +625,8 @@ class Ui_Ledger1(object):
             self.statementFrame.setObjectName("statementFrame")
             self.statementFrame.setSizePolicy(altSizePolicy)
             self.statementFrame.setFixedHeight(300)
-            self.statementFrame.setFrameShape(QtWidgets.QFrame.Panel)
-            self.statementFrame.setLineWidth(1)
+            # self.statementFrame.setFrameShape(QtWidgets.QFrame.Panel)
+            # self.statementFrame.setLineWidth(1)
             self.lTab1vBLayout.addWidget(self.statementFrame)
 
             self.tab1HBLayout1 = QtWidgets.QHBoxLayout()
@@ -687,8 +687,8 @@ class Ui_Ledger1(object):
             self.yearFrame.setObjectName("YearFrame")
             self.yearFrame.setSizePolicy(altSizePolicy)
             self.yearFrame.setFixedHeight(300)
-            self.yearFrame.setFrameShape(QtWidgets.QFrame.Panel)
-            self.yearFrame.setLineWidth(1)
+            # self.yearFrame.setFrameShape(QtWidgets.QFrame.Panel)
+            # self.yearFrame.setLineWidth(1)
             self.lTab2vBLayout.addWidget(self.yearFrame)
 
             self.tab2HBLayout1 = QtWidgets.QHBoxLayout()
@@ -761,8 +761,8 @@ class Ui_Ledger1(object):
             self.overAllFrame.setObjectName("overAllFrame")
             self.overAllFrame.setSizePolicy(altSizePolicy)
             self.overAllFrame.setFixedHeight(300)
-            self.overAllFrame.setFrameShape(QtWidgets.QFrame.Panel)
-            self.overAllFrame.setLineWidth(1)
+            # self.overAllFrame.setFrameShape(QtWidgets.QFrame.Panel)
+            # self.overAllFrame.setLineWidth(1)
             self.lTab3vBLayout.addWidget(self.overAllFrame)
 
             self.tab3HBLayout1 = QtWidgets.QHBoxLayout()

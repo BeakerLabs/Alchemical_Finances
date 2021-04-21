@@ -100,8 +100,8 @@ class OverTimeGraph(QDialog):
         if account == "Net_Worth_Graph":
             canvas.axes.plot(lg_data[0], lg_data[1], color='#000000', linewidth=0)  # Gross
             canvas.axes.plot(lg_data[0], lg_data[3], color='#000000', linewidth=0)  # Net
+            canvas.axes.plot(lg_data[0], lg_data[2], color='#d73838', linewidth=0.35, linestyle='--')  # Liability
 
-            canvas.axes.plot(lg_data[0], lg_data[2], color='#000000', linewidth=0)  # Liability
             canvas.axes.fill_between(lg_data[0], lg_data[8], lg_data[3], color='#275929')  # Gross-Net
             canvas.axes.fill_between(lg_data[0], lg_data[10], 0, color='#38803B')  # Net-0
             canvas.axes.fill_between(lg_data[0], lg_data[9], y2=0, color=(128/255, 56/255, 56/255, 150/255))  # Liability-O

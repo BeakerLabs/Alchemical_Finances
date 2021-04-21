@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QDialog
 
 from Frontend.AboutUI import Ui_AboutScreen
 
+from StyleSheets.Standard import standardAppearance
 
 class AboutProgram(QDialog):
     remove_tab_about = QtCore.Signal(str)
@@ -19,7 +20,7 @@ class AboutProgram(QDialog):
         self.ui = Ui_AboutScreen()
         self.ui.setupUi(self)
         self.setWindowTitle("About Page")
-
+        self.setStyleSheet(standardAppearance)
         # Place style sheet here
         self.show()
 
@@ -34,5 +35,3 @@ class AboutProgram(QDialog):
 
 if __name__ == "__main__":
     print("error")
-
-

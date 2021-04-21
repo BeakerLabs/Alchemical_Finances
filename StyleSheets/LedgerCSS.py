@@ -52,14 +52,12 @@ QFrame#rightFrame{
 
 spendingLabel = """
 QLabel{
-    border-top: 3px solid #BEDF7C;
     border-bottom: 3px solid #8BA78C;
     border-radius: 5px;
     background-color: #FAFAFA;
     padding-top: 10px;
     padding-bottom: 10px;
-    margin-bottom: 10px;
-    box-shadow: -5px -5px #777777;
+    margin-bottom: 3px;
 }
 """
 

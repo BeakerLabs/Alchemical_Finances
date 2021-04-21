@@ -6,6 +6,9 @@ the message dictionary.
 import codecs
 import pickle
 
+list_o_people = ["Jacob Goldstein", "Daniel Morrison", "Nicole Lauch", "Lily Kull", "Briana Smith", "Morgan Huyler"]
+list_o_people.sort()
+
 welcomeMessageDict = {
     0: ["Welcome", "I am glad you have chosen to use my Finance Ledger to manage your personal finances. This project has been in the works for what feels like a decade. "
                    "The program you are using has evolved over the year from simple spreedsheet ledgers as my personal finances expanded and knowledge on the subject expanded."
@@ -14,7 +17,7 @@ welcomeMessageDict = {
 }
 
 AboutDict = {
-    "1.00": ["Jonathan Shamberg", "September 30, 2021", "Jmshamberg@gmail.com", "I have much work do do in this regards"]
+    "1.00": ["Jonathan Shamberg", "September 30, 2021", "Jmshamberg@gmail.com", list_o_people]
 }
 
 sqlite3_keyword_masterlist = ["ABORT", "ACTION", "ADD", "AFTER", "ALL", "ALTER", "ALWAYS", "ANALYZE", "AND", "AS",
@@ -43,9 +46,10 @@ if __name__ == "__main__":
     # f.write("1.00")
     # f.close()
     #
-    # f = open("../AboutInfo.pkl", "wb")
-    # pickle.dump(AboutDict, f)
-    # f.close()
-    f = open("../sql_Keyword_list.pkl", "wb")
-    pickle.dump(sqlite3_keyword_masterlist, f)
+    f = open("../AboutInfo.pkl", "wb")
+    pickle.dump(AboutDict, f)
     f.close()
+
+    # f = open("../sql_Keyword_list.pkl", "wb")
+    # pickle.dump(sqlite3_keyword_masterlist, f)
+    # f.close()

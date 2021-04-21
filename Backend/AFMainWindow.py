@@ -22,6 +22,7 @@ from Backend.Ledger1 import LedgerV1
 from Backend.Ledger2 import LedgerV2
 from Backend.Summary import Ledger_Summary
 from Backend.About import AboutProgram
+from Backend.Profile import Profile
 from Backend.ArchiveLedger import Archive
 from Backend.RequestReport import user_report_request
 # from Backend.Scrape import update_stock_price
@@ -64,6 +65,7 @@ class AFBackbone(QMainWindow):
 
         # Menu Bar Button Functionality
         # -- -- File - Summary, Generate Report, Export [Future], Save[Future] Close
+        self.ui.actionProfile.triggered.connect(lambda: self.switch_tab("Profile"))
         self.ui.actionSummary.triggered.connect(lambda: self.switch_tab("Summary"))
         self.ui.actionGenerate.triggered.connect(lambda: user_report_request(self.refUserDB, self.refUser, self.error_Logger))
         self.ui.actionNWG.triggered.connect(lambda: self.switch_tab("OTG"))
@@ -271,6 +273,12 @@ class AFBackbone(QMainWindow):
                 summary.remove_tab_LS.connect(self.remove_tab)
                 summary.showMaximized()
                 self.tabdic.update({parentType: summary})
+            elif parentType == "Profile":
+                profile = Profile(self.refUserDB, self.error_Logger)
+                self.ui.mdiArea.addSubWindow(profile)
+                profile.remove_tab_profile.connect(self.remove_tab)
+                profile.showMaximized()
+                self.tabdic.update({parentType: profile})
             elif parentType in type1:
                 ledger = LedgerV1(self.refUserDB, parentType, self.refUser, self.error_Logger)
                 self.ui.mdiArea.addSubWindow(ledger)
@@ -410,7 +418,7 @@ class AFBackbone(QMainWindow):
         if check_for_data("AccountSubType", "ParentType", parentType, database, self.error_Logger) is True:
             statementList = []
             for account in subTypes:
-                dbStatement = f"INSERT INTO AccountSubType VALUES('{account}', '{parentType}', 'True')"
+                dbStatement = f"INSERT INTO AccountSubType VALUES('{account}', '{parentType}')"
                 statementList.append(dbStatement)
             execute_sql_statement_list(statementList, database, self.error_Logger)
         else:

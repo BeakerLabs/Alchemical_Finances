@@ -153,6 +153,8 @@ class Ui_MainWindow(object):
         self.menuAbout.setObjectName("menuAbout")
         MainWindow.setMenuBar(self.menubar)
 
+        self.actionProfile = QtWidgets.QWidgetAction(MainWindow)
+        self.actionProfile.setObjectName("actionProfile")
         self.actionSummary = QtWidgets.QWidgetAction(MainWindow)
         self.actionSummary.setObjectName("actionSummary")
         self.actionGenerate = QtWidgets.QWidgetAction(MainWindow)
@@ -202,7 +204,8 @@ class Ui_MainWindow(object):
                        self.actionClose, self.actionBank, self.actionCash, self.actionCertificate_of_Deposit,
                        self.actionEquity, self.actionProperty, self.actionRetirement, self.actionTreasury_Bonds,
                        self.actionDebt, self.actionCredit_Cards, self.actionCredit_Cards, self.actionUserManual,
-                       self.actionAbout, self.actionArchive, self.actionReports_Future, self.actionBudgeting_Future]
+                       self.actionAbout, self.actionArchive, self.actionReports_Future, self.actionBudgeting_Future,
+                       self.actionProfile]
 
         for submenu in submenu_lst:
             font = submenu.font()
@@ -213,6 +216,7 @@ class Ui_MainWindow(object):
         self.statusBar.setObjectName("statusBar")
         MainWindow.setStatusBar(self.statusBar)
 
+        self.menuFile.addAction(self.actionProfile)
         self.menuFile.addAction(self.actionSummary)
         self.menuFile.addAction(self.actionGenerate)
         self.menuFile.addAction(self.actionNWG)
@@ -276,3 +280,4 @@ class Ui_MainWindow(object):
         self.actionBudgeting_Future.setText(_translate("MainWindow", "Budgeting [Future]", None))
         self.actionGenerate.setText(_translate("MainWindow", "Generate Report", None))
         self.actionNWG.setText(_translate("MainWindow", "Net Worth Graph", None))
+        self.actionProfile.setText(_translate("MainWindow", "User Profile", None))

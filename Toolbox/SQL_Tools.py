@@ -17,7 +17,7 @@ def add_column(tableName: str, col: str, sqlType: str, database: str, error_log)
             cur.execute(alterStatement)
     except Error:
         error_string = f"""ERROR: SQL_FUNC: add_column \n statement: "{alterStatement}" \n database: "{database}" """
-        error_log.error(error_string)
+        error_log.error(error_string, exc_info=True)
     finally:
         conn.close()
 
@@ -32,7 +32,7 @@ def attempt_sql_statement(statement: str, database: str, error_log):
             cur.execute(statement)
     except Error:
         error_string = f"""ERROR: SQL_FUNC: attempt_sql_statement \n statement: "{statement}" \n database: "{database}" """
-        error_log.error(error_string)
+        error_log.error(error_string, exc_info=True)
         result = False
     finally:
         conn.close()
@@ -54,7 +54,7 @@ def check_column(tablename: str, col: str, database: str, error_log):
                 return False
     except Error:
         error_string = f"""ERROR: SQL_FUNC: check_column \n statement: "{checkColumn}" \n database: "{database}" """
-        error_log.error(error_string)
+        error_log.error(error_string, exc_info=True)
     finally:
         conn.close()
 
@@ -74,7 +74,7 @@ def check_for_data(tablename: str, colTwo: str, value: str, database: str, error
                 return False
     except Error:
         error_string = f"""ERROR: SQLTools_Func: check_for_data \n text: {checkStatement} \n database: {database}"""
-        error_log.error(error_string)
+        error_log.error(error_string, exc_info=True)
     finally:
         conn.close()
 
@@ -99,7 +99,7 @@ def create_table(tableName: str, columns: list, inputType: list, database: str, 
             cur.execute(fullStatement)
     except Error:
         error_string = f"""ERROR: SQLTools_Func: create_table \n text: {fullStatement} \n database: {database}"""
-        error_log.error(error_string)
+        error_log.error(error_string, exc_info=True)
     finally:
         conn.close()
 
@@ -110,7 +110,7 @@ def delete_column(table: str, column: str, database: str, error_log):
 
     # obtain all existing columns
     obtain_columns = f"PRAGMA table_info({table})"
-    column_data_raw = obtain_sql_list(obtain_columns, database, error_log)
+    column_data_raw = obtain_sql_list(obtain_columns, database, error_log, exc_info=True)
 
     retained_columns = []
     new_table_column_str = ""
@@ -155,7 +155,7 @@ def execute_sql_statement_list(statement_lst: list, database: str, error_log):
                 x += 1
     except Error:
         error_string = f"""ERROR: SQLTools_Func: execute_sql_statement_list \n statement number: {x} \n text: "{statement_lst[x]}" \n database: {database}"""
-        error_log.error(error_string)
+        error_log.error(error_string, exc_info=True)
     finally:
         conn.close()
 
@@ -174,7 +174,7 @@ def obtain_sql_value(statement: str, database: str, error_log):
     except Error:
         rValue = None
         error_string = f"""ERROR: SQLTools_Func: obtain_sql_value \n statement: "{statement} \n database: {database}"""
-        error_log.error(error_string)
+        error_log.error(error_string, exc_info=True)
         return rValue
     finally:
         conn.close()
@@ -194,7 +194,7 @@ def obtain_sql_list(statement: str, database: str, error_log):
             rValue = value
     except Error:
         error_string = f"""ERROR: SQLTools_Func: obtain_sql_lst \n statement: "{statement}" \n database: {database}"""
-        error_log.error(error_string)
+        error_log.error(error_string, exc_info=True)
     finally:
         conn.close()
         return rValue
@@ -213,7 +213,7 @@ def move_sql_tables(destination: str, origin: str, identifier: str, target: str,
             cur.execute(delete_statement)
     except Error:
         error_string = f"""ERROR: TB_Func: move_sql_tables \n Insert Statement: "{insert_statement}" \n Delete Statement: "{delete_statement}" \n database: {database}"""
-        error_log.error(error_string)
+        error_log.error(error_string, exc_info=True)
     finally:
         conn.close()
 
@@ -227,7 +227,7 @@ def specific_sql_statement(statement: str, database: str, error_log):
             cur.execute(statement)
     except Error:
         error_string = f"""ERROR: SQL_FUNC: specific_sql_statement \n statement: "{statement}" \n database: "{database}" """
-        error_log.error(error_string)
+        error_log.error(error_string, exc_info=True)
     finally:
         conn.close()
 

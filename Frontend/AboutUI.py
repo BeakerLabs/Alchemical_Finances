@@ -1,4 +1,4 @@
-# This file will be used to generate the About Alcehmical Finances SubWindow
+# This file will be used to generate the About Alchemical Finances SubWindow
 
 import codecs
 import pickle
@@ -222,7 +222,7 @@ class Ui_AboutScreen(object):
         # Background
         self.staticBackground = QtWidgets.QLabel()
         self.staticBackground.setObjectName("staticBackground")
-        self.staticBackground.setText(" Release Notes")
+        self.staticBackground.setText(" People who helped make this possible:")
         self.staticBackground.setAlignment(QtCore.Qt.AlignLeft)
         self.staticBackground.setFont(static_font)
         self.vLayoutOne.addWidget(self.staticBackground)
@@ -240,8 +240,14 @@ class Ui_AboutScreen(object):
 
         self.kineticBackground = QtWidgets.QLabel()
         self.kineticBackground.setObjectName("kineticBackground")
-        # text = "This text will surely aggrivate someone. " * 1000
-        self.kineticBackground.setText(self.aboutDict[self.version][3])
+        text = ""
+        for count, name in enumerate(self.aboutDict[self.version][3]):
+            if count >= 1:
+                text += ", " + name
+            else:
+                text += name
+
+        self.kineticBackground.setText(text)
         self.kineticBackground.setAlignment(QtCore.Qt.AlignLeft)
         self.kineticBackground.setFont(kinetic_font)
         self.kineticBackground.setWordWrap(True)

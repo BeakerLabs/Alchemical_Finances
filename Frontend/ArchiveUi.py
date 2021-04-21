@@ -108,14 +108,6 @@ class Ui_Archive(object):
         self.pBRestore.setFixedWidth(150)
         self.hBLayout2.addWidget(self.pBRestore)
 
-        self.pBDelete = QtWidgets.QPushButton()
-        self.pBDelete.setObjectName("pB")
-        self.pBDelete.setText("Delete")
-        self.pBDelete.setFont(pushButton_font)
-        self.pBDelete.setSizePolicy(pushButton_sizePolicy)
-        self.pBDelete.setFixedWidth(150)
-        self.hBLayout2.addWidget(self.pBDelete)
-
         self.pBDisplayReceipt = QtWidgets.QPushButton()
         self.pBDisplayReceipt.setObjectName("pB")
         self.pBDisplayReceipt.setText("Display Receipt")
@@ -123,6 +115,14 @@ class Ui_Archive(object):
         self.pBDisplayReceipt.setSizePolicy(pushButton_sizePolicy)
         self.pBDisplayReceipt.setFixedWidth(150)
         self.hBLayout2.addWidget(self.pBDisplayReceipt)
+
+        self.pBDelete = QtWidgets.QPushButton()
+        self.pBDelete.setObjectName("pB")
+        self.pBDelete.setText("Delete")
+        self.pBDelete.setFont(pushButton_font)
+        self.pBDelete.setSizePolicy(pushButton_sizePolicy)
+        self.pBDelete.setFixedWidth(150)
+        self.hBLayout2.addWidget(self.pBDelete)
 
         self.hVSpacer1 = QtWidgets.QSpacerItem(adjusted_width/6, 40, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.hBLayout2.addItem(self.hVSpacer1)

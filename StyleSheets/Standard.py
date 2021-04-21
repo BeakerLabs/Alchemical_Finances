@@ -37,7 +37,9 @@ QTextEdit{
 
 QPushButton{
     border: 1px solid #414E41;
-    background-color: #A3A3A3;
+    background: qlineargradient(x1: 0, y1: 0, x2: 0 y2: 1,
+                                stop: 0 #A3A3A3, stop: 0.4 #999999,
+                                stop: 0.5 #9E9E9E, stop: 0.1 #ADADAD);
     border-radius: 2px;
     font-weight: bold;
     padding: 2px;
@@ -57,6 +59,9 @@ QPushButton:pressed{
 QPushButton:hover{
     border: 2px solid #414E41;
     background-color: #BEDF7C;
+    background: qlineargradient(x1: 0, y1: 0, x2: 0 y2: 1,
+                            stop: 0 #BEDF7C, stop: 0.4 #B4D969,
+                            stop: 0.5 #AFD06D, stop: 0.1 #B8D774);
     padding: 2px;
     padding-right: 15px;
     padding-left: 15px;

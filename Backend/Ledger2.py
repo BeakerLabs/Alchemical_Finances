@@ -683,34 +683,26 @@ class LedgerV2(QDialog):
         tab_sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
 
         if target_tab == "SubType":
-            for count, assetType in enumerate(subType_string_dict, start=1):
-                self.assetTypeLabel = QtWidgets.QLabel()
-                self.assetTypeLabel.setObjectName(f"lAssetType{count}")
-                self.assetTypeLabel.setText(subType_string_dict[assetType])
-                self.assetTypeLabel.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
-                # self.assetTypeLabel.setFixedHeight(40)
-                self.assetTypeLabel.setFont(label_font)
-                self.assetTypeLabel.setStyleSheet(spendingLabel)
-                self.assetTypeLabel.setSizePolicy(tab_sizePolicy)
-                self.subType_label_dict[count] = self.assetTypeLabel
-
-                self.ui.typeScrollLayout.addWidget(self.assetTypeLabel)
-
+            string_dictionary = subType_string_dict
+            label_dictionary = self.subType_label_dict
+            layout = self.ui.typeScrollLayout
         elif target_tab == "Investment":
-            for count, investment in enumerate(investment_string_dict, start=1):
-                self.investmentLabel = QtWidgets.QLabel()
-                self.investmentLabel.setObjectName(f"investmentLabel{count}")
-                self.investmentLabel.setText(investment_string_dict[investment])
-                self.investmentLabel.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
-                # self.investmentLabel.setFixedHeight(60)
-                self.investmentLabel.setFont(label_font)
-                self.investmentLabel.setStyleSheet(spendingLabel)
-                self.investmentLabel.setSizePolicy(tab_sizePolicy)
-                self.investment_label_dict[count] = self.investmentLabel
-
-                self.ui.investmentScrollLayout.addWidget(self.investmentLabel)
+            string_dictionary = investment_string_dict
+            label_dictionary = self.investment_label_dict
+            layout = self.ui.investmentScrollLayout
         else:
             raise Exception("Ledger Type 2 Doesn't Contain that Tab Widget")
+
+        for count, Type in enumerate(string_dictionary, start=1):
+            self.TypeLabel = QtWidgets.QLabel()
+            self.TypeLabel.setObjectName(f"lAssetType{count}")
+            self.TypeLabel.setText(string_dictionary[Type])
+            self.TypeLabel.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
+            self.TypeLabel.setFont(label_font)
+            self.TypeLabel.setStyleSheet(spendingLabel)
+            self.TypeLabel.setSizePolicy(tab_sizePolicy)
+            label_dictionary[count] = self.TypeLabel
+            layout.addWidget(self.TypeLabel)
 
     def update_tab_display(self, target_tab):
         subType_data, investment_data, subType_string_dict, investment_string_dict = equity_subtype_data(self.refUserDB, self.parentType, self.error_Logger)
@@ -734,17 +726,16 @@ class LedgerV2(QDialog):
                 target_label = label_dict[count]
                 target_label.setText(string_data[assetType])
             except KeyError:
-                self.assetTypeLabel = QtWidgets.QLabel()
-                self.assetTypeLabel.setObjectName(f"lAssetType{count}")
-                self.assetTypeLabel.setText(string_data[assetType])
-                self.assetTypeLabel.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
-                # self.assetTypeLabel.setFixedHeight(40)
-                self.assetTypeLabel.setFont(label_font)
-                self.assetTypeLabel.setStyleSheet(spendingLabel)
-                self.assetTypeLabel.setSizePolicy(tab_sizePolicy)
-                label_dict[assetType] = self.assetTypeLabel
+                self.TypeLabel = QtWidgets.QLabel()
+                self.TypeLabel.setObjectName(f"lAssetType{count}")
+                self.TypeLabel.setText(string_data[assetType])
+                self.TypeLabel.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
+                self.TypeLabel.setFont(label_font)
+                self.TypeLabel.setStyleSheet(spendingLabel)
+                self.TypeLabel.setSizePolicy(tab_sizePolicy)
+                label_dict[assetType] = self.TypeLabel
 
-                scroll_layout.addWidget(self.assetTypeLabel)
+                scroll_layout.addWidget(self.TypeLabel)
 
         if len(label_dict) > len(string_data):
             unused_label_count = len(label_dict) - (len(label_dict) - len(string_data))
