@@ -28,6 +28,7 @@ class Message(QDialog):
         # Global Variable for this Dialog
         self.userCount = messageCount
         self.refuser = user
+        self.userName = None
         self.dbPathway = file_destination(['data', 'account'])
         self.dbPathway = Path.cwd() / self.dbPathway / "UAInformation.db"
 
@@ -42,8 +43,18 @@ class Message(QDialog):
         self.ui.pushButtonNext.clicked.connect(self.disp_next_message)
         self.ui.pushButtonClose.clicked.connect(self.close_message)
 
+        # Obtain User Name if exists
+        name_statment = f"SELECT FirstName || ' ' || LastName FROM Users"
+        name_raw = obtain_sql_value(name_statment, self.dbPathway, self.error_log)
+        self.userName = name_raw[0]
+
+        if self.userName is None:
+            username = self.refuser
+        else:
+            username = self.userName
+
         # Set Appearance
-        self.ui.labelWelcome.setText(f"{self.messageDict[self.userCount][0]} {self.refuser.capitalize()},")
+        self.ui.labelWelcome.setText(f"{self.messageDict[self.userCount][0]} {username},")
         self.ui.messageLabel.setText(self.messageDict[self.userCount][1] * 100)
 
         if self.userCount == len(self.messageDict) - 1:

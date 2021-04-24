@@ -106,6 +106,17 @@ def first_character_check(userValue: str):
         return False
 
 
+def find_specific_character(userValue: str, character: str):
+    """ Used to check for a specific input character"""
+    try:
+        if character in userValue:
+            return True
+        else:
+            return False
+    except TypeError:
+        return False
+
+
 def spacing_check(user_value: str):
     """
     Function designed to quickly check for unwanted blank spacers in a string.

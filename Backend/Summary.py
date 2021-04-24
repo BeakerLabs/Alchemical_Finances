@@ -31,6 +31,7 @@ class Ledger_Summary(QDialog):
         self.summaryTuple = None
         self.summaryFrame_width = self.ui.frameSummary.geometry().width()
         self.progress_width = self.summaryFrame_width * (2/3)
+        self.labelHeight = 45
         self.row = 0
         # label dictionary[AccountName] = label for Account Balances
         self.balancelabeldic = {}
@@ -128,7 +129,7 @@ class Ledger_Summary(QDialog):
                 lParent = QLabel(self)
                 lParent.setObjectName(f"label{parentType}")
                 lParent.setText(f"  {parentType.title()}")
-
+                lParent.setFixedHeight(75)
                 parentfont = QtGui.QFont()
                 set_font(parentfont, 24, True, False)
 
@@ -145,7 +146,7 @@ class Ledger_Summary(QDialog):
                 lColheader1 = QLabel(self)
                 lColheader1.setObjectName("labelAN" + parentType + "header")
                 lColheader1.setText("Account Name")
-
+                lColheader1.setFixedHeight(self.labelHeight)
                 headerfont = QtGui.QFont()
                 set_font(headerfont, 16, True, False)
 
@@ -157,6 +158,7 @@ class Ledger_Summary(QDialog):
                 lColheader2.setObjectName("labelAT" + parentType + "header")
                 lColheader2.setText("Account Type")
                 lColheader2.setFont(headerfont)
+                lColheader2.setFixedHeight(self.labelHeight)
                 self.set_formatting(lColheader2, headerfont, QtCore.Qt.AlignHCenter, columnHeader)
                 self.headerhBoxLayout.addWidget(lColheader2)
 
@@ -165,6 +167,7 @@ class Ledger_Summary(QDialog):
                     lColheaderShares.setObjectName(f"labelSB{parentType}header")
                     lColheaderShares.setText("Share Balance")
                     lColheaderShares.setFont(headerfont)
+                    lColheaderShares.setFixedHeight(self.labelHeight)
                     self.set_formatting(lColheaderShares, headerfont, QtCore.Qt.AlignHCenter, columnHeader)
                     self.headerhBoxLayout.addWidget(lColheaderShares)
 
@@ -172,6 +175,7 @@ class Ledger_Summary(QDialog):
                 lColheader3.setObjectName("labelB" + parentType + "header")
                 lColheader3.setText("Balance")
                 lColheader3.setFont(headerfont)
+                lColheader3.setFixedHeight(self.labelHeight)
                 self.set_formatting(lColheader3, headerfont, QtCore.Qt.AlignHCenter, columnHeader)
                 self.headerhBoxLayout.addWidget(lColheader3)
 
@@ -206,6 +210,7 @@ class Ledger_Summary(QDialog):
                     lID.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft)
                     lID.setStyleSheet(accountDetails)
                     lID.setWordWrap(True)
+                    lID.setFixedHeight(self.labelHeight)
                     self.accountHBoxLayout.addWidget(lID)
 
                     lSubType = QLabel(self)
@@ -214,6 +219,7 @@ class Ledger_Summary(QDialog):
                     lSubType.setFont(accountFont)
                     lSubType.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignHCenter)
                     lSubType.setStyleSheet(accountDetails)
+                    lSubType.setFixedHeight(self.labelHeight)
                     self.accountHBoxLayout.addWidget(lSubType)
 
                     if parentType in ["Equity", "Retirement"]:
@@ -230,6 +236,7 @@ class Ledger_Summary(QDialog):
                         lShareBalance.setFont(accountFont)
                         lShareBalance.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignHCenter)
                         lShareBalance.setStyleSheet(accountDetails)
+                        lShareBalance.setFixedHeight(self.labelHeight)
                         self.accountHBoxLayout.addWidget(lShareBalance)
 
                     lBalance = QLabel(self)
@@ -251,6 +258,7 @@ class Ledger_Summary(QDialog):
                     lBalance.setFont(accountFont)
                     lBalance.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignRight)
                     lBalance.setStyleSheet(accountDetails)
+                    lBalance.setFixedHeight(self.labelHeight)
                     self.accountHBoxLayout.addWidget(lBalance)
 
                     self.row += 1
@@ -316,6 +324,7 @@ class Ledger_Summary(QDialog):
                 set_font(totalfont, 16, True, False)
                 labelTotal.setFont(totalfont)
                 labelTotal.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignRight)
+                labelTotal.setFixedHeight(self.labelHeight)
                 self.subTotalHBoxLayout.addWidget(labelTotal)
 
                 labelSubTotal = QLabel(self)
@@ -334,6 +343,7 @@ class Ledger_Summary(QDialog):
                 labelSubTotal.setFrameShadow(QFrame.Sunken)
                 labelSubTotal.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignRight)
                 labelSubTotal.setStyleSheet(subtotalBalanceFormat)
+                labelSubTotal.setFixedHeight(self.labelHeight)
                 self.subTotalHBoxLayout.addWidget(labelSubTotal)
 
                 self.row += 1
@@ -351,188 +361,198 @@ class Ledger_Summary(QDialog):
 
         if len(current_accounts_raw) > 0:
             for account in current_accounts_raw:
-                target_layout = self.accountLayoutdic[account[1]]
-                self.row += 1
-                parentType = account[1]
-                accountID = remove_space(account[3])
+                try:
+                    target_layout = self.accountLayoutdic[account[1]]
+                except KeyError:
+                    target_layout = QtWidgets.QVBoxLayout()
+                    target_layout.setObjectName(f"{self.row}VBoxLayout{account[1]}")
+                    self.accountLayoutdic[account[1]] = target_layout
+                finally:
+                    self.row += 1
+                    parentType = account[1]
+                    accountID = remove_space(account[3])
 
-                self.accountHBoxLayout = QtWidgets.QHBoxLayout()
-                self.accountHBoxLayout.setObjectName(f"{accountID}BoxLayoutrow{self.row}")
-                target_layout.addLayout(self.accountHBoxLayout)
+                    self.accountHBoxLayout = QtWidgets.QHBoxLayout()
+                    self.accountHBoxLayout.setObjectName(f"{accountID}BoxLayoutrow{self.row}")
+                    target_layout.addLayout(self.accountHBoxLayout)
 
-                # [Asset/Liability, ParentType, Subtype, ID, Balance]
-                verticalSpacer = QSpacerItem(0, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
-                self.accountHBoxLayout.addItem(verticalSpacer)
+                    # [Asset/Liability, ParentType, Subtype, ID, Balance]
+                    verticalSpacer = QSpacerItem(0, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
+                    self.accountHBoxLayout.addItem(verticalSpacer)
 
-                accountFont = QtGui.QFont()
-                set_font(accountFont, 16, False, False)
+                    accountFont = QtGui.QFont()
+                    set_font(accountFont, 16, False, False)
 
-                lID = QLabel(self)
-                lID.setObjectName(f"labelAN{accountID}")
-                lID.setText(account[3].title())
-                lID.setFont(accountFont)
-                lID.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft)
-                lID.setStyleSheet(accountDetails)
-                self.accountHBoxLayout.addWidget(lID)
+                    lID = QLabel(self)
+                    lID.setObjectName(f"labelAN{accountID}")
+                    lID.setText(account[3].title())
+                    lID.setFont(accountFont)
+                    lID.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft)
+                    lID.setStyleSheet(accountDetails)
+                    lID.setFixedHeight(self.labelHeight)
+                    self.accountHBoxLayout.addWidget(lID)
 
-                lSubType = QLabel(self)
-                lSubType.setObjectName(f"labelAT{accountID}")
-                lSubType.setText(account[2].title())
-                lSubType.setFont(accountFont)
-                lSubType.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft)
-                lSubType.setStyleSheet(accountDetails)
-                self.accountHBoxLayout.addWidget(lSubType)
+                    lSubType = QLabel(self)
+                    lSubType.setObjectName(f"labelAT{accountID}")
+                    lSubType.setText(account[2].title())
+                    lSubType.setFont(accountFont)
+                    lSubType.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft)
+                    lSubType.setStyleSheet(accountDetails)
+                    lSubType.setFixedHeight(self.labelHeight)
+                    self.accountHBoxLayout.addWidget(lSubType)
 
-                if parentType in ["Equity", "Retirement"]:
-                    shareBalance_Statement = f"SELECT SUM(Purchased - Sold) FROM {accountID}"
-                    shareBalance_raw = obtain_sql_value(shareBalance_Statement, self.refUserDB, self.error_Logger)
-                    if shareBalance_raw[0] is None:
-                        shareBalance_checked = 0
+                    if parentType in ["Equity", "Retirement"]:
+                        shareBalance_Statement = f"SELECT SUM(Purchased - Sold) FROM {accountID}"
+                        shareBalance_raw = obtain_sql_value(shareBalance_Statement, self.refUserDB, self.error_Logger)
+                        if shareBalance_raw[0] is None:
+                            shareBalance_checked = 0
+                        else:
+                            shareBalance_checked = shareBalance_raw[0]
+                        shareBalance = decimal_places(shareBalance_checked, 4)
+                        lShareBalance = QLabel(self)
+                        lShareBalance.setObjectName(f"lShareBalance{accountID}")
+                        lShareBalance.setText(str(shareBalance))
+                        lShareBalance.setFont(accountFont)
+                        lShareBalance.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft)
+                        lShareBalance.setStyleSheet(accountDetails)
+                        lShareBalance.setFixedHeight(self.labelHeight)
+                        self.accountHBoxLayout.addWidget(lShareBalance)
+
+                    lBalance = QLabel(self)
+                    lBalance.setObjectName("labelBal" + accountID)
+                    self.balancelabeldic[account[3]] = lBalance
+
+                    if account[0] == "Liability":
+                        raw_Balance = - account[4]
                     else:
-                        shareBalance_checked = shareBalance_raw[0]
-                    shareBalance = decimal_places(shareBalance_checked, 4)
-                    lShareBalance = QLabel(self)
-                    lShareBalance.setObjectName(f"lShareBalance{accountID}")
-                    lShareBalance.setText(str(shareBalance))
-                    lShareBalance.setFont(accountFont)
-                    lShareBalance.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft)
-                    lShareBalance.setStyleSheet(accountDetails)
-                    self.accountHBoxLayout.addWidget(lShareBalance)
+                        raw_Balance = account[4]
 
-                lBalance = QLabel(self)
-                lBalance.setObjectName("labelBal" + accountID)
-                self.balancelabeldic[account[3]] = lBalance
+                    raw_Balance = float(raw_Balance)
+                    balance_formatted = cash_format(raw_Balance, 2)
+                    lBalance.setText(balance_formatted[2])
 
-                if account[0] == "Liability":
-                    raw_Balance = - account[4]
+                    lBalance.setFont(accountFont)
+                    lBalance.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignRight)
+                    lBalance.setStyleSheet(accountDetails)
+                    lBalance.setFixedHeight(self.labelHeight)
+                    self.accountHBoxLayout.addWidget(lBalance)
+
+                    self.row += 1
+
+                    if parentType == "Debt" or parentType == "Credit":
+                        self.progressHBoxLayout = QtWidgets.QHBoxLayout()
+                        self.progressHBoxLayout.setObjectName(f"{accountID}BoxLayoutrow{self.row}")
+                        target_layout.addLayout(self.progressHBoxLayout)
+
+                        self.hSpacer = QtWidgets.QSpacerItem(self.progress_width, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+                        self.progressHBoxLayout.addItem(self.hSpacer)
+
+                        labelprogress = QLabel(self)
+                        labelprogress.setObjectName("labelProg" + accountID)
+                        if parentType == "Debt":
+                            labelprogress.setText("Percent Remaining:")
+                        else:
+                            labelprogress.setText("Credit Available:")
+
+                        progressfont = QtGui.QFont()
+                        set_font(progressfont, 12, True, False)
+                        labelprogress.setFont(progressfont)
+                        labelprogress.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignRight)
+                        self.progressHBoxLayout.addWidget(labelprogress)
+
+                        debtprogressBar = QProgressBar(self)
+                        debtprogressBar.setMinimum(0)
+                        debtprogressBar.setMaximum(100)
+
+                        if parentType == "Debt":
+                            start_statement = f"SELECT Starting_Balance FROM Debt_Account_Details WHERE Account_Name='{account[3]}'"
+                            start = obtain_sql_value(start_statement, self.refUserDB, self.error_Logger)
+                            start = start[0]
+                            progress = (decimal_places(account[4], 2) / decimal_places(start, 2)) * 100
+                            progress = int(progress)
+                        else:
+                            start_statement = f"SELECT Credit_Limit FROM Credit_Account_Details WHERE Account_Name='{account[3]}'"
+                            start = obtain_sql_value(start_statement, self.refUserDB, self.error_Logger)
+                            start = start[0]
+                            progress = 100 - ((decimal_places(account[4], 2) / decimal_places(start, 2)) * 100)
+                            progress = int(progress)
+
+                        debtprogressBar.setProperty("value", progress)
+                        debtprogressBar.setObjectName("progressBar" + accountID)
+                        # label dictionary[AccountName] = label for ProgressBar
+                        self.progBardic[account[3]] = debtprogressBar
+                        self.progressHBoxLayout.addWidget(debtprogressBar)
+
+            for account in self.balancelabeldic:
+                balanceStatement = f"SELECT Balance, ItemType, ParentType FROM Account_Summary WHERE ID='{account}'"
+                accountInfo = obtain_sql_value(balanceStatement, self.refUserDB, self.error_Logger)
+
+                if accountInfo is None:
+                    accountInfo = (0.00, "Deleted", "Deleted")
+
+                modBalance = add_comma(accountInfo[0],  2)
+                targetlabel = self.balancelabeldic[account]
+
+                if accountInfo[1] == "Liability":
+                    if accountInfo[0] >= 0:
+                        targetlabel.setText(f"(${modBalance})")
+                    else:
+                        targetlabel.setText(f"${modBalance}")
+                elif accountInfo[1] == "Deleted":
+                    targetlabel.setText("$ 0.00")
                 else:
-                    raw_Balance = account[4]
-
-                raw_Balance = float(raw_Balance)
-                balance_formatted = cash_format(raw_Balance, 2)
-                lBalance.setText(balance_formatted[2])
-
-                lBalance.setFont(accountFont)
-                lBalance.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignRight)
-                lBalance.setStyleSheet(accountDetails)
-                self.accountHBoxLayout.addWidget(lBalance)
-
-                self.row += 1
-
-                if parentType == "Debt" or parentType == "Credit":
-                    self.progressHBoxLayout = QtWidgets.QHBoxLayout()
-                    self.progressHBoxLayout.setObjectName(f"{accountID}BoxLayoutrow{self.row}")
-                    target_layout.addLayout(self.progressHBoxLayout)
-
-                    self.hSpacer = QtWidgets.QSpacerItem(self.progress_width, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-                    self.progressHBoxLayout.addItem(self.hSpacer)
-
-                    labelprogress = QLabel(self)
-                    labelprogress.setObjectName("labelProg" + accountID)
-                    if parentType == "Debt":
-                        labelprogress.setText("Percent Remaining:")
+                    if accountInfo[0] >= 0:
+                        targetlabel.setText(f"${modBalance}")
                     else:
-                        labelprogress.setText("Credit Available:")
+                        targetlabel.setText(f"(${modBalance})")
 
-                    progressfont = QtGui.QFont()
-                    set_font(progressfont, 12, True, False)
-                    labelprogress.setFont(progressfont)
-                    labelprogress.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignRight)
-                    self.progressHBoxLayout.addWidget(labelprogress)
-
-                    debtprogressBar = QProgressBar(self)
-                    debtprogressBar.setMinimum(0)
-                    debtprogressBar.setMaximum(100)
-
-                    if parentType == "Debt":
-                        start_statement = f"SELECT Starting_Balance FROM Debt_Account_Details WHERE Account_Name='{account[3]}'"
-                        start = obtain_sql_value(start_statement, self.refUserDB, self.error_Logger)
-                        start = start[0]
-                        progress = (decimal_places(account[4], 2) / decimal_places(start, 2)) * 100
+                if account in self.progBardic:
+                    if accountInfo[2] == "Debt":
+                        start = self.obtain_liability_start("Starting_Balance", "Debt_Account_Details", account)
+                        progress = (decimal_places(accountInfo[0], 2) / decimal_places(start, 2)) * 100
                         progress = int(progress)
+                        targetbar = self.progBardic[account]
+                        targetbar.setProperty("value", progress)
+                    elif accountInfo[2] == "Deleted":
+                        progress = 100
+                        targetbar = self.progBardic[account]
+                        targetbar.setProperty("value", progress)
                     else:
-                        start_statement = f"SELECT Credit_Limit FROM Credit_Account_Details WHERE Account_Name='{account[3]}'"
-                        start = obtain_sql_value(start_statement, self.refUserDB, self.error_Logger)
-                        start = start[0]
-                        progress = 100 - ((decimal_places(account[4], 2) / decimal_places(start, 2)) * 100)
+                        start = self.obtain_liability_start("Credit_Limit", "Credit_Account_Details", account)
+                        progress = 100 - ((decimal_places(accountInfo[0], 2) / decimal_places(start, 2)) * 100)
                         progress = int(progress)
+                        targetbar = self.progBardic[account]
+                        targetbar.setProperty("value", progress)
 
-                    debtprogressBar.setProperty("value", progress)
-                    debtprogressBar.setObjectName("progressBar" + accountID)
-                    # label dictionary[AccountName] = label for ProgressBar
-                    self.progBardic[account[3]] = debtprogressBar
-                    self.progressHBoxLayout.addWidget(debtprogressBar)
-
-        for account in self.balancelabeldic:
-            balanceStatement = f"SELECT Balance, ItemType, ParentType FROM Account_Summary WHERE ID='{account}'"
-            accountInfo = obtain_sql_value(balanceStatement, self.refUserDB, self.error_Logger)
-
-            if accountInfo is None:
-                accountInfo = (0.00, "Deleted", "Deleted")
-
-            modBalance = add_comma(accountInfo[0],  2)
-            targetlabel = self.balancelabeldic[account]
-
-            if accountInfo[1] == "Liability":
-                if accountInfo[0] >= 0:
-                    targetlabel.setText(f"(${modBalance})")
+            for parentType in self.subtotaldic:
+                if parentType == "Certificate of Deposit":
+                    sqlparentType = "CD"
+                elif parentType == "Treasury Bonds":
+                    sqlparentType = "Treasury"
                 else:
-                    targetlabel.setText(f"${modBalance}")
-            elif accountInfo[1] == "Deleted":
-                targetlabel.setText("$ 0.00")
-            else:
-                if accountInfo[0] >= 0:
-                    targetlabel.setText(f"${modBalance}")
+                    sqlparentType = parentType
+                subTotalStatement = "SELECT SUM(Balance), ItemType FROM Account_Summary WHERE ParentType='" + sqlparentType + "'"
+                subTotalInfo = obtain_sql_value(subTotalStatement, self.refUserDB, self.error_Logger)
+                preModSubTotal = subTotalInfo[0]
+
+                if preModSubTotal is None:
+                    preModSubTotal = 0.0
+
+                if subTotalInfo[1] == "Liability":
+                    raw_Balance = - preModSubTotal
                 else:
-                    targetlabel.setText(f"(${modBalance})")
+                    raw_Balance = preModSubTotal
 
-            if account in self.progBardic:
-                if accountInfo[2] == "Debt":
-                    start = self.obtain_liability_start("Starting_Balance", "Debt_Account_Details", account)
-                    progress = (decimal_places(accountInfo[0], 2) / decimal_places(start, 2)) * 100
-                    progress = int(progress)
-                    targetbar = self.progBardic[account]
-                    targetbar.setProperty("value", progress)
-                elif accountInfo[2] == "Deleted":
-                    progress = 100
-                    targetbar = self.progBardic[account]
-                    targetbar.setProperty("value", progress)
+                modBalance = decimal_places(raw_Balance, 2)
+                modSubTotal = add_comma(modBalance, 2)
+                targetlabel = self.subtotaldic[parentType]
+
+                if modBalance > 0:
+                    targetlabel.setText("  $  " + modSubTotal + "    ")
+                elif modBalance == 0:
+                    targetlabel.setText("$  0.00     ")
                 else:
-                    start = self.obtain_liability_start("Credit_Limit", "Credit_Account_Details", account)
-                    progress = 100 - ((decimal_places(accountInfo[0], 2) / decimal_places(start, 2)) * 100)
-                    progress = int(progress)
-                    targetbar = self.progBardic[account]
-                    targetbar.setProperty("value", progress)
-
-        for parentType in self.subtotaldic:
-            if parentType == "Certificate of Deposit":
-                sqlparentType = "CD"
-            elif parentType == "Treasury Bonds":
-                sqlparentType = "Treasury"
-            else:
-                sqlparentType = parentType
-            subTotalStatement = "SELECT SUM(Balance), ItemType FROM Account_Summary WHERE ParentType='" + sqlparentType + "'"
-            subTotalInfo = obtain_sql_value(subTotalStatement, self.refUserDB, self.error_Logger)
-            preModSubTotal = subTotalInfo[0]
-
-            if preModSubTotal is None:
-                preModSubTotal = 0.0
-
-            if subTotalInfo[1] == "Liability":
-                raw_Balance = - preModSubTotal
-            else:
-                raw_Balance = preModSubTotal
-
-            modBalance = decimal_places(raw_Balance, 2)
-            modSubTotal = add_comma(modBalance, 2)
-            targetlabel = self.subtotaldic[parentType]
-
-            if modBalance > 0:
-                targetlabel.setText("  $  " + modSubTotal + "    ")
-            elif modBalance == 0:
-                targetlabel.setText("$  0.00     ")
-            else:
-                targetlabel.setText("  ($  " + modSubTotal + ")    ")
+                    targetlabel.setText("  ($  " + modSubTotal + ")    ")
 
     def obtain_liability_start(self, col, tableName, accountName):
         startStatement = "SELECT " + col + " FROM " + tableName + " WHERE Account_Name='" + accountName + "'"
@@ -550,7 +570,6 @@ class Ledger_Summary(QDialog):
         currentQTYaccounts = len(accountList)
         oldQTYaccounts = len(self.summaryTuple)
         messagelabel = self.updateMessages[0]
-        # messagelabel.setStyleSheet(messagesheet)
 
         changes = "Reload Summary Page to Display New Accounts or Remove Old Accounts"
 

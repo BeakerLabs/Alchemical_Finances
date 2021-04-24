@@ -10,7 +10,7 @@ from Frontend.UserLoginUi import Ui_LoginScreen
 from pathlib import Path
 from PySide6.QtWidgets import QDialog
 from PySide6 import QtCore, QtWidgets
-from Toolbox.Error_Tools import check_characters, spacing_check
+from Toolbox.Error_Tools import check_characters, check_numerical_inputs, spacing_check
 from Toolbox.Formatting_Tools import gen_rand_str
 from Toolbox.SQL_Tools import attempt_sql_statement, obtain_sql_value, specific_sql_statement, sqlite3_keyword_check
 from Toolbox.OS_Tools import file_destination
@@ -94,12 +94,12 @@ class LoginForm(QDialog):
             self.accept()
 
     def new_profile_appearance(self, Toggle):
-        if Toggle is True:  # New Profile:
+        if Toggle:  # New Profile:
             a = False
             b = True
             self.ui.labelUserProfile.setText("New Profile Name:")
             self.ui.labelPassword.setText("New Password:")
-        if Toggle is False:  # Initial:
+        if not Toggle:  # Initial:
             a = True
             b = False
             self.ui.labelUserProfile.setText("Profile Name:")
@@ -123,27 +123,34 @@ class LoginForm(QDialog):
         self.ui.lineEditUserProfile.setFocus()
 
     def submit_profile(self):
-        if self.ui.lineEditPassword.text() != self.ui.lineEditConfirmPassword.text():
+        if not spacing_check(self.ui.lineEditUserProfile.text()):
+            self.ui.labelResponse.setText("Profile Name Formatted Wrong: No Blank Spaces")
+            self.dialog_appearance("NewError")
+
+        elif check_numerical_inputs(self.ui.lineEditUserProfile.text()):
+            self.ui.labelResponse.setText("Profile Names are not Soley Numerical")
+            self.dialog_appearance("NewError")
+
+        elif sqlite3_keyword_check(self.ui.lineEditUserProfile.text()):
+            self.ui.labelResponse.setText("Restricted Keyword: Use different Profile Name")
+            self.dialog_appearance("NewError")
+
+        elif self.ui.lineEditPassword.text() != self.ui.lineEditConfirmPassword.text():
             self.ui.labelResponse.setText("Passwords Do Not Match")
             self.dialog_appearance("NewError")
+
         elif len(self.ui.lineEditPassword.text()) < 6:
             self.ui.labelResponse.setText("Password Rule: Greater than 6 Characters")
             self.dialog_appearance("NewError")
-        elif isinstance(self.ui.lineEditUserProfile.text(), str) is False:
-            self.ui.labelResponse.setText("Profile Names are not Soley Numerical")
-            self.dialog_appearance("NewError")
-        elif spacing_check(self.ui.lineEditUserProfile.text()) is False:
-            self.ui.labelResponse.setText("Profile Name Formatted Wrong: No Blank Spaces")
-            self.dialog_appearance("NewError")
-        elif check_characters(self.ui.lineEditUserProfile.text(), "login") is False:
+
+        elif not check_characters(self.ui.lineEditUserProfile.text(), "login"):
             self.ui.labelResponse.setText("Password must be alphanumeric")
             self.dialog_appearance("NewError")
-        elif spacing_check(self.ui.lineEditPassword.text()) is False:
+
+        elif not spacing_check(self.ui.lineEditPassword.text()):
             self.ui.labelResponse.setText("Password Formatted Wrong: No Blank Spaces")
             self.dialog_appearance("NewError")
-        elif sqlite3_keyword_check(self.ui.lineEditUserProfile.text()) is True:
-            self.ui.labelResponse.setText("Restricted Keyword: Use different Profile Name")
-            self.dialog_appearance("NewError")
+
         else:
             if self.profile_check() is True:
                 self.add_user()
@@ -175,7 +182,7 @@ class LoginForm(QDialog):
         self.ui.labelResponse.setText("")
 
     def table_check(self):
-        creationStatement = "CREATE TABLE IF NOT EXISTS Users(Profile TEXT, Password TEXT, UserKey TEXT, Message INTEGER, Creation TEXT, Last_Visit TEXT)"
+        creationStatement = "CREATE TABLE IF NOT EXISTS Users(Profile TEXT, Password TEXT, UserKey TEXT, Message INTEGER, Creation TEXT, Last_Visit TEXT, FirstName TEXT, LastName TEXT, Email TEXT)"
         specific_sql_statement(creationStatement, self.dbPathway, self.error_Logger)
 
     def profile_check(self):
@@ -193,16 +200,19 @@ class LoginForm(QDialog):
         from datetime import datetime
         generateUserKey = gen_rand_str(7)
         creationDate = datetime.now().strftime("%Y/%m/%d")
-        newProfileStatement = f"INSERT INTO Users VALUES('{self.ui.lineEditUserProfile.text().lower()}', '{self.ui.lineEditConfirmPassword.text()}', '{generateUserKey}', '0', '{creationDate}', '{creationDate}')"
+        newProfileStatement = f"INSERT INTO Users VALUES('{self.ui.lineEditUserProfile.text().lower()}', '{self.ui.lineEditConfirmPassword.text()}', '{generateUserKey}', '0', '{creationDate}', '{creationDate}', NULL, NULL, NULL)"
         creationSuccess = attempt_sql_statement(newProfileStatement, self.dbPathway, self.error_Logger)
         if creationSuccess is True:
             self.ui.labelResponse.setText("New User Created")
             self.new_profile_appearance(False)
-            return True
+            print('Jacob has a golden spork')
+            self.ui.labelResponse.setText("Welcome")
+            self.refUser = self.ui.lineEditUserProfile.text().lower()
+            self.count = self.increase_message_count()
+            self.accept()
         else:
             self.dialog_appearance("NewLabel")
             self.ui.labelResponse.setText("Error Occurred: \nPlease Retry")
-            return False
 
     def increase_message_count(self):
         messageStatement = f"SELECT Message FROM Users WHERE Profile= '{self.refUser}'"

@@ -203,8 +203,8 @@ def obtain_sql_list(statement: str, database: str, error_log):
 def move_sql_tables(destination: str, origin: str, identifier: str, target: str, database: str, error_log):
     """ Move value(s) between sqlite3 tables. Deletes original input """
 
-    insert_statement = "INSERT INTO " + destination + " SELECT * FROM " + origin + " WHERE " + identifier + "= '" + target + "'"
-    delete_statement = "DELETE FROM " + origin + " WHERE " + identifier + "= '" + target + "'"
+    insert_statement = f"INSERT INTO {destination} SELECT * FROM {origin} WHERE {identifier} ='{target}'"
+    delete_statement = f"DELETE FROM {origin} WHERE {identifier}='{target}'"
     try:
         conn = sqlite3.connect(database)
         with conn:

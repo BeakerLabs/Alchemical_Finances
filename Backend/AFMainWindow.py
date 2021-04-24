@@ -58,10 +58,16 @@ class AFBackbone(QMainWindow):
         # Data Check is a Legacy Variable that isn't in use.
         self.dataCheck = None
 
+        # Dictionary used to determine what Tabs are open currently. Prevents duplicates
         self.tabdic = {}
 
         # Program Error Logger
         self.error_Logger = error_log
+
+        # obtain e-mail if it exists
+        email_Statement = f"SELECT Email FROM Users WHERE Profile='{self.refUser}'"
+        email_raw = obtain_sql_value(email_Statement, self.dbPathway, self.error_Logger)
+        self.email = email_raw[0]
 
         # Menu Bar Button Functionality
         # -- -- File - Summary, Generate Report, Export [Future], Save[Future] Close
@@ -127,6 +133,27 @@ class AFBackbone(QMainWindow):
                                         ov_graph_statement,
                                         contribution_graph_statement], self.saveState, self.error_Logger)
 
+            profile = Profile(self.refUser, self.error_Logger)
+            self.ui.mdiArea.addSubWindow(profile)
+            profile.remove_tab_profile.connect(self.remove_tab)
+            profile.showMaximized()
+            self.tabdic.update({"Profile": profile})
+
+        elif self.email is None:  # Intended to help prevent a case where the user can not reclaim their password
+            profile = Profile(self.refUser, self.error_Logger)
+            self.ui.mdiArea.addSubWindow(profile)
+            profile.remove_tab_profile.connect(self.remove_tab)
+            profile.showMaximized()
+            self.tabdic.update({"Profile": profile})
+
+        else:
+            summary = Ledger_Summary(self, self.refUserDB, self.error_Logger)
+            self.ui.mdiArea.addSubWindow(summary)
+            summary.remove_tab_LS.connect(self.remove_tab)
+            summary.showMaximized()
+            self.tabdic.update({"Summary": summary})
+            self.statusBar().showMessage("Operational")
+
         # Swap over to temporary Database
         # This will hold the temporary/active version of the database
         temp_pathway = self.saveState[:-3] + "-temp.db"
@@ -136,13 +163,6 @@ class AFBackbone(QMainWindow):
         # Initialize appearance upon Loading
         self.setStyleSheet(mainWindow)
         self.statusBar().showMessage("Stock Prices Updated")
-
-        summary = Ledger_Summary(self, self.refUserDB, self.error_Logger)
-        self.ui.mdiArea.addSubWindow(summary)
-        summary.remove_tab_LS.connect(self.remove_tab)
-        summary.showMaximized()
-        self.tabdic.update({"Summary": summary})
-        self.statusBar().showMessage("Operational")
 
         netWorth = set_networth(self.refUserDB, "Account_Summary", toggleformatting=True)
         self.ui.labelNW.setText(netWorth[1])
@@ -274,7 +294,7 @@ class AFBackbone(QMainWindow):
                 summary.showMaximized()
                 self.tabdic.update({parentType: summary})
             elif parentType == "Profile":
-                profile = Profile(self.refUserDB, self.error_Logger)
+                profile = Profile(self.refUser, self.error_Logger)
                 self.ui.mdiArea.addSubWindow(profile)
                 profile.remove_tab_profile.connect(self.remove_tab)
                 profile.showMaximized()
@@ -414,7 +434,7 @@ class AFBackbone(QMainWindow):
 
     def account_subtypes(self, subTypes, parentType, database):
         """ Single Use Function: Used to create the starting list of Account Sub Types for each Parent Type"""
-        create_table("AccountSubType", ["SubType", "ParentType", "Tabulate"], ["TEXT", "TEXT", "BOOL"], database, self.error_Logger)
+        create_table("AccountSubType", ["SubType", "ParentType"], ["TEXT", "TEXT"], database, self.error_Logger)
         if check_for_data("AccountSubType", "ParentType", parentType, database, self.error_Logger) is True:
             statementList = []
             for account in subTypes:

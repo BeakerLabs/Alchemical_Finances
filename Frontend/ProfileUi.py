@@ -110,6 +110,7 @@ class Ui_Profile(object):
         self.pBSaveName.setSizePolicy(sizePolicy)
         self.pBSaveName.setEnabled(True)
         self.pBSaveName.setFixedHeight(40)
+        self.pBSaveName.setEnabled(False)
         self.gridlayout.addWidget(self.pBSaveName, 4, 2, 1, 1)
 
         # Row 5 -- Spacer
@@ -168,6 +169,7 @@ class Ui_Profile(object):
         self.pBConfirmEmail.setSizePolicy(sizePolicy)
         self.pBConfirmEmail.setEnabled(True)
         self.pBConfirmEmail.setFixedHeight(40)
+        self.pBConfirmEmail.setEnabled(False)
         self.gridlayout.addWidget(self.pBConfirmEmail, 9, 2, 1, 1)
 
         # Row 10 -- Spacer
@@ -229,6 +231,7 @@ class Ui_Profile(object):
         self.pBConfirmPass.setSizePolicy(sizePolicy)
         self.pBConfirmPass.setEnabled(True)
         self.pBConfirmPass.setFixedHeight(40)
+        self.pBConfirmPass.setEnabled(False)
         self.gridlayout.addWidget(self.pBConfirmPass, 14, 2, 1, 1)
 
         # Row 15 -- Label
