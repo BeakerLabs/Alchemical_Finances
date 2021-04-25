@@ -9,13 +9,6 @@ import pickle
 list_o_people = ["Jacob Goldstein", "Daniel Morrison", "Nicole Lauch", "Lily Kull", "Briana Smith", "Morgan Huyler"]
 list_o_people.sort()
 
-welcomeMessageDict = {
-    0: ["Welcome", "I am glad you have chosen to use my Finance Ledger to manage your personal finances. This project has been in the works for what feels like a decade. "
-                   "The program you are using has evolved over the year from simple spreedsheet ledgers as my personal finances expanded and knowledge on the subject expanded."
-                   "\n\nThe design of this project is based upon the core principal:\n\n'Everyones Personal Finances are Unique.'\n\nWhich explains .. why i should really write this later."],
-    1: ["Welcome Back", """Another message I should really write at another time in the day"""]
-}
-
 AboutDict = {
     "1.00": ["Jonathan Shamberg", "September 30, 2021", "Jmshamberg@gmail.com", list_o_people]
 }
@@ -37,18 +30,33 @@ sqlite3_keyword_masterlist = ["ABORT", "ACTION", "ADD", "AFTER", "ALL", "ALTER",
                               "VALUES", "VIEW", "VIRTUAL", "WHEN", "WHERE", "WINDOW", "WITH", "WITHOUT"]
 
 
+def welcome_messages():
+    list_of_messages = [['message0.txt', 0, 'Welcome'], ['message1.txt', 1, 'Welcome Back' ]]
+    MessageDict = {}
+
+    for textFile in list_of_messages:
+        with open(textFile[0], 'r') as message:
+            message_list = message.readlines()
+            message_text = ""
+            for message_line in message_list:
+                message_text += message_line
+            MessageDict[textFile[1]] = [textFile[2], message_text]
+    return MessageDict
+
+
 if __name__ == "__main__":
-    # f = open("welcomedictionary.pkl", "wb")
-    # pickle.dump(welcomeMessageDict, f)
-    # f.close()
-    #
+    f = open("welcomedictionary.pkl", "wb")
+    welcomeMessageDict = welcome_messages()
+    pickle.dump(welcomeMessageDict, f)
+    f.close()
+
     # f = codecs.open("version", "w", "utf-8-sig")
     # f.write("1.00")
     # f.close()
     #
-    f = open("../AboutInfo.pkl", "wb")
-    pickle.dump(AboutDict, f)
-    f.close()
+    # f = open("../AboutInfo.pkl", "wb")
+    # pickle.dump(AboutDict, f)
+    # f.close()
 
     # f = open("../sql_Keyword_list.pkl", "wb")
     # pickle.dump(sqlite3_keyword_masterlist, f)

@@ -1,0 +1,13 @@
+Thank you for choosing to use Alchemical Finances. This has been a passion project of mine for many years now. 
+
+The concept has evolved over the course of my personal finance life. From my early days learning about checkbook ledgers at the kitchen table, all the way to college where I would build ever more complicated spreadsheets.
+
+The core concepts have never changed. Listing out my assets and liabilities to make sure I knew where my money was going at all times. The added bonus of having the ability to watch my net worth grow only added pride and excitement. 
+
+As my personal finances expanded, the tools required to track them became more complex, or at least cluttered. I found there were a variety of different websites and software packages that offered the ability to unify everything under one roof. Commonly these companies would automate the aggregation of my data leaving me feeling like more of a spectator than the coach.
+
+To address this, I set out to make my own software. Something that gave you near-full control over your financial story. Not to mention ownership of your data. To reiterate that, there is no data mining going on behind the scenes. Your data stays in your possession. Beaker Labs doesn’t have access to anything you input, and only profits off program sales. 
+
+We will always be up front and transparent about future surveys to gather user input on future features, and projects. I would like to see this project continue to grow, evolve, and expand. 
+
+I hope you will help make that a reality by continuing to support the Beaker Labs LLC. Project by visiting my website www.BeakerLabs.com and checking out my blog. I will be writing about a variety of different topics, including but not limited to: Tips and Tricks, Financial Literacy , Development updates, and Future Software Projects.

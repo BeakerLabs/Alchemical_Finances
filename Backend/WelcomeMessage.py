@@ -44,8 +44,8 @@ class Message(QDialog):
         self.ui.pushButtonClose.clicked.connect(self.close_message)
 
         # Obtain User Name if exists
-        name_statment = f"SELECT FirstName || ' ' || LastName FROM Users"
-        name_raw = obtain_sql_value(name_statment, self.dbPathway, self.error_log)
+        name_statement = f"SELECT FirstName || ' ' || LastName FROM Users"
+        name_raw = obtain_sql_value(name_statement, self.dbPathway, self.error_log)
         self.userName = name_raw[0]
 
         if self.userName is None:
@@ -55,7 +55,7 @@ class Message(QDialog):
 
         # Set Appearance
         self.ui.labelWelcome.setText(f"{self.messageDict[self.userCount][0]} {username},")
-        self.ui.messageLabel.setText(self.messageDict[self.userCount][1] * 100)
+        self.ui.messageLabel.setText(self.messageDict[self.userCount][1])
 
         if self.userCount == len(self.messageDict) - 1:
             self.ui.pushButtonNext.setHidden(True)

@@ -139,7 +139,13 @@ class AFBackbone(QMainWindow):
             profile.showMaximized()
             self.tabdic.update({"Profile": profile})
 
-        elif self.email is None:  # Intended to help prevent a case where the user can not reclaim their password
+        # Swap over to temporary Database
+        # This will hold the temporary/active version of the database
+        temp_pathway = self.saveState[:-3] + "-temp.db"
+        shutil.copyfile(self.saveState, temp_pathway)
+        self.refUserDB = temp_pathway
+
+        if self.email is None:  # Intended to help prevent a case where the user can not reclaim their password
             profile = Profile(self.refUser, self.error_Logger)
             self.ui.mdiArea.addSubWindow(profile)
             profile.remove_tab_profile.connect(self.remove_tab)
@@ -153,12 +159,6 @@ class AFBackbone(QMainWindow):
             summary.showMaximized()
             self.tabdic.update({"Summary": summary})
             self.statusBar().showMessage("Operational")
-
-        # Swap over to temporary Database
-        # This will hold the temporary/active version of the database
-        temp_pathway = self.saveState[:-3] + "-temp.db"
-        shutil.copyfile(self.saveState, temp_pathway)
-        self.refUserDB = temp_pathway
 
         # Initialize appearance upon Loading
         self.setStyleSheet(mainWindow)
