@@ -1,3 +1,7 @@
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 # This file will be used to generate the user profile SubWindow
 
 from PySide6 import QtCore, QtGui, QtWidgets

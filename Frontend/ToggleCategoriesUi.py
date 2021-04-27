@@ -1,3 +1,7 @@
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 # Dialog screen for use to determine what categories are used to calculate spending habits
 import sys
 

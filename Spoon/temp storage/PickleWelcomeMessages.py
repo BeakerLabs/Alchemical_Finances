@@ -3,6 +3,10 @@ This program is not intended to be included in the release of the program. It is
 the message dictionary.
 """
 
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 import codecs
 import pickle
 

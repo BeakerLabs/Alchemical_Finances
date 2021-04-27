@@ -4,6 +4,10 @@ This script collects traceback errors and Developer set exceptions to help with 
 Future Concepts
 1) Separate out a Debug and Error level errors. This will require designating errors accordingly.
 """
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 import logging
 import sys
 

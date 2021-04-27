@@ -6,6 +6,10 @@ Future Concepts
 
 """
 
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 from PySide6 import QtGui, QtCore, QtWidgets
 from PySide6.QtWidgets import QDialog, QFrame, QVBoxLayout, QLabel, QSizePolicy, QSpacerItem, QProgressBar
 from PySide6.QtCore import Slot

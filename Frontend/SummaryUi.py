@@ -1,3 +1,7 @@
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 # Dialog object created to be a canvas for the Code Generate the Summary Report
 
 # Some static layout attributes will be generated here and have the visuals added later.

@@ -1,3 +1,7 @@
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 # This Dialog is a Subwindow for the Mainwindow MdiArea
 # Ledger 1 is used for Non Equity Accounts. As there are no shares to track.
 

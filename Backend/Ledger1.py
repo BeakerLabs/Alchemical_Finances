@@ -9,6 +9,10 @@ the center and right display frames were previously referred to as variable1 [in
 to clarify function/purpose of any given object.
 """
 
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 import os
 
 from PySide6.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog
@@ -696,7 +700,6 @@ class LedgerV1(QDialog):
                     self.spendingLabel.setObjectName(f"lspending{target_tab}Type{count}")
                     self.spendingLabel.setText(spending_statement_string[value[0]])
                     self.spendingLabel.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
-                    # self.spendingLabel.setFixedHeight(40)
                     self.spendingLabel.setFont(label_font)
                     self.spendingLabel.setStyleSheet(spendingLabel)
                     self.spendingLabel.setSizePolicy(tab_sizePolicy)

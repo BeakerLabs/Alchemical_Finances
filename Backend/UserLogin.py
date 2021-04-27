@@ -6,6 +6,10 @@ Future Concepts
 
 """
 
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 from Frontend.UserLoginUi import Ui_LoginScreen
 from pathlib import Path
 from PySide6.QtWidgets import QDialog

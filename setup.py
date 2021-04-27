@@ -4,6 +4,10 @@ As the current file name states. This file is to execute the entire program. I w
   PorcelainSupplement = QDialog for Messages
   Porcelaingod = QMainWindow for the programs main hub.
 """
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 import os
 import sys
 

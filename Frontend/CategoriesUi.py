@@ -1,3 +1,7 @@
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 # Dialog screen for user to adjust budget Categories
 
 from PySide6 import QtCore, QtGui, QtWidgets

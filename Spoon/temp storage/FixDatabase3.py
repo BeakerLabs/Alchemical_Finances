@@ -1,5 +1,9 @@
 """ This fix will be used to create the "Tabulate" toggle for the categories table"""
 
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 from Toolbox.SQL_Tools import *
 from Toolbox.OS_Tools import *
 from Toolbox.Formatting_Tools import *

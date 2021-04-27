@@ -9,6 +9,10 @@ the center and right display frames were previously referred to as variable1 [Sh
 to clarify function/purpose of any given object.
 """
 
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 import os
 
 from PySide6.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog

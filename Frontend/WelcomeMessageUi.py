@@ -1,3 +1,7 @@
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 # This file is used as a welcome/update message dialog for users.
 # This layout was manual coded without Qt Designer.
 # This code relies on a GridLayout Structure. In Theory should be able to able to adjust to every screen resolution

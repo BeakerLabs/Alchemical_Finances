@@ -4,6 +4,10 @@ This script is the backend to Frontend.ProfileUi.py
 Due to the "static" nature of the tab. Anything kinetic can be done in the Frontend.
 
 """
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 from pathlib import Path
 
 from PySide6 import QtGui, QtCore, QtWidgets

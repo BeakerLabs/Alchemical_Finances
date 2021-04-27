@@ -6,6 +6,10 @@ Future Concepts
 
 """
 
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
@@ -103,12 +107,13 @@ def category_spending_by_interval(database, account, interval_length, interval, 
     for category in spending_dict:
         percentage = (spending_dict[category] / total) * 100
         percentage = float(percentage)
-        result_list.append([category, percentage])
+        subtotal = decimal_places(str(spending_dict[category]), 2)
+        result_list.append([category, percentage, subtotal])
         result_list.sort(reverse=True, key=lambda x: x[1])
 
     spending_string_dict = format_result_string(result_list)
 
-    # result_list = [Category, Percentage]
+    # result_list = [Category, Percentage, subtotal]
     # spending_String_dict = {Category: string}
     # spending_dict = {Category: cash Balance}
     return result_list, spending_string_dict, spending_dict
@@ -131,7 +136,7 @@ def format_result_string(data_list):
             percentage = str(decimal_places(dataPoint[1], 2))
         else:
             percentage = "   0.00%"
-        temp_string = f"{count}: {percentage}%  -- {dataPoint[0]}"
+        temp_string = f"{count}: {percentage}%  -- {dataPoint[0]}\n     ({cash_format(dataPoint[2], 2)})"
         temp_dict[dataPoint[0]] = temp_string
     return temp_dict
 

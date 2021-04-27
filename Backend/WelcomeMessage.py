@@ -5,6 +5,10 @@ Future Concepts
 1) Ability to disable the Welcome Message after reading the "last message"
 """
 
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 import pickle
 
 from pathlib import Path

@@ -1,3 +1,7 @@
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 # MdiArea SubWindow -- Displays the ledgers for Archived Accounts
 # Archived Accounts are accounts that have been closed.
 # Archiving keeps the account history without it being apart of the summary report

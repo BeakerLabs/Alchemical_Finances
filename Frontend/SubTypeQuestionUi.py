@@ -1,3 +1,7 @@
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 # Custom InputDialog box that contains three options.
 # Created for the purposes of allowing user to create / delete / nvm a new Account Sub Type.
 # This dialog box is activated through the ledger Category "Modify" pushbutton

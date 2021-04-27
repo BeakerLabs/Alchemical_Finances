@@ -1,3 +1,7 @@
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 # This Dialog is a Subwindow for the Mainwindow MdiArea
 # Ledger 2 is used for Equity Accounts.
 

@@ -1,3 +1,15 @@
+"""
+This script is the backend to all graphical displays
+
+Future Concepts
+1)
+
+"""
+
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 import os
 
 import matplotlib.pyplot as plt

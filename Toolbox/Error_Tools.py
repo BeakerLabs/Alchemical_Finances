@@ -1,3 +1,7 @@
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 def alpha_numeric_check(userValue: str):
     """
     Function used to ensure the input only has desired alphanumeric values.

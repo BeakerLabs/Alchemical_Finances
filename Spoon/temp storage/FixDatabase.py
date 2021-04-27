@@ -2,6 +2,10 @@
     Technically a larger fix than the others and the last to be implimented as it doesn't cross between the two verisons.
 """
 
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 from Toolbox.SQL_Tools import *
 from Toolbox.OS_Tools import *
 from Toolbox.Formatting_Tools import *

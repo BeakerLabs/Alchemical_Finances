@@ -10,6 +10,10 @@ Colors:
 6) #B41627 -- 180, 22, 39
 """
 
+#  Copyright (c) 2021 Beaker Labs LLC.
+#  This software the GNU LGPLv3.0 License
+#  www.BeakerLabs.com
+
 summarySTD = """
 QWidget{
     background-color: #FAFAFA;
