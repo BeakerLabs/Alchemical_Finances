@@ -9,12 +9,12 @@ Future Concepts
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabs.com
-
+import operator
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
-from Toolbox.Formatting_Tools import add_space, cash_format, decimal_places
+from Toolbox.Formatting_Tools import add_space, cash_format, decimal_places, remove_space
 
 
 def category_spending_data(database, account, error_log):
@@ -136,7 +136,8 @@ def format_result_string(data_list):
             percentage = str(decimal_places(dataPoint[1], 2))
         else:
             percentage = "   0.00%"
-        temp_string = f"{count}: {percentage}%  -- {dataPoint[0]}\n     ({cash_format(dataPoint[2], 2)})"
+        formatted_subtotal = cash_format(dataPoint[2], 2)
+        temp_string = f"{count}: {percentage}%  -- {dataPoint[0]}\n          ({formatted_subtotal[2]})"
         temp_dict[dataPoint[0]] = temp_string
     return temp_dict
 
@@ -155,10 +156,30 @@ def equity_subtype_data(database, parentType, error_log):
     # investment_list = [Investment, percentage, SubTotal]
     total = 0
 
+    sector_dictionary = {"Information Technology": [0, 0],
+                         "Health Care": [0, 0],
+                         "Financial": [0, 0],
+                         "Consumer Discretionary": [0, 0],
+                         "Communication": [0, 0],
+                         "Industrial": [0, 0],
+                         "Consumer Staples": [0, 0],
+                         "Energy": [0, 0],
+                         "Real Estate": [0, 0],
+                         "Materials": [0, 0],
+                         "Broad Market": [0, 0],
+                         "Unspecified": [0, 0]}
+
+    sector_list = []
+
     for investment in raw_data:
         subtype = investment[1]
         subType_dic[subtype][1] += investment[2]
         total += investment[2]
+
+        sector_statement = f"SELECT Sector FROM {parentType}_account_details WHERE Account_Name='{remove_space(investment[0])}'"
+        sector_raw = obtain_sql_value(sector_statement, database, error_log)
+        sector_value = sector_raw[0]
+        sector_dictionary[sector_value][1] += investment[2]
 
     for subType in subType_dic:
         balance = subType_dic[subType][1]
@@ -177,13 +198,25 @@ def equity_subtype_data(database, parentType, error_log):
         else:
             investment[1] = (investment[2] / total) * 100
 
+    for sector in sector_dictionary:
+        balance = sector_dictionary[sector][1]
+
+        if total <= 0:
+            sector_dictionary[sector][0] = 0
+        else:
+            sector_dictionary[sector][0] = (balance / total) * 100
+
+    [sector_list.append([sector, sector_dictionary[sector][0], sector_dictionary[sector][1]]) for sector in sector_dictionary]
+
     investment_list.sort(reverse=True, key=lambda x: x[1])
     subType_list.sort(reverse=True, key=lambda x: x[1])
+    sector_list.sort(reverse=True, key=lambda x: x[1])
 
     subType_string_dict = format_result_string(subType_list)
     investment_string_dict = format_result_string(investment_list)
+    sector_string_dict = format_result_string(sector_list)
 
-    return subType_list, investment_list, subType_string_dict, investment_string_dict
+    return subType_list, investment_list, sector_list, subType_string_dict, investment_string_dict, sector_string_dict
 
 
 if __name__ == "__main__":

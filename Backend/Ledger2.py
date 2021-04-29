@@ -69,6 +69,7 @@ class LedgerV2(QDialog):
 
         self.subType_label_dict = {}
         self.investment_label_dict = {}
+        self.sector_label_dict = {}
 
         # Program Error Logger
         self.error_Logger = error_log
@@ -86,6 +87,7 @@ class LedgerV2(QDialog):
 
         self.build_tabWidget_display("SubType")
         self.build_tabWidget_display("Investment")
+        self.build_tabWidget_display("Sector")
 
         # Ledger Widget Functionality
         self.ui.comboBLedger2.currentIndexChanged.connect(self.change_ledger2_account)
@@ -512,6 +514,7 @@ class LedgerV2(QDialog):
 
         self.update_tab_display("SubType")
         self.update_tab_display("Investment")
+        self.update_tab_display("Sector")
 
         # Triggers to refresh the other variables on the QMainWindow and subsequently the Summary window (if open)
         self.trigger_refresh()
@@ -679,7 +682,7 @@ class LedgerV2(QDialog):
 
     # Asset Graph Frame Functions
     def build_tabWidget_display(self, target_tab):
-        subType_data, investment_data, subType_string_dict, investment_string_dict = equity_subtype_data(self.refUserDB, self.parentType, self.error_Logger)
+        subType_data, investment_data, sector_data, subType_string_dict, investment_string_dict, sector_string_dict = equity_subtype_data(self.refUserDB, self.parentType, self.error_Logger)
 
         label_font = QtGui.QFont()
         set_font(label_font, 12, True, False)
@@ -694,6 +697,10 @@ class LedgerV2(QDialog):
             string_dictionary = investment_string_dict
             label_dictionary = self.investment_label_dict
             layout = self.ui.investmentScrollLayout
+        elif target_tab == "Sector":
+            string_dictionary = sector_string_dict
+            label_dictionary = self.sector_label_dict
+            layout = self.ui.sectorScrollLayout
         else:
             raise Exception("Ledger Type 2 Doesn't Contain that Tab Widget")
 
@@ -709,7 +716,7 @@ class LedgerV2(QDialog):
             layout.addWidget(self.TypeLabel)
 
     def update_tab_display(self, target_tab):
-        subType_data, investment_data, subType_string_dict, investment_string_dict = equity_subtype_data(self.refUserDB, self.parentType, self.error_Logger)
+        subType_data, investment_data, sector_data, subType_string_dict, investment_string_dict, sector_string_dict = equity_subtype_data(self.refUserDB, self.parentType, self.error_Logger)
 
         label_font = QtGui.QFont()
         set_font(label_font, 12, True, False)
@@ -720,10 +727,14 @@ class LedgerV2(QDialog):
             label_dict = self.subType_label_dict
             string_data = subType_string_dict
             scroll_layout = self.ui.typeScrollLayout
-        else:  # target_tab == "Investment"
+        elif target_tab == "Investment":
             label_dict = self.investment_label_dict
             string_data = investment_string_dict
             scroll_layout = self.ui.investmentScrollLayout
+        else:  # target_tab == "Sector":
+            string_dictionary = sector_string_dict
+            label_dictionary = self.sector_label_dict
+            layout = self.ui.sectorScrollLayout
 
         for count, assetType in enumerate(string_data, start=1):
             try:

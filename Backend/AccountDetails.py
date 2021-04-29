@@ -53,7 +53,7 @@ class AccountsDetails(QDialog):
         self.ui.pBDelete.clicked.connect(self.delete_account)
         self.ui.pBEdit.clicked.connect(self.edit_account)
         self.ui.pBSubmit.clicked.connect(self.submit_account)
-        self.ui.pBModify.clicked.connect(self.type_modifer)
+        self.ui.pBModify.clicked.connect(self.type_modifier)
         self.ui.pBArchive.clicked.connect(self.archive_account)
         self.ui.pBEditSubmit.clicked.connect(self.submit_edit)
 
@@ -116,7 +116,8 @@ class AccountsDetails(QDialog):
                              "', '" + self.ui.lEditB.text() + \
                              "', '" + str(self.ui.spinBStatement.value()) + \
                              "', '" + self.ui.lEditV1.text().upper() + \
-                             "', '" + str(tickerPrice) + "')"
+                             "', '" + str(tickerPrice) +\
+                             "', '" + self.ui.comboboxSector.currentText() + "')"
             accountLedger = f"CREATE TABLE IF NOT EXISTS {modifiedAN}(Transaction_Date NUMERIC, Transaction_Description TEXT, Category TEXT, Debit REAL, Credit REAL, Sold REAL, Purchased REAL, Price REAL, Note TEXT, Status TEXT," \
                             f" Receipt TEXT, Post_Date NUMERIC, Update_Date NUMERIC)"
             accountSummary = f"INSERT INTO Account_Summary VALUES('{self.ui.lEditAN.text()}', 'Asset', '{self.parentType}', '{self.ui.comboboxAT.currentText()}', '{self.ui.lEditV1.text().upper()}', '0.00')"
@@ -168,6 +169,7 @@ class AccountsDetails(QDialog):
         self.ui.comboboxState.setCurrentIndex(0)
         self.ui.spinBStatement.setValue(1)
         self.ui.comboboxAT.setCurrentIndex(0)
+        self.ui.comboboxSector.setCurrentIndex(0)
 
     def closeEvent(self, event):
         event.ignore()
@@ -214,6 +216,8 @@ class AccountsDetails(QDialog):
                 self.ui.spinBStatement.setValue(spinBox)
                 self.ui.lEditV1.setText(str(account[5]))
                 self.ui.lEditV2.setText(str(account[6]))
+                sectorItem = account[7]
+                self.find_combobox_text(self.ui.comboboxSector, sectorItem)
 
             elif self.parentType in variant3:
                 self.ui.lEditV1.setText(str(account[4]))
@@ -405,8 +409,11 @@ class AccountsDetails(QDialog):
 
         elif parentType in ["Equity", "Retirement"]:
             # Account Name, Account Type, Primary Owner, Bank, Statement Date, Ticker Symbol, Ticker Price
+            self.resize(400, 550)
             self.ui.lVariable1.setText("Ticker Symbol")
             self.ui.lVariable2.setText("Ticker Price")
+            self.ui.lSector.setHidden(False)
+            self.ui.comboboxSector.setHidden(False)
 
         elif parentType == "Debt":
             # Account Name, Account Type, Primary Owner, Bank, Statement Date, Interest Rate, Starting Balance
@@ -453,8 +460,9 @@ class AccountsDetails(QDialog):
 
     def submit_edit(self):
         variant1 = ["Bank", "Credit"]
-        variant2 = ["CD", "Treasury", "Debt", "Equity", "Retirement"]
-        variant3 = ["Property"]
+        variant2 = ["CD", "Treasury", "Debt"]
+        variant3 = ["Equity", "Retirement"]
+        variant4 = ["Property"]
 
         accountName = self.ui.lEditAN.text()
         accountSubType = self.ui.comboboxAT.currentText()
@@ -465,6 +473,7 @@ class AccountsDetails(QDialog):
         accountVariable2 = self.ui.lEditV2.text()
         accountState = self.ui.comboboxState.currentText()
         accountZip = self.ui.lEZipCode.text()
+        accountSector = self.ui.comboboxSector.currentText()
 
         if self.error_checking("Edit") is False:
             currentLedgerName = self.ui.listWidgetAccount.currentItem().text()
@@ -494,7 +503,17 @@ class AccountsDetails(QDialog):
                                 "', '" + accountStatement + \
                                 "', '" + accountVariable1 + \
                                 "', '" + accountVariable2 + "')"
-            elif self.parentType in variant3:
+            elif self.parentType in variant4:
+                detailsUpdate = "INSERT INTO " + self.accountDetailsTable + \
+                                " VALUES('" + accountName + \
+                                "', '" + accountSubType + \
+                                "', '" + accountOwner + \
+                                "', '" + accountBank + \
+                                "', '" + accountStatement + \
+                                "', '" + accountVariable1 + \
+                                "', '" + accountVariable2 + \
+                                "', '" + accountSector + "')"
+            elif self.parentType in variant4:
                 detailsUpdate = "INSERT INTO " + self.accountDetailsTable + \
                                 " VALUES('" + accountName + \
                                 "', '" + accountSubType + \
@@ -552,17 +571,22 @@ class AccountsDetails(QDialog):
             self.ui.lEditV1.setEnabled(switch)
         elif self.parentType == "Cash":
             self.ui.spinBStatement.setEnabled(switch)
-        elif self.parentType in ["CD", "Treasury", "Debt", "Equity", "Retirement"]:
+        elif self.parentType in ["CD", "Treasury", "Debt"]:
             self.ui.spinBStatement.setEnabled(switch)
             self.ui.lEditV1.setEnabled(switch)
             self.ui.lEditV2.setEnabled(switch)
+        elif self.parentType in ["Equity", "Retirement"]:
+            self.ui.spinBStatement.setEnabled(switch)
+            self.ui.lEditV1.setEnabled(switch)
+            self.ui.lEditV2.setEnabled(switch)
+            self.ui.comboboxSector.setEnabled(switch)
         elif self.parentType == "Property":
             self.ui.lEditV1.setEnabled(switch)
             self.ui.lEditV2.setEnabled(switch)
             self.ui.comboboxState.setEnabled(switch)
             self.ui.lEZipCode.setEnabled(switch)
 
-    def type_modifer(self):
+    def type_modifier(self):
         molly = YNTypeQuestion(self.refUserDB, self.parentType, self.error_Logger)
         if molly.exec_() == QDialog.Accepted:
             self.ui.comboboxAT.clear()

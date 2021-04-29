@@ -628,14 +628,19 @@ class Ui_Ledger2(object):
         self.tab1Ledger2.setObjectName("SubTypeTab")
         self.tab2Ledger2 = QtWidgets.QWidget()
         self.tab2Ledger2.setObjectName("InvementTab")
+        self.tab3Ledger2 = QtWidgets.QWidget()
+        self.tab3Ledger2.setObjectName("SectorTab")
 
-        self.tabWidgetLedger2.addTab(self.tab1Ledger2, "Type")
-        self.tabWidgetLedger2.addTab(self.tab2Ledger2, "Investment")
+        self.tabWidgetLedger2.addTab(self.tab1Ledger2, "Type")  # Grouped by Account Type Determined by user.
+        self.tabWidgetLedger2.addTab(self.tab2Ledger2, "Investment")  # By individual investment
+        self.tabWidgetLedger2.addTab(self.tab3Ledger2, "Sector")  # Grouped by Sector
 
         self.tab1Ledger2.hBLayout1 = QtWidgets.QHBoxLayout()
         self.tab1Ledger2.setLayout(self.tab1Ledger2.hBLayout1)
         self.tab2Ledger2.hBLayout2 = QtWidgets.QHBoxLayout()
         self.tab2Ledger2.setLayout(self.tab2Ledger2.hBLayout2)
+        self.tab3Ledger2.hBLayout3 = QtWidgets.QHBoxLayout()
+        self.tab3Ledger2.setLayout(self.tab3Ledger2.hBLayout3)
 
         # self.tab1Ledger2.hBlayout1 -- Breakdown by Type
         self.hvSpacer5 = QtWidgets.QSpacerItem(10, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -694,15 +699,6 @@ class Ui_Ledger2(object):
         self.typeScroll.setWidget(widget)
         self.typeScroll.setWidgetResizable(True)
         self.typeScrollLayout = QtWidgets.QVBoxLayout(widget)
-
-        # self.tab1Ledger2.hBlayout1 --> self.lTab1vBlayout --> tab1HBLayout2 --> DataScrollArea --> QLabel
-        # self.lTypeData = QtWidgets.QLabel()
-        # self.lTypeData.setObjectName("lTypeData")
-        # text = "testing 1, 2, 3\n" * 100
-        # self.lTypeData.setText(text)
-        # self.lTypeData.setFont(general_font)
-        # self.lTypeData.setAlignment(QtCore.Qt.AlignLeft)
-        # self.typeScrollLayout.addWidget(self.lTypeData)
 
         # self.tab2Ledger2.hBlayout2 INVESTMENT
         self.hvSpacer7 = QtWidgets.QSpacerItem(10, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -767,13 +763,63 @@ class Ui_Ledger2(object):
         self.investmentDataScroll.setWidgetResizable(True)
         self.investmentScrollLayout = QtWidgets.QVBoxLayout(widget)
 
-        # self.tab2Ledger2.hBlayout2 --> self.lTab2vBlayout --> tab2HBLayout2 --> DataScrollArea --> QLabel
-        # self.linvestmentData = QtWidgets.QLabel()
-        # self.linvestmentData.setObjectName("linvestmentData")
-        # self.linvestmentData.setText(text)
-        # self.linvestmentData.setFont(general_font)
-        # self.linvestmentData.setAlignment(QtCore.Qt.AlignLeft)
-        # self.investmentScrollLayout.addWidget(self.linvestmentData)
+        # self.tab3Ledger2.hBlayout3 -- Breakdown by Type
+        self.hvSpacer9 = QtWidgets.QSpacerItem(10, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.tab3Ledger2.hBLayout3.addItem(self.hvSpacer9)
+
+        self.lTab3vBLayout = QtWidgets.QVBoxLayout()
+        self.lTab3vBLayout.setObjectName("lTab3vBLayout")
+        self.tab3Ledger2.hBLayout3.addLayout(self.lTab3vBLayout)
+
+        self.hvSpacer10 = QtWidgets.QSpacerItem(10, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.tab3Ledger2.hBLayout3.addItem(self.hvSpacer10)
+
+        # self.tab3Ledger2.hBlayout3 --> self.lTab3vBlayout --> --> Label -- hSpacer -- frame -- hblayout - hblayout
+        self.vSpacer6 = QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        self.lTab1vBLayout.addItem(self.vSpacer6)
+
+        self.lSectorBreakdown = QtWidgets.QLabel()
+        self.lSectorBreakdown.setObjectName("lSectorBreakdown")
+        self.lSectorBreakdown.setText(f"Breakdown by Sector")
+        self.lSectorBreakdown.setFont(graph_header_font)
+        self.lSectorBreakdown.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        self.lSectorBreakdown.setSizePolicy(altSizePolicy)
+        self.lTab3vBLayout.addWidget(self.lSectorBreakdown)
+
+        self.SectorFrame = QtWidgets.QFrame()
+        self.SectorFrame.setObjectName("SectorFrame")
+        self.SectorFrame.setSizePolicy(altSizePolicy)
+        self.SectorFrame.setFixedHeight(300)
+        self.SectorFrame.setFrameShape(QtWidgets.QFrame.Panel)
+        self.SectorFrame.setLineWidth(1)
+        self.lTab3vBLayout.addWidget(self.SectorFrame)
+
+        self.tab3HBLayout1 = QtWidgets.QHBoxLayout()
+        self.tab3HBLayout1.setObjectName("tab3HBLayout1")
+        self.lTab3vBLayout.addLayout(self.tab3HBLayout1)
+
+        self.tab3HBLayout2 = QtWidgets.QHBoxLayout()
+        self.tab3HBLayout2.setObjectName("tab3HBLayout2")
+        self.lTab3vBLayout.addLayout(self.tab3HBLayout2)
+
+        # self.tab3Ledger2.hBlayout3 --> self.lTab3vBlayout --> tab3HBLayout1 -- hSpacer -- pbButton toggle
+        self.hSpacer16 = QtWidgets.QSpacerItem(10, 25, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        self.tab3HBLayout1.addItem(self.hSpacer16)
+
+        # self.tab1Ledger2.hBlayout1 --> self.lTab1vBlayout --> tab1HBLayout2 -- vSpacer -- DataScrollArea
+        self.vSpacer11 = QtWidgets.QSpacerItem(0, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.tab3HBLayout2.addItem(self.vSpacer11)
+
+        self.sectorScroll = QtWidgets.QScrollArea()
+        self.sectorScroll.setObjectName("SectorScroll")
+        self.sectorScroll.horizontalScrollBar().setEnabled(False)
+        self.sectorScroll.setFrameStyle(0)
+        self.tab3HBLayout2.addWidget(self.sectorScroll)
+
+        widget = QtWidgets.QWidget()
+        self.sectorScroll.setWidget(widget)
+        self.sectorScroll.setWidgetResizable(True)
+        self.sectorScrollLayout = QtWidgets.QVBoxLayout(widget)
 
         # Row Last -- hVSpacer (C4)
         self.hVSpacer2 = QtWidgets.QSpacerItem(25, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)

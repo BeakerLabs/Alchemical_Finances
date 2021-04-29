@@ -97,7 +97,7 @@ class AFBackbone(QMainWindow):
         self.ui.actionUserManual.triggered.connect(self.user_manual)
 
         # Creation of a New User
-        if self.create_profile_db() is True:
+        if self.create_profile_db():
 
             # ParentType: [Example Account Name, Example Account Type, [Account SubType List]]
             example_accounts_dict = {
@@ -136,12 +136,6 @@ class AFBackbone(QMainWindow):
                                         nw_graph_statement,
                                         ov_graph_statement,
                                         contribution_graph_statement], self.saveState, self.error_Logger)
-
-            profile = Profile(self.refUser, self.error_Logger)
-            self.ui.mdiArea.addSubWindow(profile)
-            profile.remove_tab_profile.connect(self.remove_tab)
-            profile.showMaximized()
-            self.tabdic.update({"Profile": profile})
 
         # Swap over to temporary Database
         # This will hold the temporary/active version of the database
@@ -387,6 +381,7 @@ class AFBackbone(QMainWindow):
             "Property": ["Asset", "Property_Account_Details"],
         }
 
+        # Sector will not correspond with the AccountDetails Window order. This was done due to post add, and to keep consistency for the first 4-5 Columns.
         detailsTableDict = {
             "Bank": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Interest_Rate REAL)",
             "Cash": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER)",
@@ -394,8 +389,8 @@ class AFBackbone(QMainWindow):
             "Treasury": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Interest_Rate REAL, Maturity_Date NUMERIC)",
             "Credit": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Credit_Limit INTEGER)",
             "Debt": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Interest_Rate REAL, Starting_Balance REAL)",
-            "Equity": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Ticker_Symbol TEXT, Stock_Price REAL)",
-            "Retirement": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Ticker_Symbol TEXT, Stock_Price REAL)",
+            "Equity": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Ticker_Symbol TEXT, Stock_Price REAL, Sector TEXT)",
+            "Retirement": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Ticker_Symbol TEXT, Stock_Price REAL, Sector TEXT)",
             "Property": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Ownder TEXT, Bank TEXT, Address_1 TEXT, County TEXT, State_Initials TEXT, Zip_Code INTEGER, Image TEXT)",
         }
 
@@ -412,8 +407,8 @@ class AFBackbone(QMainWindow):
                 "Treasury": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', 'Alchemical Finances Bank', '1', '1.00',, '{currentDate}')",
                 "Credit": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', 'Alchemical Finances Bank', '1', '10000')",
                 "Debt": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', 'Alchemical Finances Bank', '1', '1.00', '10000')",
-                "Equity": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', 'Alchemical Finances Bank', '1', 'AFB',  '1.0000')",
-                "Retirement": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', 'Alchemical Finances Bank', '1', 'AFB',  '1.0000')",
+                "Equity": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', 'Unspecified', '{self.refUser}', 'Alchemical Finances Bank', '1', 'AFB',  '1.0000')",
+                "Retirement": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', 'Unspecified', '{self.refUser}', 'Alchemical Finances Bank', '1', 'AFB',  '1.0000')",
                 "Property": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', '123 Finance Street', 'County', 'State 91002', NULL)",
             }
             specific_sql_statement(detailsTableDict[parentType], database, self.error_Logger)
