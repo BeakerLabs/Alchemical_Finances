@@ -15,22 +15,39 @@ class Ui_Archive(object):
         # Dialog Settings
         Dialog.setObjectName("ArchiveLedger")
         Dialog.setWindowTitle("Archive")
-        Dialog.setWindowIcon(QtGui.QIcon("AF Logo.png"))
+        Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         # obtain and use the monitor screen to determine the width of the dialog box
         monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
         work_area = monitor_info.get("Work")
-        adjusted_width = work_area[2] * 0.5  # for non full screen sizing
-        adjusted_height = work_area[3] * 0.5
+        size_factor = 0.50
+
+        if 3840 <= work_area[2]:
+            size_factor = size_factor
+
+        if 2560 <= work_area[2] < 3840:
+            size_factor = (3840 * size_factor)/2560
+
+        if 1920 <= work_area[2] < 2560:
+            size_factor = (3840 * size_factor)/1920
+
+        if 1600 <= work_area[2] < 1920:
+            size_factor = (3840 * size_factor)/1600
+
+        if work_area[2] < 1600:
+            size_factor = (3840 * size_factor)/1366
+
+        adjusted_width = work_area[2] * size_factor  # for non full screen sizing
+        adjusted_height = work_area[3] * size_factor
         Dialog.resize(adjusted_width, adjusted_height)
 
         # Font and Size Policy
         general_font = QtGui.QFont()
-        general_font.setPointSize(18)
+        general_font.setPixelSize(18)
         general_font.setBold(False)
 
         pushButton_font = QtGui.QFont()
-        pushButton_font.setPointSize(12)
+        pushButton_font.setPixelSize(12)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
 

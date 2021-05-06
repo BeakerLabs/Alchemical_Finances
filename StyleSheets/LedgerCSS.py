@@ -15,6 +15,14 @@ Colors:
 #  www.BeakerLabs.com
 
 transFrame = """
+QWidget#scrollWidget{
+    background-color: #FAFAFA;  
+}
+
+QGridLayout#gridLayout{
+    background-color: #BEDF7C;
+}
+
 QFrame#lInputFrame{
     border-top: 3px solid #BEDF7C;
     border-top-left-radius: 45px;

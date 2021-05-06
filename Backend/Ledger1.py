@@ -37,7 +37,7 @@ from Toolbox.Formatting_Tools import add_comma, decimal_places, remove_comma, re
 from Toolbox.SQL_Tools import obtain_sql_value, specific_sql_statement, sqlite3_keyword_check
 from Toolbox.OS_Tools import file_destination
 
-from StyleSheets.Standard import standardAppearance
+from StyleSheets.StandardCSS import standardAppearance
 from StyleSheets.LedgerCSS import transFrame, spendingLabel
 
 
@@ -146,6 +146,7 @@ class LedgerV1(QDialog):
         self.ui.leftDisplayFrame.setStyleSheet(transFrame)
         self.ui.centerDisplayFrame.setStyleSheet(transFrame)
         self.ui.rightDisplayFrame.setStyleSheet(transFrame)
+        self.ui.ledgerFrame.setStyleSheet(transFrame)
         self.set_ledger1_appearance()
 
     # Opens Modal Dialogs for ledger Modification
@@ -902,6 +903,7 @@ class LedgerV1(QDialog):
         self.ui.pBUpdate.setEnabled(toggle)
         self.ui.pBDelete.setEnabled(toggle)
         self.ui.pBClearInputs.setEnabled(toggle)
+        self.ui.tabWidget.setEnabled(toggle)
 
         if self.parentType == "Property":
             self.ui.pBUploadHouse.setEnabled(toggle)

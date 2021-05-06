@@ -13,7 +13,7 @@ class Ui_GenReport(object):
         # Dialog Settings
         Dialog.setObjectName("GenReport")
         Dialog.setWindowTitle("Generate Report")
-        Dialog.setWindowIcon(QtGui.QIcon("AF Logo.png"))
+        Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         Dialog.resize(285, 500)
         Dialog.setMinimumSize(285, 500)
@@ -25,15 +25,15 @@ class Ui_GenReport(object):
 
         # Fonts and Size Policy
         groupBox_font = QtGui.QFont()
-        groupBox_font.setPointSize(16)
+        groupBox_font.setPixelSize(16)
         groupBox_font.setBold(True)
 
         parentType_font = QtGui.QFont()
-        parentType_font.setPointSize(12)
+        parentType_font.setPixelSize(12)
         parentType_font.setBold(False)
 
         general_font = QtGui.QFont()
-        general_font.setPointSize(12)
+        general_font.setPixelSize(12)
         general_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)

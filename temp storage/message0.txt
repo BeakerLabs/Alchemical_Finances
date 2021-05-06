@@ -6,7 +6,7 @@ The core concepts have never changed. Listing out my assets and liabilities to m
 
 As my personal finances expanded, the tools required to track them became more complex, or at least cluttered. I found there were a variety of different websites and software packages that offered the ability to unify everything under one roof. Commonly these companies would automate the aggregation of my data leaving me feeling like more of a spectator than the coach.
 
-To address this, I set out to make my own software. Something that gave you near-full control over your financial story. Not to mention ownership of your data. To reiterate that, there is no data mining going on behind the scenes. Your data stays in your possession. Beaker Labs doesn’t have access to anything you input, and only profits off program sales. 
+To address this, I set out to make my own software. Something that gave you near-full control over your financial story. Not to mention ownership of your data. To reiterate that, there is no data mining going on behind the scenes. Your data stays in your possession. Beaker Labs does not have access to anything you input, and only profits off program sales.
 
 We will always be up front and transparent about future surveys to gather user input on future features, and projects. I would like to see this project continue to grow, evolve, and expand. 
 

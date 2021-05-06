@@ -12,7 +12,7 @@ class Ui_Categories(object):
         # Dialog Settings
         Dialog.setObjectName("categoriesDialog")
         Dialog.setWindowTitle("Spending Categories")
-        Dialog.setWindowIcon(QtGui.QIcon('AF Logo.png'))
+        Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         Dialog.resize(285, 430)
         Dialog.setMinimumSize(285, 430)
@@ -24,15 +24,15 @@ class Ui_Categories(object):
 
         # Fonts and Size Policy
         header_font = QtGui.QFont()
-        header_font.setPointSize(16)
+        header_font.setPixelSize(16)
         header_font.setBold(True)
 
         subheader_font = QtGui.QFont()
-        subheader_font.setPointSize(12)
+        subheader_font.setPixelSize(12)
         subheader_font.setBold(False)
 
         general_font = QtGui.QFont()
-        general_font.setPointSize(12)
+        general_font.setPixelSize(12)
         general_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)

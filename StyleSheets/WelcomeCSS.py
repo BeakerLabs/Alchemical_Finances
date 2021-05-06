@@ -18,7 +18,7 @@ welcomeMesgFrame = """
 QFrame#scrollFrame{
     border-top: 3px solid #BEDF7C;
     border-bottom: 3px solid #BEDF7C;
-    border-radius: 5px;
+    border-radius: 3px;
     background-color: #414E41;
 }
 

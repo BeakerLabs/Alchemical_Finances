@@ -101,7 +101,7 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, parentType, tablew
     tablewidget.setColumnHidden(10, True)
     tablewidget.resizeRowsToContents()
     tableFont = QtGui.QFont()
-    tableFont.setPointSize(12)
+    tableFont.setPixelSize(12)
     tablewidget.setFont(tableFont)
     tablewidget.scrollToBottom()
 
@@ -188,7 +188,7 @@ def disp_LedgerV2_Table(account_combobox, statement_combobox, tablewidget, datab
         tablewidget.setColumnHidden(10, True)
         tablewidget.resizeRowsToContents()
         tableFont = QtGui.QFont()
-        tableFont.setPointSize(12)
+        tableFont.setPixelSize(12)
         tablewidget.setFont(tableFont)
         tablewidget.scrollToBottom()
 
@@ -368,7 +368,7 @@ def set_font(target, size: int, bold: bool, underline: bool):
     :param underline: bool
     :return: None
     """
-    target.setPointSize(size)
+    target.setPixelSize(size)
     target.setBold(bold)
     target.setUnderline(underline)
 

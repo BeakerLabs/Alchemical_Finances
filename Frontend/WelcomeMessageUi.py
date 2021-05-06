@@ -11,6 +11,7 @@ Future Feature
 1) Add Check box to "Disable the welcome message"
 
 """
+import pickle
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtGui import QPixmap
@@ -21,15 +22,37 @@ class Ui_WelcomeMessage(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("WelcomeScreen")
         Dialog.setWindowTitle("Message Screen")
-        Dialog.setWindowIcon(QtGui.QIcon('AF Logo.png'))
+        Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         # Obtain and use the monitor screen to determine the size of the dialog box
-        monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
-        work_area = monitor_info.get("Work")
-        adjusted_height = work_area[3] * 0.35
+        screen_dimensions_file = open("Resources/dimensions.pkl", "rb")
+        screen_dimensions = pickle.load(screen_dimensions_file)
+        screen_dimensions_file.close()
+
+        work_area = screen_dimensions
+
+        size_factor = 0.35
+
+        if 2160 <= work_area[3]:
+            size_factor = size_factor
+
+        if 1600 <= work_area[3] < 2160:
+            size_factor = (2160 * size_factor)/1600
+
+        if 1080 <= work_area[3] < 1600:
+            size_factor = (2160 * size_factor)/1080
+
+        if 900 <= work_area[3] < 1080:
+            size_factor = (2160 * size_factor)/900
+
+        if work_area[3] < 900:
+            size_factor = (2160 * size_factor)/900
+
+        adjusted_height = work_area[3] * size_factor
+        adjusted_width = work_area[2] * size_factor
         # Making the Message screen larger than log in but not full screen.
         # Rational - Make it catch the users eye
-        Dialog.resize(adjusted_height, adjusted_height)
+        Dialog.resize(adjusted_width, adjusted_height)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -63,7 +86,7 @@ class Ui_WelcomeMessage(object):
         self.labelWelcome = QtWidgets.QLabel()
         self.labelWelcome.setObjectName("labelWelcome")
         title_font = QtGui.QFont()
-        title_font.setPointSize(24)
+        title_font.setPixelSize(37)
         self.labelWelcome.setAlignment(QtCore.Qt.AlignLeft)
         self.labelWelcome.setFont(title_font)
         label_sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
@@ -85,21 +108,22 @@ class Ui_WelcomeMessage(object):
         self.hlr2.setObjectName("hlr2")
         self.gridLayout.addLayout(self.hlr2, 2, 1, 1, 4, alignment=QtCore.Qt.Alignment())
 
-        self.messageSpacer = QtWidgets.QSpacerItem(0, adjusted_height - 305, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.messageSpacer = QtWidgets.QSpacerItem(0, adjusted_height - 348, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         self.hlr2.addItem(self.messageSpacer)
 
         self.scrollFrame = QtWidgets.QFrame()
         self.scrollFrame.setObjectName("scrollFrame")
         self.scrollFrame.setFrameShape(QtWidgets.QFrame.Panel)
         self.scrollFrame.setLineWidth(3)
-        scrollFrame_sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.scrollFrame.setFixedHeight(adjusted_height - 348)
+        scrollFrame_sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.scrollFrame.setSizePolicy(scrollFrame_sizePolicy)
         self.hlr2.addWidget(self.scrollFrame)
 
         self.messageScroll = QtWidgets.QScrollArea(self.scrollFrame)
-        self.messageScroll.setGeometry(3, 3, adjusted_height - 115, adjusted_height - 350)
+        self.messageScroll.setGeometry(3, 3, 0, 0)
         self.messageScroll.setFixedWidth(adjusted_height - 115)
-        self.messageScroll.setFixedHeight(adjusted_height - 350)
+        self.messageScroll.setFixedHeight(adjusted_height - 354)
         self.messageScroll.setFrameStyle(0)
         self.messageScroll.horizontalScrollBar().setEnabled(False)
         self.messageScroll.setWidgetResizable(True)
@@ -111,7 +135,7 @@ class Ui_WelcomeMessage(object):
         self.messageLabel = QtWidgets.QLabel()
         self.messageLabel.setObjectName("messageLabel")
         message_font = QtGui.QFont()
-        message_font.setPointSize(14)
+        message_font.setPixelSize(20)
         self.messageLabel.setFont(message_font)
         self.messageLabel.setWordWrap(True)
         # Text for the purpose of ensuring the scroll is both functioning and aligned
@@ -129,7 +153,7 @@ class Ui_WelcomeMessage(object):
 
         self.logoImage = QtWidgets.QLabel()
         self.logoImage.setObjectName("logoImage")
-        Image = QPixmap("AF Logo.png")
+        Image = QPixmap('Resources/AF Logo.png')
         logoAdjustment = Image.scaled(125, 125)
         self.logoImage.setPixmap(logoAdjustment)
         self.logoImage.setSizePolicy(sizePolicy)
@@ -138,7 +162,7 @@ class Ui_WelcomeMessage(object):
         self.signaturelabel = QtWidgets.QLabel()
         self.signaturelabel.setObjectName("signaturelabel")
         signature_font = QtGui.QFont()
-        signature_font.setPointSize(16)
+        signature_font.setPixelSize(24)
         signature_font.setBold(True)
         self.signaturelabel.setFont(signature_font)
         self.signaturelabel.setSizePolicy(sizePolicy)

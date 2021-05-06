@@ -113,7 +113,7 @@ class Ledger_Summary(QDialog):
         lMessage.setText("")
 
         messagefont = QtGui.QFont()
-        messagefont.setPointSize(12)
+        messagefont.setPixelSize(12)
         messagefont.setBold(True)
         messagefont.setUnderline(False)
 

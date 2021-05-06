@@ -9,6 +9,7 @@ As the current file name states. This file is to execute the entire program. I w
 #  www.BeakerLabs.com
 
 import os
+import pickle
 import sys
 
 from pathlib import Path
@@ -50,6 +51,17 @@ def main():
     error_Log = get_logger("AF_ERROR_LOG", errorLog_Pathway)
 
     app = QApplication(sys.argv)
+
+    screen_dimensions_path = file_destination(['Resources'])
+    screen_dimensions_path = Path.cwd() / screen_dimensions_path / "dimensions.pkl"
+
+    f = open(screen_dimensions_path, "wb")
+    screen = app.primaryScreen()
+    size = screen.size()
+    dimensions = [0, 0, size.width(), size.height()]
+    pickle.dump(dimensions, f)
+    f.close()
+
     porcelainoffering = LoginForm(error_Log)
     if porcelainoffering.exec_() == QDialog.Accepted:
         user = porcelainoffering.refUser

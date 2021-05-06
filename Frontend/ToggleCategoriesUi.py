@@ -14,18 +14,18 @@ class Ui_ToggleCategories(object):
         # Dialog Settings
         Dialog.setObjectName("Toggle_Categories")
         Dialog.setWindowTitle("Toggle Categories")
-        Dialog.setWindowIcon(QtGui.QIcon('../AF Logo.png'))
+        Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         Dialog.resize(600, 300)
         Dialog.setMinimumSize(600, 300)
         Dialog.setMaximumSize(600, 400)
 
         header_font = QtGui.QFont()
-        header_font.setPointSize(16)
+        header_font.setPixelSize(16)
         header_font.setBold(True)
 
         general_font = QtGui.QFont()
-        general_font.setPointSize(12)
+        general_font.setPixelSize(12)
         general_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)

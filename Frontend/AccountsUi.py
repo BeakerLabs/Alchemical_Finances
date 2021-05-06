@@ -12,7 +12,7 @@ class Ui_Accounts(object):
         # Dialog Settings
         Dialog.setObjectName("accountDialog")
         Dialog.setWindowTitle("Accounts")
-        Dialog.setWindowIcon(QtGui.QIcon('AF Logo.png'))
+        Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         Dialog.resize(400, 550)
         Dialog.setMinimumSize(QtCore.QSize(400, 550))
@@ -24,18 +24,18 @@ class Ui_Accounts(object):
 
         # Fonts and SizePolicy
         label_font = QtGui.QFont()
-        label_font.setPointSize(10)
+        label_font.setPixelSize(10)
         label_font.setBold(True)
 
         general_font = QtGui.QFont()
-        general_font.setPointSize(10)
+        general_font.setPixelSize(10)
 
         lineEdit_font = QtGui.QFont()
-        lineEdit_font.setPointSize(10)
+        lineEdit_font.setPixelSize(10)
         lineEdit_font.setBold(False)
 
         error_font = QtGui.QFont()
-        error_font.setPointSize(10)
+        error_font.setPixelSize(10)
         error_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)

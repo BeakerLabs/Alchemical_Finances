@@ -16,22 +16,40 @@ class Ui_Summary(object):
         # Dialog Settings
         Dialog.setObjectName("SummaryDialog")
         Dialog.setWindowTitle("Summary")
-        Dialog.setWindowIcon(QtGui.QIcon('AF Logo.png'))
+        Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         # Obtain and use the monitor screen to determine with width of the dialog box
         monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
         work_area = monitor_info.get("Work")
-        adjusted_width = work_area[2] * 0.5  # for non full screen sizing
-        adjusted_height = work_area[3] * 0.5
+
+        size_factor = 0.50
+
+        if 3840 <= work_area[2]:
+            size_factor = size_factor
+
+        if 2560 <= work_area[2] < 3840:
+            size_factor = 0.50
+
+        if 1920 <= work_area[2] < 2560:
+            size_factor = 0.75
+
+        if 1600 <= work_area[2] < 1920:
+            size_factor = 0.80
+
+        if work_area[2] < 1600:
+            size_factor = 0.90
+
+        adjusted_width = work_area[2] * size_factor  # for non full screen sizing
+        adjusted_height = work_area[3] * size_factor
         Dialog.resize(adjusted_width, adjusted_height)
 
         # Font and Size Policy
         general_font = QtGui.QFont()
-        general_font.setPointSize(12)
+        general_font.setPixelSize(12)
         general_font.setBold(False)
 
         header_font = QtGui.QFont()
-        header_font.setPointSize(24)
+        header_font.setPixelSize(24)
         header_font.setBold(True)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)

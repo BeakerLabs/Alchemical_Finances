@@ -5,6 +5,7 @@
 # This Front End Code is used to Generate the GUI for the MainWindow of the Alchemical Finances Program
 # Many of the UI will be placed into the MdiArea as sub windows. Some will be dialog boxes
 
+import pickle
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from win32api import GetMonitorInfo, MonitorFromPoint
@@ -14,10 +15,23 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
 
-        monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
-        work_area = monitor_info.get("Work")
-        adjusted_width = work_area[2] * 0.5
-        adjusted_height = work_area[3] * 0.5
+        screen_dimensions_file = open("Resources/dimensions.pkl", "rb")
+        screen_dimensions = pickle.load(screen_dimensions_file)
+        screen_dimensions_file.close()
+
+        work_area = screen_dimensions
+
+        size_factor = 0.85
+
+        adjusted_width = work_area[2] * size_factor  # for non full screen sizing
+        adjusted_height = work_area[3] * size_factor
+
+        screen_dimensions_file = open("Resources/dimensions.pkl", "wb")
+        dimensions = [work_area, [0, 0, adjusted_width, adjusted_height]]
+
+        pickle.dump(dimensions, screen_dimensions_file)
+        screen_dimensions_file.close()
+
         MainWindow.resize(adjusted_width, adjusted_height)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
@@ -26,11 +40,11 @@ class Ui_MainWindow(object):
 
         altSizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
 
-        MainWindow.setSizePolicy(sizePolicy)
+        # MainWindow.setSizePolicy(sizePolicy)
         MainWindow.setMinimumSize(QtCore.QSize(int(adjusted_width * 0.8), int(adjusted_height * 0.80)))
         MainWindow.setMaximumSize(QtCore.QSize(16777215, 16777215))
 
-        MainWindow.setWindowIcon(QtGui.QIcon('AF Logo.png'))
+        MainWindow.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         # Central Widget --> verticalLayout --> horizontal layout
         self.centralwidget = QtWidgets.QWidget()
@@ -90,10 +104,10 @@ class Ui_MainWindow(object):
         for label in label_construction:
             font = QtGui.QFont()
             if label[1] == "standard":
-                font.setPointSize(20)
+                font.setPixelSize(20)
                 font.setBold(False)
             else:
-                font.setPointSize(20)
+                font.setPixelSize(20)
                 font.setBold(True)
 
             initial_x = 0
@@ -126,9 +140,6 @@ class Ui_MainWindow(object):
         self.mdiArea = QtWidgets.QMdiArea(self.centralwidget)
         self.mdiArea.setObjectName("mdiArea")
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(100)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.mdiArea.sizePolicy().hasHeightForWidth())
         self.mdiArea.setSizePolicy(sizePolicy)
         self.mdiArea.setEnabled(True)
 
@@ -143,7 +154,7 @@ class Ui_MainWindow(object):
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1200, 18))
         self.menubar.setObjectName("menubar")
         font = self.menubar.font()
-        font.setPointSize(14)
+        font.setPixelSize(14)
         self.menubar.setFont(font)
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -213,7 +224,7 @@ class Ui_MainWindow(object):
 
         for submenu in submenu_lst:
             font = submenu.font()
-            font.setPointSize(12)
+            font.setPixelSize(12)
             submenu.setFont(font)
 
         self.statusBar = QtWidgets.QStatusBar(MainWindow)

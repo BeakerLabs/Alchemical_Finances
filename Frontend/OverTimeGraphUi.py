@@ -33,30 +33,48 @@ class Ui_OverTimeGraph(object):
         # Dialog settings
         Dialog.setObjectName("NetWorthGraph")
         Dialog.setWindowTitle("Value Over Time Graphs")  # Will be dynamically changed in the backend
-        Dialog.setWindowIcon(QtGui.QIcon("AF Logo.png"))  # Consider hiring an artist to make different icons for different account types
+        Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))  # Consider hiring an artist to make different icons for different account types
 
         # Dialog size
         monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
         work_area = monitor_info.get("Work")
-        adjusted_width = work_area[2] * 0.5  # for non full screen sizing
-        adjusted_height = work_area[3] * 0.5
+
+        size_factor = 0.50
+
+        if 3840 <= work_area[2]:
+            size_factor = size_factor
+
+        if 2560 <= work_area[2] < 3840:
+            size_factor = (3840 * size_factor) / 2560
+
+        if 1920 <= work_area[2] < 2560:
+            size_factor = (3840 * size_factor) / 1920
+
+        if 1600 <= work_area[2] < 1920:
+            size_factor = (3840 * size_factor) / 1600
+
+        if work_area[2] < 1600:
+            size_factor = (3840 * size_factor) / 1366
+
+        adjusted_width = work_area[2] * size_factor  # for non full screen sizing
+        adjusted_height = work_area[3] * size_factor
         Dialog.resize(adjusted_width, adjusted_height)
 
         # Font and Size Policy
         header_font = QtGui.QFont()
-        header_font.setPointSize(24)
+        header_font.setPixelSize(24)
         header_font.setBold(True)
 
         general_font = QtGui.QFont()
-        general_font.setPointSize(12)
+        general_font.setPixelSize(12)
         general_font.setBold(False)
 
         legend_font = QtGui.QFont()
-        legend_font.setPointSize(8)
+        legend_font.setPixelSize(8)
         legend_font.setBold(False)
 
         pushButton_font = QtGui.QFont()
-        pushButton_font.setPointSize(12)
+        pushButton_font.setPixelSize(12)
         pushButton_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)

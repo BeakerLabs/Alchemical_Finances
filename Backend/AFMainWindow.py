@@ -566,7 +566,7 @@ class AFBackbone(QMainWindow):
                 print(f"Finances updated for {today}")
 
     def user_manual(self):
-        user_manual_path = Path.cwd() / "Spoon" / "USER_MANUAL.pdf"
+        user_manual_path = Path.cwd() / "Resources" / "USER_MANUAL.pdf"
         user_manual_str = str(user_manual_path)
         os.startfile(user_manual_str)
 

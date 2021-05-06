@@ -4,6 +4,8 @@
 
 # This file will be used to generate the user profile SubWindow
 
+import pickle
+
 from PySide6 import QtCore, QtGui, QtWidgets
 from win32api import GetMonitorInfo, MonitorFromPoint
 
@@ -12,13 +14,19 @@ class Ui_Profile(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("ProfileScreen")
         Dialog.setWindowTitle("User Profile")
-        Dialog.setWindowIcon(QtGui.QIcon('AF Logo.png'))
+        Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         # Obtain and use the monitor screen to determine the width of the dialog box
-        monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
-        work_area = monitor_info.get("Work")
-        adjusted_width = work_area[2] * 0.5  # for non full screen sizing
-        adjusted_height = work_area[3] * 0.5
+        screen_dimensions_file = open("Resources/dimensions.pkl", "rb")
+        screen_dimensions = pickle.load(screen_dimensions_file)
+        screen_dimensions_file.close()
+
+        work_area = screen_dimensions[0]
+
+        size_factor = 0.4
+
+        adjusted_width = work_area[2] * size_factor  # for non full screen sizing
+        adjusted_height = work_area[3] * size_factor
         Dialog.resize(adjusted_width, adjusted_height)
 
         dialog_sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
@@ -30,9 +38,8 @@ class Ui_Profile(object):
         sizePolicy.setVerticalStretch(0)
 
         general_font = QtGui.QFont()
-        general_font.setPointSize(16)
+        general_font.setPixelSize(16)
         general_font.setBold(True)
-
 
         alignHorizontal = QtCore.Qt.AlignLeft
         alignVertical = QtCore.Qt.AlignVCenter
@@ -47,26 +54,37 @@ class Ui_Profile(object):
         self.hSpacer1 = QtWidgets.QSpacerItem(25, 25, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.outerHLayout.addItem(self.hSpacer1)
 
-        self.profileFrame = QtWidgets.QFrame()
-        self.profileFrame.setObjectName("profileFrame")
-        self.profileFrame.setLineWidth(1)
-        self.outerHLayout.addWidget(self.profileFrame)
+        self.frameVLayout = QtWidgets.QVBoxLayout()
+        self.frameVLayout.setObjectName("frameVLayout")
+        self.outerHLayout.addLayout(self.frameVLayout)
 
         self.hSpacer2 = QtWidgets.QSpacerItem(25, 25, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.outerHLayout.addItem(self.hSpacer1)
+
+        # Middle column layout -- center the input frame
+        self.hSpacer5 = QtWidgets.QSpacerItem(25, 25, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.frameVLayout.addItem(self.hSpacer5)
+
+        self.profileFrame = QtWidgets.QFrame()
+        self.profileFrame.setObjectName("profileFrame")
+        self.profileFrame.setLineWidth(1)
+        self.frameVLayout.addWidget(self.profileFrame)
+
+        self.hSpacer6 = QtWidgets.QSpacerItem(25, 25, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.frameVLayout.addItem(self.hSpacer6)
 
         # QFrame --> HBlayout
         self.frameHBLayout = QtWidgets.QHBoxLayout(self.profileFrame)
         self.frameHBLayout.setObjectName("frameHBLayout")
 
-        self.framehSpacer1 = QtWidgets.QSpacerItem(25, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.framehSpacer1 = QtWidgets.QSpacerItem(25, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.frameHBLayout.addItem(self.framehSpacer1)
 
         self.gridlayout = QtWidgets.QGridLayout()
         self.gridlayout.setObjectName("gridLayout")
         self.frameHBLayout.addLayout(self.gridlayout)
 
-        self.framehSpacer2 = QtWidgets.QSpacerItem(25, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.framehSpacer2 = QtWidgets.QSpacerItem(25, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.frameHBLayout.addItem(self.framehSpacer1)
 
         # The left and center columns will run in parallel. While the right layout will be used soley as a spacer
@@ -74,7 +92,7 @@ class Ui_Profile(object):
         self.hSpacer3 = QtWidgets.QSpacerItem(columnOneWidth, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
         self.gridlayout.addItem(self.hSpacer3, 1, 1, 1, 1)
 
-        self.hSpacer4 = QtWidgets.QSpacerItem(columnTwoWidth, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.hSpacer4 = QtWidgets.QSpacerItem(columnTwoWidth, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
         self.gridlayout.addItem(self.hSpacer4, 1, 2, 1, 1)
 
         # Row 2 -- First Name

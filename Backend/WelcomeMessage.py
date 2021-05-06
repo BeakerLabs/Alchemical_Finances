@@ -19,7 +19,7 @@ from PySide6.QtWidgets import QDialog
 from Toolbox.OS_Tools import file_destination
 from Toolbox.SQL_Tools import obtain_sql_value, specific_sql_statement
 
-from StyleSheets.Standard import standardAppearance
+from StyleSheets.StandardCSS import standardAppearance
 from StyleSheets.WelcomeCSS import welcomeMesgFrame
 
 
@@ -36,7 +36,7 @@ class Message(QDialog):
         self.dbPathway = file_destination(['data', 'account'])
         self.dbPathway = Path.cwd() / self.dbPathway / "UAInformation.db"
 
-        self.dictionaryFile = open("Spoon/welcomedictionary.pkl", "rb")
+        self.dictionaryFile = open("Resources/welcomedictionary.pkl", "rb")
         self.messageDict = pickle.load(self.dictionaryFile)
         self.dictionaryFile.close()
 

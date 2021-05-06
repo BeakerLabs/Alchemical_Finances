@@ -5,21 +5,45 @@
 # This layout was manual coded without Qt Designer.
 # This code relies on a GridLayout Structure. In Theory should be able to able to adjust to every screen resolution.
 
+import pickle
+
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtGui import QPixmap
-from win32api import GetMonitorInfo, MonitorFromPoint
 
 
 class Ui_LoginScreen(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("LoginScreen")
-        Dialog.setWindowIcon(QtGui.QIcon('AF Logo.png'))
+        Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         # Obtain and use the monitor screen to determine the size of the dialog box.
-        monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
-        work_area = monitor_info.get("Work")
-        adjusted_width = work_area[2] * 0.20
-        adjusted_height = work_area[3] * 0.20
+        # monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
+        # work_area = monitor_info.get("Work")
+        screen_dimensions_file = open("Resources/dimensions.pkl", "rb")
+        screen_dimensions = pickle.load(screen_dimensions_file)
+        screen_dimensions_file.close()
+
+        work_area = screen_dimensions
+
+        size_factor = 0.20
+
+        if 3840 <= work_area[2]:
+            size_factor = size_factor
+
+        if 2560 <= work_area[2] < 3840:
+            size_factor = (3840 * size_factor)/2560
+
+        if 1920 <= work_area[2] < 2560:
+            size_factor = (3840 * size_factor)/1920
+
+        if 1600 <= work_area[2] < 1920:
+            size_factor = (3840 * size_factor)/1600
+
+        if work_area[2] < 1600:
+            size_factor = (3840 * size_factor)/1366
+
+        adjusted_width = work_area[2] * size_factor
+        adjusted_height = work_area[3] * size_factor
         Dialog.resize(adjusted_width, adjusted_height)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -29,15 +53,10 @@ class Ui_LoginScreen(object):
         Dialog.setMinimumSize(QtCore.QSize(int(adjusted_width), int(adjusted_height)))
         Dialog.setMaximumSize(QtCore.QSize(int(adjusted_width), int(adjusted_height)))
 
-        border_offset = adjusted_height * 0.2
-        grid_width = adjusted_width - (2 * border_offset)
-        self.corelayout = QtWidgets.QVBoxLayout(Dialog)
-        self.corelayout.setObjectName("core")
         # PosX, PosY, Width, Height
 
-        self.gridLayout = QtWidgets.QGridLayout()
+        self.gridLayout = QtWidgets.QGridLayout(Dialog)
         self.gridLayout.setObjectName("gridlayout")
-        self.corelayout.addLayout(self.gridLayout)
 
         # GridLayout -- Row 1 -- Spacer
         self.hlr1 = QtWidgets.QHBoxLayout()
@@ -48,7 +67,7 @@ class Ui_LoginScreen(object):
         # This display uses 6 columns - Columns 1 and 6 are meant as boarder spacers
         self.gridLayout.addLayout(self.hlr1, 1, 2, 1, 4, alignment=QtCore.Qt.Alignment())
 
-        self.topSpacer = QtWidgets.QSpacerItem(grid_width, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.topSpacer = QtWidgets.QSpacerItem(0, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.hlr1.addItem(self.topSpacer)
 
         # GridLayout -- Row 2 -- Frame -- VL -- Title -- Subtitle
@@ -72,13 +91,13 @@ class Ui_LoginScreen(object):
         self.labelTitle.setObjectName("labelTitle")
         title_font = QtGui.QFont()
         title_font.setBold(True)
-        title_font.setPointSize(24)
+        title_font.setPixelSize(28)
         self.labelTitle.setAlignment(QtCore.Qt.AlignCenter)
         self.labelTitle.setFont(title_font)
         self.vlr2.addWidget(self.labelTitle)
 
         general_font = QtGui.QFont()
-        general_font.setPointSize(16)
+        general_font.setPixelSize(20)
 
         self.labelSubTitle = QtWidgets.QLabel(Dialog)
         self.labelSubTitle.setObjectName("labelSubTitle")
@@ -94,7 +113,7 @@ class Ui_LoginScreen(object):
         self.hlr3.setObjectName("hlr3")
         self.gridLayout.addLayout(self.hlr3, 3, 1, 1, 6, alignment=QtCore.Qt.Alignment())
 
-        self.middleSpacer = QtWidgets.QSpacerItem(grid_width, 15, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.middleSpacer = QtWidgets.QSpacerItem(0, 15, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.hlr3.addItem(self.middleSpacer)
 
         # GridLayout -- Row 4 -- HL1 -- Spacer -- Username Label  -- Line Edit -- Spacer
@@ -156,7 +175,7 @@ class Ui_LoginScreen(object):
         self.gridLayout.addLayout(self.hlr6, 6, 2, 1, 4, alignment=QtCore.Qt.Alignment())
 
         # keeps alignment for when confirm password is disabled and hidden
-        self.r6spacer = QtWidgets.QSpacerItem(75, 40, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.r6spacer = QtWidgets.QSpacerItem(75, 40, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Maximum)
         self.hlr6.addSpacerItem(self.r6spacer)
 
         self.labelConfirmPassword = QtWidgets.QLabel(Dialog)
@@ -195,7 +214,7 @@ class Ui_LoginScreen(object):
         self.gridLayout.addLayout(self.hlr7, 7, 2, 1, 4, alignment=QtCore.Qt.Alignment())
 
         error_font = QtGui.QFont()
-        error_font.setPointSize(12)
+        error_font.setPixelSize(14)
 
         self.labelResponse = QtWidgets.QLabel()
         self.labelResponse.setObjectName("labelResponse")
@@ -211,7 +230,7 @@ class Ui_LoginScreen(object):
         self.hlr8.setObjectName("hlr8")
         self.gridLayout.addLayout(self.hlr8, 8, 2, 1, 4, alignment=QtCore.Qt.Alignment())
 
-        self.pushButtonSpacerr8 = QtWidgets.QSpacerItem(0, 25, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.pushButtonSpacerr8 = QtWidgets.QSpacerItem(0, 40, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.hlr8.addSpacerItem(self.pushButtonSpacerr8)
 
         self.pushButtonLogin = QtWidgets.QPushButton(Dialog)
@@ -236,6 +255,7 @@ class Ui_LoginScreen(object):
         self.pushButtonQuit.setObjectName("pushButtonQuit")
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.pushButtonQuit.setSizePolicy(sizePolicy)
+        sizePolicy.retainSizeWhenHidden()
         self.pushButtonQuit.setEnabled(True)
         self.hlr8.addWidget(self.pushButtonQuit)
 
@@ -250,7 +270,7 @@ class Ui_LoginScreen(object):
         self.pushButtonCancel.setEnabled(True)
         self.hlr8.addWidget(self.pushButtonCancel)
 
-        self.pushButtonSpacerr9 = QtWidgets.QSpacerItem(0, 25, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.pushButtonSpacerr9 = QtWidgets.QSpacerItem(0, 40, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.hlr8.addSpacerItem(self.pushButtonSpacerr9)
 
         # GridLayout -- Row 9 -- Button -- New Profile
@@ -258,19 +278,21 @@ class Ui_LoginScreen(object):
         self.hlr9.setObjectName("hlr9")
         self.gridLayout.addLayout(self.hlr9, 9, 2, 1, 4, alignment=QtCore.Qt.Alignment())
 
-        spacer_width = (grid_width/4) + 6
+        spacer_width = ((adjusted_width - 100) / 4) - 10
+        # Columns 1 and 6 are a set width of 50. Add in the "air" between the spacers and buttons (~9)
 
-        self.pushButtonSpacerr10 = QtWidgets.QSpacerItem(spacer_width, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.pushButtonSpacerr10 = QtWidgets.QSpacerItem(spacer_width, 40, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.hlr9.addSpacerItem(self.pushButtonSpacerr10)
 
         self.pushButtonNewProfile = QtWidgets.QPushButton(Dialog)
         self.pushButtonNewProfile.setObjectName("pushButtonNewProfile")
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.retainSizeWhenHidden()
         self.pushButtonNewProfile.setSizePolicy(sizePolicy)
         self.pushButtonNewProfile.setEnabled(True)
         self.hlr9.addWidget(self.pushButtonNewProfile)
 
-        self.pushButtonSpacerr11 = QtWidgets.QSpacerItem(spacer_width, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.pushButtonSpacerr11 = QtWidgets.QSpacerItem(spacer_width, 40, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.hlr9.addSpacerItem(self.pushButtonSpacerr11)
 
         # GridLayout -- Row 11 -- Spacer
@@ -278,7 +300,7 @@ class Ui_LoginScreen(object):
         self.hlr10.setObjectName("hlr10")
         self.gridLayout.addLayout(self.hlr10, 10, 1, 1, 6, alignment=QtCore.Qt.Alignment())
 
-        self.bottomSpacer = QtWidgets.QSpacerItem(grid_width, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.bottomSpacer = QtWidgets.QSpacerItem(0, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.hlr10.addItem(self.bottomSpacer)
 
         self.labelUserProfile.raise_()

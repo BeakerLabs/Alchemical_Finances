@@ -35,7 +35,7 @@ from Toolbox.Formatting_Tools import add_comma, decimal_places, remove_comma, re
 from Toolbox.SQL_Tools import execute_sql_statement_list, obtain_sql_value, specific_sql_statement, sqlite3_keyword_check
 from Toolbox.OS_Tools import file_destination
 
-from StyleSheets.Standard import standardAppearance
+from StyleSheets.StandardCSS import standardAppearance
 from StyleSheets.LedgerCSS import transFrame, spendingLabel
 
 
@@ -122,6 +122,8 @@ class LedgerV2(QDialog):
         self.ui.leftDisplayFrame.setStyleSheet(transFrame)
         self.ui.centerDisplayFrame.setStyleSheet(transFrame)
         self.ui.rightDisplayFrame.setStyleSheet(transFrame)
+        self.ui.ledgerScroll.setStyleSheet(transFrame)
+        self.ui.ledgerFrame.setStyleSheet(transFrame)
 
     # Opens Modal Dialogs for ledger Modification
     def accounts_dialog(self):

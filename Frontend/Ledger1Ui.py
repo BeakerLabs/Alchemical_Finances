@@ -5,8 +5,9 @@
 # This Dialog is a Subwindow for the Mainwindow MdiArea
 # Ledger 1 is used for Non Equity Accounts. As there are no shares to track.
 
+import pickle
+
 from PySide6 import QtCore, QtGui, QtWidgets
-from win32api import GetMonitorInfo, MonitorFromPoint
 
 
 class Ui_Ledger1(object):
@@ -18,67 +19,107 @@ class Ui_Ledger1(object):
         # Dialog settings
         Dialog.setObjectName("Ledger1")
         Dialog.setWindowTitle("Ledger1")  # Will be dynamically changed in the backend
-        Dialog.setWindowIcon(QtGui.QIcon("AF Logo.png"))  # Consider hiring an artist to make different icons for different account types
+        Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))  # Consider hiring an artist to make different icons for different account types
 
         # Dialog size
-        monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
-        work_area = monitor_info.get("Work")
-        adjusted_width = work_area[2] * 0.45  # for non full screen sizing
-        adjusted_height = work_area[3] * 0.5
+        screen_dimensions_file = open("Resources/dimensions.pkl", "rb")
+        screen_dimensions = pickle.load(screen_dimensions_file)
+        screen_dimensions_file.close()
+
+        work_area = screen_dimensions[1]
+
+        size_factor_a = 0.45
+        size_factor_b = 0.50
+
+        if 3840 <= work_area[2]:
+            size_factor_NA = size_factor_a
+
+        if 2560 <= work_area[2] < 3840:
+            size_factor_NA = (3840 * size_factor_a) / 2560
+
+        if 1920 <= work_area[2] < 2560:
+            size_factor_NA = (3840 * size_factor_a) / 1920
+
+        if 1600 <= work_area[2] < 1920:
+            size_factor_NA = (3840 * size_factor_a) / 1600
+
+        if work_area[2] < 1600:
+            size_factor_NA = (3840 * size_factor_a) / 1366
+
+        size_factor_NB = (size_factor_b * size_factor_NA) / size_factor_a
+
+        adjusted_width = work_area[2] * size_factor_NA  # for non full screen sizing
+        adjusted_height = work_area[3] * size_factor_NB
         Dialog.resize(adjusted_width, adjusted_height)
 
         # Font and Size Policy
         header_font = QtGui.QFont()
-        header_font.setPointSize(18)
+        header_font.setPixelSize(18)
         header_font.setBold(True)
 
         graph_header_font = QtGui.QFont()
-        graph_header_font.setPointSize(14)
+        graph_header_font.setPixelSize(14)
         graph_header_font.setBold(True)
 
         general_font = QtGui.QFont()
-        general_font.setPointSize(12)
+        general_font.setPixelSize(12)
         general_font.setBold(False)
 
         pushButton_font = QtGui.QFont()
-        pushButton_font.setPointSize(12)
+        pushButton_font.setPixelSize(12)
         pushButton_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         altSizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-        inverseAlt = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
 
         # Core gridLayout
         self.gridLayout = QtWidgets.QGridLayout(Dialog)
         self.gridLayout.setObjectName("gridLayout")
 
         # Row 1 --  hVSpacer (C1) -- hSpacer (C2) -- hSpacer3 (C3)
-        self.hVSpacer1 = QtWidgets.QSpacerItem(25, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.hVSpacer1 = QtWidgets.QSpacerItem(5, 5, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.gridLayout.addItem(self.hVSpacer1, 1, 1, 1, 1)
 
         width_wo_border = adjusted_width - 50
         ledger_width = width_wo_border * 0.80
-        category_width = width_wo_border * 0.2
+        category_width = width_wo_border * 0.20
 
-        self.hSpacer1 = QtWidgets.QSpacerItem(ledger_width, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.hSpacer1 = QtWidgets.QSpacerItem(ledger_width, 0, QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
         self.gridLayout.addItem(self.hSpacer1, 1, 2, 1, 1)
 
-        self.hSpacer2 = QtWidgets.QSpacerItem(category_width, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.hSpacer2 = QtWidgets.QSpacerItem(category_width, 0, QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
         self.gridLayout.addItem(self.hSpacer2, 1, 3, 1, 1)
 
         # Row 2 -- QFrame1 (C2) -- QFrame 2 (C3)
         self.ledgerFrame = QtWidgets.QFrame()
-        self.ledgerFrame.setObjectName("LedgerFrame")
+        self.ledgerFrame.setObjectName("ledgerFrame")
+        scrollFrame_sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.ledgerFrame.setSizePolicy(scrollFrame_sizePolicy)
         self.gridLayout.addWidget(self.ledgerFrame, 2, 2, 1, 1)
 
-        self.vBLayout1 = QtWidgets.QVBoxLayout(self.ledgerFrame)
+        self.outerScrollLayout = QtWidgets.QVBoxLayout(self.ledgerFrame)
+        self.outerScrollLayout.setObjectName("outerScrollLayout")
+
+        self.ledgerScroll = QtWidgets.QScrollArea()
+        self.ledgerScroll.horizontalScrollBar().setEnabled(True)
+        self.ledgerScroll.verticalScrollBar().setEnabled(True)
+        self.ledgerScroll.setGeometry(0, 0, self.ledgerFrame.width(), self.ledgerFrame.height())
+        self.ledgerScroll.setWidgetResizable(True)
+        self.ledgerScroll.setFrameStyle(0)
+        self.outerScrollLayout.addWidget(self.ledgerScroll)
+
+        widget = QtWidgets.QWidget()
+        widget.setObjectName("scrollWidget")
+        self.ledgerScroll.setWidget(widget)
+
+        self.vBLayout1 = QtWidgets.QVBoxLayout(widget)
         self.vBLayout1.setObjectName("vBLayout1")
 
         self.categoryFrame = QtWidgets.QFrame()
-        self.categoryFrame.setObjectName("LedgerFrame")
+        self.categoryFrame.setObjectName("categoryFrame")
         # self.categoryFrame.setFrameShape(QtWidgets.QFrame.Panel)
         # self.categoryFrame.setLineWidth(1)
-        self.categoryFrame.setFixedWidth(width_wo_border * 0.25)
+        self.categoryFrame.setFixedWidth(category_width)
         self.gridLayout.addWidget(self.categoryFrame, 2, 3, 1, 1)
 
         self.vBLayout2 = QtWidgets.QVBoxLayout(self.categoryFrame)
@@ -102,7 +143,7 @@ class Ui_Ledger1(object):
         self.comboBLedger1 = QtWidgets.QComboBox()
         self.comboBLedger1.setObjectName("comboBLedger1")
         self.comboBLedger1.setFont(header_font)
-        self.comboBLedger1.setFixedWidth(600)
+        self.comboBLedger1.setFixedWidth(ledger_width / 3)
         self.comboBLedger1.setFixedHeight(40)
         self.comboBLedger1.setSizePolicy(sizePolicy)
         self.hBLayout1.addWidget(self.comboBLedger1)
@@ -224,7 +265,7 @@ class Ui_Ledger1(object):
         self.hSpacer6 = QtWidgets.QSpacerItem(25, 40, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.hBLayout3.addSpacerItem(self.hSpacer6)
 
-        inputFrameWidth = (ledger_width - 25) / 2
+        inputFrameWidth = (ledger_width - 250) / 2
 
         self.lInputFrame = QtWidgets.QFrame()
         self.lInputFrame.setObjectName("lInputFrame")
@@ -254,7 +295,7 @@ class Ui_Ledger1(object):
         self.hSpacer9 = QtWidgets.QSpacerItem(inputFrameWidth - 600, 10, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.gridLayout2.addItem(self.hSpacer9, 1, 2, 1, 1)
 
-        self.hSpacer10 = QtWidgets.QSpacerItem(150, 10, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.hSpacer10 = QtWidgets.QSpacerItem(100, 10, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.gridLayout2.addItem(self.hSpacer10, 1, 4, 1, 1)
 
         # Inputs A - Row # 2 -- Label (c2) -- ComboBox (C3-4)
@@ -849,7 +890,7 @@ class Ui_Ledger1(object):
             self.hBLayout7.addWidget(self.pBDeleteHouse)
 
         # Row Last -- hVSpacer (C4)
-        self.hVSpacer2 = QtWidgets.QSpacerItem(25, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.hVSpacer2 = QtWidgets.QSpacerItem(5, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.gridLayout.addItem(self.hVSpacer2, 3, 4, 1, 1)
 
 

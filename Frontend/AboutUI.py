@@ -16,13 +16,30 @@ class Ui_AboutScreen(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("AboutScreen")
         Dialog.setWindowTitle("About A.F.")
-        Dialog.setWindowIcon(QtGui.QIcon('AF Logo.png'))
+        Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         # Obtain and use the monitor screen to determine the width of the dialog box
         monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
         work_area = monitor_info.get("Work")
-        adjusted_width = work_area[2] * 0.5  # for non full screen sizing
-        adjusted_height = work_area[3] * 0.5
+        size_factor = 0.50
+
+        if 3840 <= work_area[2]:
+            size_factor = size_factor
+
+        if 2560 <= work_area[2] < 3840:
+            size_factor = (3840 * size_factor)/2560
+
+        if 1920 <= work_area[2] < 2560:
+            size_factor = (3840 * size_factor)/1920
+
+        if 1600 <= work_area[2] < 1920:
+            size_factor = (3840 * size_factor)/1600
+
+        if work_area[2] < 1600:
+            size_factor = (3840 * size_factor)/1366
+
+        adjusted_width = work_area[2] * size_factor  # for non full screen sizing
+        adjusted_height = work_area[3] * size_factor
         Dialog.resize(adjusted_width, adjusted_height)
 
         dialog_sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
@@ -98,11 +115,11 @@ class Ui_AboutScreen(object):
         # Program Tagline
 
         name_font = QtGui.QFont()
-        name_font.setPointSize(36)
+        name_font.setPixelSize(36)
         name_font.setBold(True)
 
         tag_font = QtGui.QFont()
-        tag_font.setPointSize(28)
+        tag_font.setPixelSize(28)
         tag_font.setItalic(True)
 
         self.staticProgramName = QtWidgets.QLabel()
@@ -144,7 +161,7 @@ class Ui_AboutScreen(object):
         # StaticContact
 
         static_font = QtGui.QFont()
-        static_font.setPointSize(18)
+        static_font.setPixelSize(18)
         static_font.setBold(True)
 
         self.staticVersion = QtWidgets.QLabel()
@@ -182,14 +199,14 @@ class Ui_AboutScreen(object):
         # contact
 
         kinetic_font = QtGui.QFont()
-        kinetic_font.setPointSize(18)
+        kinetic_font.setPixelSize(18)
         kinetic_font.setBold(False)
 
-        self.versionFile = codecs.open("Spoon/version", "r", "utf-8-sig")
+        self.versionFile = codecs.open("Resources/version", "r", "utf-8-sig")
         self.version = self.versionFile.read().replace('\n', '')
         self.versionFile.close()
 
-        self.aboutFile = open("Spoon/AboutInfo.pkl", "rb")
+        self.aboutFile = open("Resources/AboutInfo.pkl", "rb")
         self.aboutDict = pickle.load(self.aboutFile)
         self.aboutFile.close()
 

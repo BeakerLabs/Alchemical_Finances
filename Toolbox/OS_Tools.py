@@ -1,7 +1,7 @@
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabs.com
-
+import os
 from pathlib import Path
 
 
@@ -26,6 +26,7 @@ def file_destination(dir_name_lst=None):
 
     dir_path = Path(gen_str_path)
     dir_path.mkdir(parents=True, exist_ok=True)
+    os.chmod(dir_path, 0o777)
     file_path = gen_str_path + chr(92)
 
     return file_path

@@ -13,7 +13,7 @@ class Ui_YNCInput(object):  # YNC == Yes No Cancel
     def setupUi(self, Dialog):
         Dialog.setObjectName("YNCInput")
         Dialog.setWindowTitle("Modify -- Account Types")
-        Dialog.setWindowIcon(QtGui.QIcon('AF Logo.png'))
+        Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         # This dialog size will be constant. Unlike other screens it should always fit.
         Dialog.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -35,7 +35,7 @@ class Ui_YNCInput(object):  # YNC == Yes No Cancel
 
         # Row 2 -- Label (C2-C4) Spacer (C5)
         input_font = QtGui.QFont()
-        input_font.setPointSize(14)
+        input_font.setPixelSize(14)
 
         self.InputLabel = QtWidgets.QLabel()
         self.InputLabel.setObjectName("InputLabel")
@@ -53,7 +53,7 @@ class Ui_YNCInput(object):  # YNC == Yes No Cancel
         self.gridLayout.addItem(self.vspacer1, 3, 1, 1, 1)
 
         button_font = QtGui.QFont()
-        button_font.setPointSize(12)
+        button_font.setPixelSize(12)
 
         self.pBAdd = QtWidgets.QPushButton()
         self.pBAdd.setObjectName("addPushButton")

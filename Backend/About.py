@@ -14,7 +14,7 @@ from PySide6.QtWidgets import QDialog
 
 from Frontend.AboutUI import Ui_AboutScreen
 
-from StyleSheets.Standard import standardAppearance
+from StyleSheets.StandardCSS import standardAppearance
 
 
 class AboutProgram(QDialog):

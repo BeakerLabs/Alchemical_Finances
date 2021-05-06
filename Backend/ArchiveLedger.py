@@ -22,7 +22,7 @@ from Toolbox.AF_Tools import disp_LedgerV1_Table, disp_LedgerV2_Table, generate_
 from Toolbox.SQL_Tools import execute_sql_statement_list, move_sql_tables, obtain_sql_value, obtain_sql_list
 from Toolbox.Formatting_Tools import remove_space
 
-from StyleSheets.Standard import standardAppearance
+from StyleSheets.StandardCSS import standardAppearance
 
 
 class Archive(QDialog):

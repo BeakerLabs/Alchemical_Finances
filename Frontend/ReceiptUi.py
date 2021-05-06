@@ -12,7 +12,7 @@ class Ui_Receipt(object):
         # Dialog Setting
         Dialog.setObjectName("ReceiptDialog")
         Dialog.setWindowTitle("Receipt")
-        Dialog.setWindowIcon(QtGui.QIcon("AF Logo.png"))
+        Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         Dialog.resize(600, 700)
         Dialog.setMinimumSize(600, 700)
@@ -24,7 +24,7 @@ class Ui_Receipt(object):
 
         # Font and Size Policy
         general_font = QtGui.QFont()
-        general_font.setPointSize(12)
+        general_font.setPixelSize(12)
         general_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)

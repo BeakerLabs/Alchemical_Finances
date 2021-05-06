@@ -15,7 +15,7 @@ from PySide6.QtWidgets import QDialog, QMessageBox
 
 from Frontend.ProfileUi import Ui_Profile
 
-from StyleSheets.Standard import standardAppearance
+from StyleSheets.StandardCSS import standardAppearance
 from StyleSheets.ProfileCSS import profileFrame
 from StyleSheets.ErrorCSS import generalError
 
