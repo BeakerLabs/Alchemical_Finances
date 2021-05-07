@@ -99,8 +99,11 @@ class Ui_AboutScreen(object):
         # Logo
         self.logoImage = QtWidgets.QLabel()
         self.logoImage.setObjectName("logoImage")
-        Image = QPixmap("AF Logo.png")
-        logoAdjustment = Image.scaled(248, 248)
+        Image = QPixmap("Resources/AF Logo.png")
+        if size_factor < 0.75:
+            logoAdjustment = Image.scaled(248, 248)
+        else:
+            logoAdjustment = Image.scaled(150, 150)
         self.logoImage.setPixmap(logoAdjustment)
         image_sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.logoImage.setSizePolicy(image_sizePolicy)

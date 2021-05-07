@@ -112,37 +112,73 @@ QPushButton:disabled{
     padding-left: 15px;
 }
 
-QScrollBar:vertical {
+QScrollBar:vertical{
     background: #D3D3D3;
     width: 15px;
     margin: 22px 0 20px 0;
 }
+
 QScrollBar::handle:vertical {
     background: #414E41;
     min-height: 20px;
 }
 
-QScrollBar::add-line:vertical {
+QScrollBar::add-line:vertical{
     background: #FAFAFA;
     height: 20px;
     subcontrol-position: bottom;
     subcontrol-origin: margin;
 }
 
-QScrollBar::sub-line:vertical {
+QScrollBar::sub-line:vertical{
     background: #FAFAFA;
     height: 20px;
     subcontrol-position: top;
     subcontrol-origin: margin;
 }
 
-QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical{
     width: 5px;
     height: 5px;
     background: #BEDF7C;
 }
 
-QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical{
+    background: none;
+}
+
+QScrollBar:horizontal {
+    background: #D3D3D3;
+    height: 15px;
+    margin: 0px 20px 0px 20px;
+}
+
+QScrollBar::handle:horizontal {
+    background: #414E41;
+    min-width: 20px;
+}
+
+QScrollBar::add-line:horizontal {
+    background: #FAFAFA;
+    width: 20px;
+    subcontrol-position: right;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:horizontal {
+    background: #FAFAFA;
+    width: 20px;
+    subcontrol-position: left;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::left-arrow:horizontal, QScrollBar::right-arrow:horizontal {
+    width: 5px;
+    height: 5px;
+    background: #BEDF7C;
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
     background: none;
 }
 
@@ -165,8 +201,8 @@ QTabBar::tab {
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
     min-width: 90px;
-    padding: 8px;
-    font-size: 16px;
+    padding: 4px;
+    font-size: 12px;
     color: #414E41;
     font-weight: bold;
 }

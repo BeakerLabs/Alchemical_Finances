@@ -6,9 +6,9 @@
 # Archived Accounts are accounts that have been closed.
 # Archiving keeps the account history without it being apart of the summary report
 
-from PySide6 import QtCore, QtGui, QtWidgets
-from win32api import GetMonitorInfo, MonitorFromPoint
+import pickle
 
+from PySide6 import QtCore, QtGui, QtWidgets
 
 class Ui_Archive(object):
     def setupUi(self, Dialog):
@@ -17,9 +17,13 @@ class Ui_Archive(object):
         Dialog.setWindowTitle("Archive")
         Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
-        # obtain and use the monitor screen to determine the width of the dialog box
-        monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
-        work_area = monitor_info.get("Work")
+        # Dialog size
+        screen_dimensions_file = open("Resources/dimensions.pkl", "rb")
+        screen_dimensions = pickle.load(screen_dimensions_file)
+        screen_dimensions_file.close()
+
+        work_area = screen_dimensions[1]
+
         size_factor = 0.50
 
         if 3840 <= work_area[2]:
