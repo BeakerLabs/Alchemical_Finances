@@ -7,8 +7,7 @@
 
 import pickle
 
-from PySide6 import QtCore, QtGui, QtWidgets
-from win32api import GetMonitorInfo, MonitorFromPoint
+from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class Ui_MainWindow(object):

@@ -12,8 +12,8 @@ Future Concepts
 
 from Frontend.UserLoginUi import Ui_LoginScreen
 from pathlib import Path
-from PySide6.QtWidgets import QDialog
-from PySide6 import QtCore, QtWidgets
+from PySide2.QtWidgets import QDialog
+from PySide2 import QtCore, QtWidgets
 from Toolbox.Error_Tools import check_characters, check_numerical_inputs, spacing_check
 from Toolbox.Formatting_Tools import gen_rand_str
 from Toolbox.SQL_Tools import attempt_sql_statement, obtain_sql_value, specific_sql_statement, sqlite3_keyword_check

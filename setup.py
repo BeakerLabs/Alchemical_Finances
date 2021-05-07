@@ -13,7 +13,7 @@ import pickle
 import sys
 
 from pathlib import Path
-from PySide6.QtWidgets import QDialog, QApplication
+from PySide2.QtWidgets import QDialog, QApplication
 
 from Backend.UserLogin import LoginForm
 from Backend.WelcomeMessage import Message

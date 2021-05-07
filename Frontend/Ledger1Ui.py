@@ -7,7 +7,7 @@
 
 import pickle
 
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class Ui_Ledger1(object):

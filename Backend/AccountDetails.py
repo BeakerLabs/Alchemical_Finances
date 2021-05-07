@@ -15,7 +15,7 @@ import shutil
 
 from Backend.Question import YNTypeQuestion
 from Frontend.AccountsUi import Ui_Accounts
-from PySide6.QtWidgets import QDialog, QMessageBox, QListWidgetItem
+from PySide2.QtWidgets import QDialog, QMessageBox, QListWidgetItem
 from Toolbox.AF_Tools import fill_widget
 from Toolbox.Error_Tools import check_characters, find_character, first_character_check
 from Toolbox.Formatting_Tools import decimal_places, remove_space

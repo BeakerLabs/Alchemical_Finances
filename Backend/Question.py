@@ -9,8 +9,7 @@ Future Concepts
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabs.com
 
-from PySide6 import QtCore, QtWidgets
-from PySide6.QtWidgets import QDialog, QInputDialog
+from PySide2.QtWidgets import QDialog, QInputDialog
 
 from Frontend.SubTypeQuestionUi import Ui_YNCInput
 

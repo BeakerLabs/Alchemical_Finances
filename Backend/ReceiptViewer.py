@@ -9,9 +9,9 @@ Future Concepts
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabs.com
 
-from PySide6 import QtCore, QtWidgets
-from PySide6.QtWidgets import QDialog
-from PySide6.QtGui import QPixmap, QTransform
+from PySide2 import QtCore, QtWidgets
+from PySide2.QtWidgets import QDialog
+from PySide2.QtGui import QPixmap, QTransform
 from Frontend.ReceiptUi import Ui_Receipt
 # from Frontend.StyleSheets import UniversalStyleSheet
 

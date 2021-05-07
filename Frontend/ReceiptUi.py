@@ -4,7 +4,7 @@
 
 # Dialog for user to load images within the program.
 
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class Ui_Receipt(object):

@@ -4,7 +4,7 @@
 
 # Dialog screen for user to set parameters to generate a .pdf snapshot report
 
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class Ui_GenReport(object):

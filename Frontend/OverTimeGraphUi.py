@@ -24,7 +24,7 @@
 # This Dialog is a Subwindow for the Mainwindow MdiArea
 # This will generate a stacked networth graph
 
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 from win32api import GetMonitorInfo, MonitorFromPoint
 
 

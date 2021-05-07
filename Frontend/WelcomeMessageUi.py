@@ -13,8 +13,8 @@ Future Feature
 """
 import pickle
 
-from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtGui import QPixmap
+from PySide2 import QtCore, QtGui, QtWidgets
+from PySide2.QtGui import QPixmap
 from win32api import GetMonitorInfo, MonitorFromPoint
 
 

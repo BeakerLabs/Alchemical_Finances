@@ -6,7 +6,7 @@
 # Created for the purposes of allowing user to create / delete / nvm a new Account Sub Type.
 # This dialog box is activated through the ledger Category "Modify" pushbutton
 
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class Ui_YNCInput(object):  # YNC == Yes No Cancel

@@ -15,9 +15,9 @@ import shutil
 import sqlite3
 
 from pathlib import Path
-from PySide6.QtWidgets import QMainWindow, QMessageBox
-from PySide6 import QtCore, QtWidgets, QtGui
-from PySide6.QtCore import Slot
+from PySide2.QtWidgets import QMainWindow, QMessageBox
+from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2.QtCore import Slot
 from sqlite3 import Error
 
 from Frontend.AFui import Ui_MainWindow

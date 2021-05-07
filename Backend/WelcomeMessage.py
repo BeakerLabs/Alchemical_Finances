@@ -14,7 +14,7 @@ import pickle
 from pathlib import Path
 from Frontend.WelcomeMessageUi import Ui_WelcomeMessage
 
-from PySide6.QtWidgets import QDialog
+from PySide2.QtWidgets import QDialog
 
 from Toolbox.OS_Tools import file_destination
 from Toolbox.SQL_Tools import obtain_sql_value, specific_sql_statement

@@ -11,8 +11,8 @@ Future Concepts
 
 import os
 
-from PySide6.QtWidgets import QDialog, QFileDialog
-from PySide6 import QtCore, QtWidgets
+from PySide2.QtWidgets import QDialog, QFileDialog
+from PySide2 import QtCore, QtWidgets
 
 
 from Frontend.GenReportUi import Ui_GenReport

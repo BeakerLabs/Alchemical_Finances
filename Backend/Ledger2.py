@@ -15,9 +15,9 @@ to clarify function/purpose of any given object.
 
 import os
 
-from PySide6.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog
-from PySide6.QtCore import QDate
-from PySide6 import QtGui, QtCore, QtWidgets
+from PySide2.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog
+from PySide2.QtCore import QDate
+from PySide2 import QtGui, QtCore, QtWidgets
 
 from pathlib import Path, PurePath
 from shutil import copy

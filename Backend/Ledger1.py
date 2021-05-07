@@ -15,10 +15,10 @@ to clarify function/purpose of any given object.
 
 import os
 
-from PySide6.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog
-from PySide6.QtCore import QDate
-from PySide6.QtGui import QPixmap
-from PySide6 import QtCore, QtWidgets, QtGui
+from PySide2.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog
+from PySide2.QtCore import QDate
+from PySide2.QtGui import QPixmap
+from PySide2 import QtCore, QtWidgets, QtGui
 
 from pathlib import Path, PurePath
 from shutil import copy

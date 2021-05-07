@@ -4,7 +4,7 @@
 
 # Dialog screen for user to Create, Modify, Archive, and Delete Accounts
 
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class Ui_Accounts(object):

@@ -12,9 +12,9 @@ Future Concepts
 
 import numpy as np
 
-from PySide6 import QtGui, QtCore, QtWidgets
-from PySide6.QtWidgets import QDialog, QVBoxLayout
-from PySide6.QtGui import QPainter, QColor
+from PySide2 import QtGui, QtCore, QtWidgets
+from PySide2.QtWidgets import QDialog, QVBoxLayout
+from PySide2.QtGui import QPainter, QColor
 
 
 from Backend.BuildGraphs import AF_Canvas, overTimeLineGraph

@@ -6,9 +6,9 @@ from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
 
-from PySide6.QtWidgets import QTableWidgetItem
-from PySide6.QtGui import QColor
-from PySide6 import QtCore, QtGui
+from PySide2.QtWidgets import QTableWidgetItem
+from PySide2.QtGui import QColor
+from PySide2 import QtCore, QtGui
 
 from Toolbox.Formatting_Tools import cash_format, decimal_places, remove_space
 from Toolbox.SQL_Tools import obtain_sql_value, obtain_sql_list, specific_sql_statement

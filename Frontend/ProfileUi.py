@@ -6,7 +6,7 @@
 
 import pickle
 
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 from win32api import GetMonitorInfo, MonitorFromPoint
 
 

@@ -11,8 +11,8 @@ Future Concepts
 
 import shutil
 
-from PySide6.QtWidgets import QMessageBox, QDialog, QInputDialog
-from PySide6 import QtCore
+from PySide2.QtWidgets import QMessageBox, QDialog, QInputDialog
+from PySide2 import QtCore
 from pathlib import Path
 from Frontend.ArchiveUi import Ui_Archive
 from Backend.ReceiptViewer import Receipt
