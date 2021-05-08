@@ -17,10 +17,10 @@ from PySide2.QtCore import Slot
 from Frontend.SummaryUi import Ui_Summary
 
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
-from Toolbox.Formatting_Tools import add_comma, cash_format, decimal_places, remove_comma, remove_space
+from Toolbox.Formatting_Tools import add_comma, cash_format, decimal_places, remove_space
 from Toolbox.AF_Tools import set_font
 
-# from Backend.BuildGraphs import nested_snapshot, AF_Canvas
+from Backend.BuildGraphs import nested_snapshot, AF_Canvas
 from StyleSheets.SummaryCSS import summarySTD, parentFormat, columnHeader, accountDetails, messageFormat, subtotalBalanceFormat
 
 
@@ -51,16 +51,16 @@ class Ledger_Summary(QDialog):
         self.error_Logger = error_Log
 
         # Asset Nested Pie Graph
-        # self.assetCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
-        # self.aCanvasLayout = QVBoxLayout(self.frameAGraph)
-        # self.aCanvasLayout.addWidget(self.assetCanvas)
-        # self.update_plot(focus="Asset", canvas=self.assetCanvas)
+        self.assetCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
+        self.aCanvasLayout = QVBoxLayout(self.ui.frameAGraph)
+        self.aCanvasLayout.addWidget(self.assetCanvas)
+        self.update_plot(focus="Asset", canvas=self.assetCanvas)
 
         # Liability Nested Pie Graph
-        # self.liabilityCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
-        # self.lCanvasLayout = QVBoxLayout(self.frameAGraph)
-        # self.lCanvasLayout.addWidget(self.liabilityCanvas)
-        # self.update_plot(focus="Asset", canvas=self.liabilityCanvas)
+        self.liabilityCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
+        self.lCanvasLayout = QVBoxLayout(self.ui.frameLGraph)
+        self.lCanvasLayout.addWidget(self.liabilityCanvas)
+        self.update_plot(focus="Liability", canvas=self.liabilityCanvas)
 
         # Build Summary Display
         summaryStatement = """SELECT ItemType, ParentType, SubType, ID, Balance FROM Account_Summary """ \
@@ -125,6 +125,7 @@ class Ledger_Summary(QDialog):
         self.updateMessages.append(lMessage)
 
         self.row += 1
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
 
         # Part 1 of Cycle adds Parent Type Header Label
         for parentType in parentType_dict:
@@ -133,7 +134,8 @@ class Ledger_Summary(QDialog):
                 lParent = QLabel(self)
                 lParent.setObjectName(f"label{parentType}")
                 lParent.setText(f"  {parentType.title()}")
-                lParent.setFixedHeight(75)
+                lParent.setSizePolicy(sizePolicy)
+                # lParent.setFixedHeight(65)
                 parentfont = QtGui.QFont()
                 set_font(parentfont, 24, True, False)
 
@@ -317,7 +319,7 @@ class Ledger_Summary(QDialog):
                 self.subTotalHBoxLayout.setObjectName(f"{accountID}BoxLayoutrow{self.row}")
                 self.ui.vBLayout5.addLayout(self.subTotalHBoxLayout)
 
-                subtotalSpacer_width = self.summaryFrame_width * (2/3)
+                subtotalSpacer_width = self.summaryFrame_width * 0.55
                 self.hSpacer = QtWidgets.QSpacerItem(subtotalSpacer_width, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
                 self.subTotalHBoxLayout.addItem(self.hSpacer)
 
@@ -348,6 +350,8 @@ class Ledger_Summary(QDialog):
                 labelSubTotal.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeading | QtCore.Qt.AlignRight)
                 labelSubTotal.setStyleSheet(subtotalBalanceFormat)
                 labelSubTotal.setFixedHeight(self.labelHeight)
+                subTotal_Balance_width = self.summaryFrame_width * 0.45
+                labelSubTotal.setFixedWidth(subTotal_Balance_width)
                 self.subTotalHBoxLayout.addWidget(labelSubTotal)
 
                 self.row += 1
@@ -581,44 +585,44 @@ class Ledger_Summary(QDialog):
             messagelabel.setText(changes)
             messagelabel.show()
 
-    # def update_plot(self, focus, canvas):
-    #     pie_data = nested_snapshot(self.refUserDB, graph_focus=focus)
-    #     canvas.axes.clear()
-    #     canvas.axes.pie(pie_data[0], radius=1.5, colors=pie_data[1], wedgeprops={'linewidth': 0.5, 'edgecolor': 'grey', 'width': 0.3})
-    #     canvas.axes.pie(pie_data[2], radius=1.2, colors=pie_data[3], wedgeprops={'linewidth': 0.3, 'edgecolor': 'grey', 'width': 0.25})
-    #     if focus == "Asset":
-    #         assetSizes = pie_data[4]
-    #         LegendLabels = ["Bank - ({0}%)".format(assetSizes[0]),
-    #                         "Cash - ({0}%)".format(assetSizes[1]),
-    #                         "CD - ({0}%)".format(assetSizes[2]),
-    #                         "Equity - ({0}%)".format(assetSizes[3]),
-    #                         "Treasury - ({0}%)".format(assetSizes[4]),
-    #                         "Retirement - ({0}%)".format(assetSizes[5]),
-    #                         "Property - ({0}%)".format(assetSizes[6])]
-    #
-    #     elif focus == "Liability":
-    #         liabilitySizes = pie_data[4]
-    #         LegendLabels = ["Debt - ({0}%)".format(liabilitySizes[0]),
-    #                         "Credit - ({0}%)".format(liabilitySizes[1])]
-    #     else:
-    #         LegendLabels = ["Input Error: Asset/Liability only"]
-    #
-    #     canvas.axes.legend(
-    #         loc="center",
-    #         labels=LegendLabels,
-    #         ncol=1,
-    #         fontsize=3.5,
-    #         bbox_to_anchor=(0.52, 0.5),
-    #         frameon=False,
-    #     )
-    #     canvas.draw()
+    def update_plot(self, focus, canvas):
+        pie_data = nested_snapshot(self.refUserDB, graph_focus=focus, error_log=self.error_Logger)
+        canvas.axes.clear()
+        canvas.axes.pie(pie_data[0], radius=1.5, colors=pie_data[1], wedgeprops={'linewidth': 0.5, 'edgecolor': 'grey', 'width': 0.3})
+        canvas.axes.pie(pie_data[2], radius=1.2, colors=pie_data[3], wedgeprops={'linewidth': 0.3, 'edgecolor': 'grey', 'width': 0.25})
+        if focus == "Asset":
+            assetSizes = pie_data[4]
+            LegendLabels = ["Bank - ({0}%)".format(assetSizes[0]),
+                            "Cash - ({0}%)".format(assetSizes[1]),
+                            "CD - ({0}%)".format(assetSizes[2]),
+                            "Equity - ({0}%)".format(assetSizes[3]),
+                            "Treasury - ({0}%)".format(assetSizes[4]),
+                            "Retirement - ({0}%)".format(assetSizes[5]),
+                            "Property - ({0}%)".format(assetSizes[6])]
+
+        elif focus == "Liability":
+            liabilitySizes = pie_data[4]
+            LegendLabels = ["Debt - ({0}%)".format(liabilitySizes[0]),
+                            "Credit - ({0}%)".format(liabilitySizes[1])]
+        else:
+            LegendLabels = ["Input Error: Asset/Liability only"]
+
+        canvas.axes.legend(
+            loc="center",
+            labels=LegendLabels,
+            ncol=1,
+            fontsize=3.5,
+            bbox_to_anchor=(0.52, 0.5),
+            frameon=False,
+        )
+        canvas.draw()
 
     # --- Receive a message from the MainWindow to refresh -----------------------
     @Slot(str)
     def refresh_summary(self, message):
         if message == "2":
-            # self.update_plot("Asset", self.assetCanvas)
-            # self.update_plot("Liability", self.liabilityCanvas)
+            self.update_plot("Asset", self.assetCanvas)
+            self.update_plot("Liability", self.liabilityCanvas)
             self.refresh_balance_labels()
             self.user_messages()
         else:

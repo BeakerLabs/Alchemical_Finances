@@ -151,7 +151,7 @@ class Ui_GenReport(object):
         self.lDestination = QtWidgets.QLabel()
         self.lDestination.setObjectName("lDestination")
         self.lDestination.setText("Report Destination")
-        self.lDestination.setAlignment(QtCore.Qt.AlignLeft)
+        self.lDestination.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignBottom)
         self.lDestination.setFont(general_font)
         self.lDestination.setSizePolicy(sizePolicy)
         self.gridLayout.addWidget(self.lDestination, 4, 2, 1, 6)
@@ -171,7 +171,7 @@ class Ui_GenReport(object):
         self.pBPath.setObjectName("pBPath")
         self.pBPath.setText("...")
         self.pBPath.setFont(general_font)
-        self.pBPath.setMaximumWidth(35)
+        self.pBPath.setMaximumWidth(60)
         self.pBPath.setSizePolicy(pB_sizePolicy)
         self.gridLayout.addWidget(self.pBPath, 5, 7, 1, 1)
 

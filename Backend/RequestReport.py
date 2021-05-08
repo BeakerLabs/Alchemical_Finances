@@ -16,9 +16,10 @@ from PySide2 import QtCore, QtWidgets
 
 
 from Frontend.GenReportUi import Ui_GenReport
-# from Frontend.StyleSheets import UniversalStyleSheet
+
 from Backend.BuildReports import Generate_user_report
 
+from StyleSheets.StandardCSS import standardAppearance
 
 class user_report_request(QDialog):
     def __init__(self, database, user, error_log):
@@ -28,6 +29,7 @@ class user_report_request(QDialog):
         self.setWindowTitle("Request Summary Report")
         # self.setStyleSheet(UniversalStyleSheet)
         self.setModal(True)
+        self.setStyleSheet(standardAppearance)
         self.show()
 
         # --- Class Global Variables ------------------------------------------------------------------------------------------------------------------------------------------

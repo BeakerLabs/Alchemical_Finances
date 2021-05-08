@@ -903,11 +903,12 @@ class LedgerV1(QDialog):
         self.ui.pBUpdate.setEnabled(toggle)
         self.ui.pBDelete.setEnabled(toggle)
         self.ui.pBClearInputs.setEnabled(toggle)
-        self.ui.tabWidget.setEnabled(toggle)
+
 
         if self.parentType == "Property":
             self.ui.pBUploadHouse.setEnabled(toggle)
         else:
+            self.ui.tabWidget.setEnabled(toggle)
             self.ui.pBToggle.setEnabled(toggle)
             self.ui.comboBTab2Year.setEnabled(toggle)
 

@@ -710,8 +710,8 @@ class Ui_Ledger2(object):
         self.typeFrame.setObjectName("typeFrame")
         self.typeFrame.setSizePolicy(altSizePolicy)
         self.typeFrame.setFixedHeight(300)
-        self.typeFrame.setFrameShape(QtWidgets.QFrame.Panel)
-        self.typeFrame.setLineWidth(1)
+        # self.typeFrame.setFrameShape(QtWidgets.QFrame.Panel)
+        # self.typeFrame.setLineWidth(1)
         self.lTab1vBLayout.addWidget(self.typeFrame)
 
         self.tab1HBLayout1 = QtWidgets.QHBoxLayout()
@@ -764,8 +764,8 @@ class Ui_Ledger2(object):
         self.investmentFrame.setObjectName("YearFrame")
         self.investmentFrame.setSizePolicy(altSizePolicy)
         self.investmentFrame.setFixedHeight(300)
-        self.investmentFrame.setFrameShape(QtWidgets.QFrame.Panel)
-        self.investmentFrame.setLineWidth(1)
+        # self.investmentFrame.setFrameShape(QtWidgets.QFrame.Panel)
+        # self.investmentFrame.setLineWidth(1)
         self.lTab2vBLayout.addWidget(self.investmentFrame)
 
         self.tab2HBLayout1 = QtWidgets.QHBoxLayout()
@@ -831,8 +831,8 @@ class Ui_Ledger2(object):
         self.SectorFrame.setObjectName("SectorFrame")
         self.SectorFrame.setSizePolicy(altSizePolicy)
         self.SectorFrame.setFixedHeight(300)
-        self.SectorFrame.setFrameShape(QtWidgets.QFrame.Panel)
-        self.SectorFrame.setLineWidth(1)
+        # self.SectorFrame.setFrameShape(QtWidgets.QFrame.Panel)
+        # self.SectorFrame.setLineWidth(1)
         self.lTab3vBLayout.addWidget(self.SectorFrame)
 
         self.tab3HBLayout1 = QtWidgets.QHBoxLayout()

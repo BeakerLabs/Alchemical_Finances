@@ -24,18 +24,18 @@ class Ui_Accounts(object):
 
         # Fonts and SizePolicy
         label_font = QtGui.QFont()
-        label_font.setPixelSize(10)
+        label_font.setPixelSize(14)
         label_font.setBold(True)
 
         general_font = QtGui.QFont()
-        general_font.setPixelSize(10)
+        general_font.setPixelSize(14)
 
         lineEdit_font = QtGui.QFont()
-        lineEdit_font.setPixelSize(10)
+        lineEdit_font.setPixelSize(14)
         lineEdit_font.setBold(False)
 
         error_font = QtGui.QFont()
-        error_font.setPixelSize(10)
+        error_font.setPixelSize(14)
         error_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)

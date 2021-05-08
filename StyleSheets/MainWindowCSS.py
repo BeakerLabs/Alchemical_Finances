@@ -26,7 +26,7 @@ QLabel#labelStaticTA{
     border-top-left-radius: 15px;
     border-bottom-left-radius: 15px;
     background-color: #8BA78C;
-    margin-left: 50px;
+    margin-left: 20px;
 }
 
 QLabel#labelTAssests{
@@ -35,7 +35,7 @@ QLabel#labelTAssests{
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
     background-color: rgba(163, 163, 163, 0.4);
-    margin-right: 50px;
+    margin-right: 20px;
     color: #696969;
 }
 
@@ -45,7 +45,7 @@ QLabel#labelStaticTL{
     border-top-left-radius: 15px;
     border-bottom-left-radius: 15px;
     background-color: #8BA78C;
-    margin-left: 50px;
+    margin-left: 20px;
 }
 
 QLabel#labelTLiabilities{
@@ -54,7 +54,7 @@ QLabel#labelTLiabilities{
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
     background-color: rgba(163, 163, 163, 0.4);
-    margin-right: 50px;
+    margin-right: 20px;
     color: #696969;
 }
 
@@ -64,7 +64,7 @@ QLabel#labelStaticTN{
     border-top-left-radius: 15px;
     border-bottom-left-radius: 15px;
     background-color: #8BA78C;
-    margin-left: 50px;
+    margin-left: 20px;
 }
 
 QLabel#labelNW{
@@ -73,7 +73,7 @@ QLabel#labelNW{
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
     background-color: #BEDF7C;
-    margin-right: 50px;
+    margin-right: 20px;
 }
 
 QPushButton{

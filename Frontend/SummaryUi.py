@@ -7,8 +7,9 @@
 # Some static layout attributes will be generated here and have the visuals added later.
 # This should allow for cleaning flowing code.
 
+import pickle
+
 from PySide2 import QtCore, QtGui, QtWidgets
-from win32api import GetMonitorInfo, MonitorFromPoint
 
 
 class Ui_Summary(object):
@@ -19,8 +20,11 @@ class Ui_Summary(object):
         Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         # Obtain and use the monitor screen to determine with width of the dialog box
-        monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
-        work_area = monitor_info.get("Work")
+        screen_dimensions_file = open("Resources/dimensions.pkl", "rb")
+        screen_dimensions = pickle.load(screen_dimensions_file)
+        screen_dimensions_file.close()
+
+        work_area = screen_dimensions[1]
 
         size_factor = 0.50
 
@@ -104,7 +108,7 @@ class Ui_Summary(object):
         self.scrollLayout.addLayout(self.hBLayout3)
 
         # hBoxLayout2 --> FrameAsset -- FrameLiability
-        self.hSpacer3 = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.hSpacer3 = QtWidgets.QSpacerItem(25, 200, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         self.hBLayout2.addSpacerItem(self.hSpacer3)
 
         self.frameAsset = QtWidgets.QFrame()
@@ -113,7 +117,7 @@ class Ui_Summary(object):
         # self.frameAsset.setLineWidth(1)
         self.hBLayout2.addWidget(self.frameAsset)
 
-        self.hSpacer4 = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.hSpacer4 = QtWidgets.QSpacerItem(25, 200, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         self.hBLayout2.addSpacerItem(self.hSpacer4)
 
         self.frameLiability = QtWidgets.QFrame()
@@ -122,7 +126,7 @@ class Ui_Summary(object):
         # self.frameLiability.setLineWidth(1)
         self.hBLayout2.addWidget(self.frameLiability)
 
-        self.hSpacer5 = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.hSpacer5 = QtWidgets.QSpacerItem(25, 200, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         self.hBLayout2.addSpacerItem(self.hSpacer5)
 
         # FrameAsset --> vBoxLayout3
@@ -142,6 +146,7 @@ class Ui_Summary(object):
         self.frameAGraph.setObjectName("frameAGraph")
         self.frameAGraph.setFrameShape(QtWidgets.QFrame.Panel)
         # self.frameAGraph.setLineWidth(3)
+        self.frameAGraph.setFixedHeight(400)
         self.vBLayout3.addWidget(self.frameAGraph)
 
         # FrameLiability --> vBoxLayout4
@@ -161,10 +166,11 @@ class Ui_Summary(object):
         self.frameLGraph.setObjectName("frameALiability")
         self.frameLGraph.setFrameShape(QtWidgets.QFrame.Panel)
         # self.frameLGraph.setLineWidth(3)
+        self.frameLGraph.setFixedHeight(400)
         self.vBLayout4.addWidget(self.frameLGraph)
 
         # hBLayout3 --> hspacer6 -- FrameSummary -- hspacer7
-        self.hSpacer6 = QtWidgets.QSpacerItem(350, 0, QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Expanding)
+        self.hSpacer6 = QtWidgets.QSpacerItem(350, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
         self.hBLayout3.addSpacerItem(self.hSpacer6)
 
@@ -174,7 +180,7 @@ class Ui_Summary(object):
         # self.frameSummary.setLineWidth(1)
         self.hBLayout3.addWidget(self.frameSummary)
 
-        self.hSpacer7 = QtWidgets.QSpacerItem(350, 0, QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Expanding)
+        self.hSpacer7 = QtWidgets.QSpacerItem(350, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.hBLayout3.addSpacerItem(self.hSpacer7)
 
         # vBoxLayout5 --> FrameSummary

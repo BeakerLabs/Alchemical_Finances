@@ -13,6 +13,7 @@ import pickle
 import sys
 
 from pathlib import Path
+from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtWidgets import QDialog, QApplication
 
 from Backend.UserLogin import LoginForm
@@ -24,6 +25,7 @@ from Toolbox.OS_Tools import file_destination
 
 
 def main():
+    os.environ["Qt_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 
     log_created = False
     sessionCount = 0
@@ -50,6 +52,8 @@ def main():
     error_Log = get_logger("AF_ERROR_LOG", errorLog_Pathway)
 
     app = QApplication(sys.argv)
+    app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+    app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
     screen_dimensions_path = file_destination(['Resources'])
     screen_dimensions_path = Path.cwd() / screen_dimensions_path / "dimensions.pkl"

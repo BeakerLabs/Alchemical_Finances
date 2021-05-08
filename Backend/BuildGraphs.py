@@ -24,10 +24,11 @@ from math import ceil
 
 
 class AF_Canvas(FigureCanvas):
-    def __init__(self, parent=None, width=5, height=4, dpi=100, facecolor="#f5fbef"):
+    def __init__(self, parent=None, width=5, height=4, dpi=100, facecolor="#FAFAFA"):
         fig = Figure(figsize=(width, height), dpi=dpi, facecolor=facecolor)
         self.axes = fig.add_subplot(111)
         self.axes.set_facecolor('#e3e3e3')
+        self.axes.spines[["top", "bottom", "left", "right"]].set_linewidth(0.5)
         super(AF_Canvas, self).__init__(fig)
 
 
@@ -171,7 +172,7 @@ def overTimeLineGraph(database, account, error_log):
                 y1_gross_fill.append(int(float(date[1]) / divisor) - 1)
 
     # determines axis internals and max values. This is to help keep the graph legible with fluctuating input quantities
-    x_interval = ceil(len(x_date) / 6)
+    x_interval = ceil(len(x_date) / 10)
 
     mod_lar_y = largest_y_value / divisor
 
@@ -203,20 +204,22 @@ def nested_snapshot(database, graph_focus, error_log):
     elif graph_focus == "Liability":
         parentTypes = ["Debt", "Credit"]
     else:
-        # User shouldn't hit this
-        parentTypes = ["Bank"]
+        error_message = "BuildGraphs: nested_snapshot \n incorrect graph_focus ['Asset', 'Liability']"
+        error_log.error(error_message, exc_info=True)
+        raise AttributeError(error_message)
 
-    bank_accounts = []
-    cash_accounts = []
-    cd_accounts = []
-    equity_accounts = []
-    treasury_accounts = []
-    retirement_accounts = []
-    property_accounts = []
-    debt_accounts = []
-    credit_accounts = []
+    bank_accounts = ["Asset", 0, []]
+    cash_accounts = ["Asset", 0, []]
+    cd_accounts = ["Asset", 0, []]
+    equity_accounts = ["Asset", 0, []]
+    treasury_accounts = ["Asset", 0, []]
+    retirement_accounts = ["Asset", 0, []]
+    property_accounts = ["Asset", 0, []]
+    debt_accounts = ["Liability", 0, []]
+    credit_accounts = ["Liability", 0, []]
     flat_values = []
     sizes = []
+    inner_colors = []
 
     parentType_dict = {
         "Bank": bank_accounts,
@@ -233,7 +236,9 @@ def nested_snapshot(database, graph_focus, error_log):
     gross_statement = "SELECT SUM(Balance) FROM Account_Summary WHERE ItemType='{0}'".format(graph_focus)
     gross_worth = obtain_sql_value(gross_statement, database, error_log)[0]
 
-    if gross_worth <= 0 or gross_worth is None:
+    if gross_worth is None:
+        gross_worth = 1
+    if gross_worth <= 0:
         gross_worth = 1
 
     for parent in parentTypes:
@@ -248,40 +253,50 @@ def nested_snapshot(database, graph_focus, error_log):
         balance_statement = "SELECT Balance FROM Account_Summary WHERE ParentType='{0}'".format(parent)
         account_balances = obtain_sql_list(balance_statement, database, error_log)
         account_balances.sort(reverse=True)
-        for balance in account_balances:
-            correction = balance[0]
-            if correction < 0:
-                correction = 0
-            parentType_dict[parent].append(correction)
-            flat_values.append(correction)
+        if len(account_balances) > 0:
+            for balance in account_balances:
+                correction = balance[0]
+                if correction < 0:
+                    correction = 0
+                parentType_dict[parent][1] += 1
+                parentType_dict[parent][2].append(correction)
+                flat_values.append(correction)
 
     if graph_focus == "Asset":
-        sum_balances = [sum(bank_accounts), sum(cash_accounts), sum(cd_accounts), sum(equity_accounts), sum(treasury_accounts), sum(retirement_accounts), sum(property_accounts)]
-        cmap = plt.cm.BuGn
+        sum_balances = [sum(bank_accounts[2]), sum(cash_accounts[2]), sum(cd_accounts[2]),
+                        sum(equity_accounts[2]), sum(treasury_accounts[2]), sum(retirement_accounts[2]),
+                        sum(property_accounts[2])]
+        if sum(sum_balances) <= 0:
+            cmap = plt.cm.Greys
+            sum_balances[0] = 1
+        else:
+            cmap = plt.cm.BuGn
         outer_colors = [*cmap(np.linspace(1, .33, 7))]
-        inner_colors = [*cmap(np.linspace(0.6, .1, len(bank_accounts))),
-                        *cmap(np.linspace(0.6, .1, len(cash_accounts))),
-                        *cmap(np.linspace(0.6, .1, len(cd_accounts))),
-                        *cmap(np.linspace(0.6, .1, len(equity_accounts))),
-                        *cmap(np.linspace(0.6, .1, len(treasury_accounts))),
-                        *cmap(np.linspace(0.6, .1, len(retirement_accounts))),
-                        *cmap(np.linspace(0.6, .1, len(property_accounts))),
-                        ]
+        for parentType in parentType_dict:
+            accounts = parentType_dict[parentType]
+            if accounts[0] == "Asset" and accounts[1] > 0:
+                cmap_value = cmap(np.linspace(0.6, .1, accounts[1]))
+                inner_colors.append(cmap_value)
 
-    elif graph_focus == "Liability":
-        sum_balances = [sum(debt_accounts), sum(credit_accounts)]
-        cmap = plt.cm.OrRd
+    else:  # graph_focus == 'Liability'
+        sum_balances = [sum(debt_accounts[2]), sum(credit_accounts[2])]
+        if sum(sum_balances) <= 0:
+            cmap = plt.cm.Greys
+            sum_balances[0] = 1
+        else:
+            cmap = plt.cm.OrRd
         outer_colors = [*cmap(np.linspace(0.8, .33, 2))]
-        inner_colors = [*cmap(np.linspace(0.6, .1, len(debt_accounts))),
-                        *cmap(np.linspace(0.6, .1, len(credit_accounts))),
-                        ]
+        for parentType in parentType_dict:
+            accounts = parentType_dict[parentType]
+            if accounts[0] == "Liability" and accounts[1] > 0:
+                cmap_value = cmap(np.linspace(0.6, .1, accounts[1]))
+                inner_colors.append(cmap_value)
 
-    else:  # Shouldn't use this
-        sum_balances = [sum(bank_accounts)]
-        cmap = plt.cm.Greys
-        outer_colors = [*cmap(np.linspace(0.8, .33, 6))]
-        inner_colors = [*cmap(np.linspace(0.6, .1, len(debt_accounts))),
-                        ]
+    if len(inner_colors) == 0:
+        flat_values.append(1)
+        cmap = plt.cm.bone
+        cmap_value = cmap(np.linspace(0.6, .1, 1))
+        inner_colors.append(cmap_value)
 
     target_values = [sum_balances, outer_colors, flat_values, inner_colors, sizes]
 

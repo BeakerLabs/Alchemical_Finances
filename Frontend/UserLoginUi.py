@@ -44,14 +44,14 @@ class Ui_LoginScreen(object):
 
         adjusted_width = work_area[2] * size_factor
         adjusted_height = work_area[3] * size_factor
-        Dialog.resize(adjusted_width, adjusted_height)
+        Dialog.resize(adjusted_width, adjusted_height - 50)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         Dialog.setSizePolicy(sizePolicy)
-        Dialog.setMinimumSize(QtCore.QSize(int(adjusted_width), int(adjusted_height)))
-        Dialog.setMaximumSize(QtCore.QSize(int(adjusted_width), int(adjusted_height)))
+        Dialog.setMinimumSize(QtCore.QSize(int(adjusted_width), int(adjusted_height - 50)))
+        Dialog.setMaximumSize(QtCore.QSize(int(adjusted_width), int(adjusted_height - 50)))
 
         # PosX, PosY, Width, Height
 
@@ -235,7 +235,7 @@ class Ui_LoginScreen(object):
 
         self.pushButtonLogin = QtWidgets.QPushButton(Dialog)
         self.pushButtonLogin.setObjectName("pushButtonLogin")
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
         self.pushButtonLogin.setSizePolicy(sizePolicy)
         self.pushButtonLogin.setEnabled(True)
         self.hlr8.addWidget(self.pushButtonLogin)
@@ -245,7 +245,7 @@ class Ui_LoginScreen(object):
         self.pushButtonSubmitProfile.setText("Submit")
         self.pushButtonSubmitProfile.setEnabled(False)
         self.pushButtonSubmitProfile.setHidden(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.retainSizeWhenHidden()
         self.pushButtonSubmitProfile.setSizePolicy(sizePolicy)
         self.pushButtonSubmitProfile.setEnabled(True)
@@ -253,7 +253,7 @@ class Ui_LoginScreen(object):
 
         self.pushButtonQuit = QtWidgets.QPushButton(Dialog)
         self.pushButtonQuit.setObjectName("pushButtonQuit")
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
         self.pushButtonQuit.setSizePolicy(sizePolicy)
         sizePolicy.retainSizeWhenHidden()
         self.pushButtonQuit.setEnabled(True)
@@ -264,7 +264,7 @@ class Ui_LoginScreen(object):
         self.pushButtonCancel.setText("Cancel")
         self.pushButtonCancel.setEnabled(False)
         self.pushButtonCancel.setHidden(True)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.retainSizeWhenHidden()
         self.pushButtonCancel.setSizePolicy(sizePolicy)
         self.pushButtonCancel.setEnabled(True)
@@ -286,7 +286,7 @@ class Ui_LoginScreen(object):
 
         self.pushButtonNewProfile = QtWidgets.QPushButton(Dialog)
         self.pushButtonNewProfile.setObjectName("pushButtonNewProfile")
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.retainSizeWhenHidden()
         self.pushButtonNewProfile.setSizePolicy(sizePolicy)
         self.pushButtonNewProfile.setEnabled(True)

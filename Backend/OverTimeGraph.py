@@ -22,6 +22,7 @@ from Toolbox.AF_Tools import fill_widget
 from Toolbox.Formatting_Tools import add_space, cash_format, remove_space
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
 from Frontend.OverTimeGraphUi import Ui_OverTimeGraph
+from StyleSheets.StandardCSS import standardAppearance
 
 
 class OverTimeGraph(QDialog):
@@ -42,10 +43,12 @@ class OverTimeGraph(QDialog):
 
         self.ui.graphAccountComboBox.addItem("Net Worth Graph")
         account_statement = "SELECT ID FROM Account_Summary"
-        fill_widget(self.ui.graphAccountComboBox, account_statement, True, self.refUserDB)
+        fill_widget(self.ui.graphAccountComboBox, account_statement, True, self.refUserDB, self.error_Logger)
 
         self.generate_graph()
         self.ui.graphAccountComboBox.currentIndexChanged.connect(self.generate_graph)
+
+        self.setStyleSheet(standardAppearance)
         self.show()
 
     def generate_graph(self):
@@ -137,7 +140,7 @@ class OverTimeGraph(QDialog):
 
         canvas.axes.set_ylim(bottom=0)
         canvas.axes.set_xlim(left=0, right=len(lg_data[0]))
-        canvas.axes.set_xlabel('Date (MM/DD/YY) ', labelpad=3, size='3')
+        # canvas.axes.set_xlabel('Date (MM/DD/YY) ', labelpad=1, size='3')
         canvas.axes.set_ylabel(f'$ ({lg_data[7]})', labelpad=3, size='3')
 
         canvas.axes.grid(b=True,

@@ -111,7 +111,7 @@ class Ui_MainWindow(object):
 
             initial_x = 0
             constant_y = 0
-            label_length = 186
+            label_length = 200
             label_height = 200
 
             label[0].setGeometry(QtCore.QRect(initial_x, constant_y, label_length, label_height))
@@ -121,9 +121,6 @@ class Ui_MainWindow(object):
             else:
                 label[0].setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
 
-        self.SpotlightSpacer = QtWidgets.QSpacerItem(75, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-        self.horizontalLayout.addItem(self.SpotlightSpacer)
-
         self.horizontalLayout.setSpacing(0)
         self.horizontalLayout.setContentsMargins(0, 10, 0, 10)
         self.horizontalLayout.addWidget(self.labelStaticTN)
@@ -132,9 +129,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.labelTAssests)
         self.horizontalLayout.addWidget(self.labelStaticTL)
         self.horizontalLayout.addWidget(self.labelTLiabilities)
-
-        self.SpotlightSpacer2 = QtWidgets.QSpacerItem(75, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-        self.horizontalLayout.addItem(self.SpotlightSpacer2)
 
         self.mdiArea = QtWidgets.QMdiArea(self.centralwidget)
         self.mdiArea.setObjectName("mdiArea")
@@ -293,5 +287,5 @@ class Ui_MainWindow(object):
         self.actionArchive.setText(_translate("MainWindow", "Archive", None))
         self.actionBudgeting_Future.setText(_translate("MainWindow", "Budgeting [Future]", None))
         self.actionGenerate.setText(_translate("MainWindow", "Generate Report", None))
-        self.actionNWG.setText(_translate("MainWindow", "Net Worth Graph", None))
+        self.actionNWG.setText(_translate("MainWindow", "Over Time Graph", None))
         self.actionProfile.setText(_translate("MainWindow", "User Profile", None))

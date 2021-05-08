@@ -30,7 +30,7 @@ from Backend.Profile import Profile
 from Backend.ArchiveLedger import Archive
 from Backend.RequestReport import user_report_request
 # from Backend.Scrape import update_stock_price
-# from Backend.OverTimeGraph import OverTimeGraph
+from Backend.OverTimeGraph import OverTimeGraph
 
 from Toolbox.OS_Tools import file_destination
 from Toolbox.AF_Tools import set_networth
@@ -323,12 +323,12 @@ class AFBackbone(QMainWindow):
                 archive.remove_tab_archive.connect(self.remove_tab)
                 archive.showMaximized()
                 self.tabdic.update({parentType: archive})
-            # elif parentType == "OTG":
-            #     graph = OverTimeGraph(self, self.refUserDB, self.error_Logger)
-            #     self.ui.mdiArea.addSubWindow(graph)
-            #     graph.remove_tab_NWG.connect(self.remove_tab)
-            #     graph.showMaximized()
-            #     self.tabdic.update({parentType: graph})
+            elif parentType == "OTG":
+                graph = OverTimeGraph(self, self.refUserDB, self.error_Logger)
+                self.ui.mdiArea.addSubWindow(graph)
+                graph.remove_tab_OTG.connect(self.remove_tab)
+                graph.showMaximized()
+                self.tabdic.update({parentType: graph})
             else:
                 print(f"""ERROR: AFMainWindow: switch_tab \n Input Error -- Variable = {parentType}""")
 

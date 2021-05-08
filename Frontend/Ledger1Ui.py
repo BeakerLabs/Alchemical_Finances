@@ -62,7 +62,7 @@ class Ui_Ledger1(object):
         graph_header_font.setBold(True)
 
         general_font = QtGui.QFont()
-        general_font.setPixelSize(12)
+        general_font.setPixelSize(14)
         general_font.setBold(False)
 
         pushButton_font = QtGui.QFont()

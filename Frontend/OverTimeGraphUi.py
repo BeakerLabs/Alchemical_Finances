@@ -2,25 +2,6 @@
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabs.com
 
-# from PyQt5 import QtCore, QtGui, QtWidgets
-#
-#
-# class Ui_Dialog(object):
-#     def setupUi(self, Dialog):
-#         Dialog.setObjectName("Dialog")
-#         Dialog.resize(1210, 801)
-#         self.labelTest = QtWidgets.QLabel(Dialog)
-#         self.labelTest.setGeometry(QtCore.QRect(20, 740, 1170, 20))
-#         self.labelTest.setObjectName('testLabel')
-#
-#         self.retranslateUi(Dialog)
-#         QtCore.QMetaObject.connectSlotsByName(Dialog)
-#
-#     def retranslateUi(self, Dialog):
-#         _translate = QtCore.QCoreApplication.translate
-#         Dialog.setWindowTitle(_translate("Dialog", "Net Worth Graph"))
-#         self.labelTest.setText(_translate("Dialog", "TextLabel"))
-
 # This Dialog is a Subwindow for the Mainwindow MdiArea
 # This will generate a stacked networth graph
 
@@ -66,15 +47,15 @@ class Ui_OverTimeGraph(object):
         header_font.setBold(True)
 
         general_font = QtGui.QFont()
-        general_font.setPixelSize(12)
+        general_font.setPixelSize(14)
         general_font.setBold(False)
 
         legend_font = QtGui.QFont()
-        legend_font.setPixelSize(8)
+        legend_font.setPixelSize(14)
         legend_font.setBold(False)
 
         pushButton_font = QtGui.QFont()
-        pushButton_font.setPixelSize(12)
+        pushButton_font.setPixelSize(14)
         pushButton_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
@@ -86,18 +67,18 @@ class Ui_OverTimeGraph(object):
         self.hBLayout1.setObjectName("hBLayout1")
 
         # hBLayout1 --> hSpacer -- vBLayout1 -- hSpacer
-        self.hSpacer1 = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.hSpacer1 = QtWidgets.QSpacerItem(20, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
         self.hBLayout1.addItem(self.hSpacer1)
 
         self.vBLayout1 = QtWidgets.QVBoxLayout()
         self.vBLayout1.setObjectName("vBLayout1")
         self.hBLayout1.addLayout(self.vBLayout1)
 
-        self.hSpacer2 = QtWidgets.QSpacerItem(50, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.hSpacer2 = QtWidgets.QSpacerItem(20, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
         self.hBLayout1.addItem(self.hSpacer2)
 
-        # vBLayout1 --> vSpacer -- Label, hBLayout2, hBLayout3, hBLayout4, hBLayout5 -- vSpacer
-        self.vSpacer1 = QtWidgets.QSpacerItem(0, 50, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        # vBLayout1 --> vSpacer -- Label, hBLayout2, hBLayout3, hBLayout4, hBLayout5
+        self.vSpacer1 = QtWidgets.QSpacerItem(0, 15, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.vBLayout1.addItem(self.vSpacer1)
 
         self.lGraphTitle = QtWidgets.QLabel()
@@ -124,9 +105,6 @@ class Ui_OverTimeGraph(object):
         self.hBLayout5.setObjectName("hBLayout5")
         self.vBLayout1.addLayout(self.hBLayout5)
 
-        self.vSpacer2 = QtWidgets.QSpacerItem(0, 50, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.vBLayout1.addItem(self.vSpacer2)
-
         # vBLayout1 --> hBlayout2 --> --> combobox -- vSpacer
         self.graphAccountComboBox = QtWidgets.QComboBox()
         self.graphAccountComboBox.setObjectName("graphAccountComboBox")
@@ -144,8 +122,8 @@ class Ui_OverTimeGraph(object):
 
         self.nWFrame = QtWidgets.QFrame()
         self.nWFrame.setObjectName("nWFrame")
-        self.nWFrame.setFrameShape(QtWidgets.QFrame.Panel)
-        self.nWFrame.setLineWidth(1)
+        # self.nWFrame.setFrameShape(QtWidgets.QFrame.Panel)
+        # self.nWFrame.setLineWidth(1)
         self.hBLayout3.addWidget(self.nWFrame)
 
         # vBLayout1 --> hBLayout4
