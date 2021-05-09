@@ -734,9 +734,9 @@ class LedgerV2(QDialog):
             string_data = investment_string_dict
             scroll_layout = self.ui.investmentScrollLayout
         else:  # target_tab == "Sector":
-            string_dictionary = sector_string_dict
-            label_dictionary = self.sector_label_dict
-            layout = self.ui.sectorScrollLayout
+            label_dict = self.sector_label_dict
+            string_data = sector_string_dict
+            scroll_layout = self.ui.sectorScrollLayout
 
         for count, assetType in enumerate(string_data, start=1):
             try:
