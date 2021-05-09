@@ -24,8 +24,14 @@ from Toolbox.Logging_System import create_log_fileName, get_logger
 from Toolbox.OS_Tools import file_destination
 
 
-def main():
-    os.environ["Qt_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+class main(object):
+    def __init__(self, path):
+        super().__init__()
+        path = os.path.expanduser(path)
+
+        self._path = path
+        print("test")
+        print(self._path)
 
     log_created = False
     sessionCount = 0

@@ -9,7 +9,6 @@ import pickle
 
 from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtGui import QPixmap
-from win32api import GetMonitorInfo, MonitorFromPoint
 
 
 class Ui_AboutScreen(object):
@@ -19,8 +18,12 @@ class Ui_AboutScreen(object):
         Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         # Obtain and use the monitor screen to determine the width of the dialog box
-        monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
-        work_area = monitor_info.get("Work")
+        screen_dimensions_file = open("Resources/dimensions.pkl", "rb")
+        screen_dimensions = pickle.load(screen_dimensions_file)
+        screen_dimensions_file.close()
+
+        work_area = screen_dimensions
+
         size_factor = 0.50
 
         if 3840 <= work_area[2]:

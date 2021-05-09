@@ -18,10 +18,6 @@ class Ui_YNCInput(object):  # YNC == Yes No Cancel
         # This dialog size will be constant. Unlike other screens it should always fit.
         Dialog.setWindowModality(QtCore.Qt.ApplicationModal)
         Dialog.resize(600, 200)  # width x height
-        # sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        # sizePolicy.setHorizontalStretch(0)
-        # sizePolicy.setVerticalStretch(0)
-        # Dialog.setSizePolicy(sizePolicy)
         Dialog.setMinimumSize(QtCore.QSize(300, 150))
         Dialog.setMaximumSize(QtCore.QSize(600, 200))
 

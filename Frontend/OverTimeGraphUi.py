@@ -4,9 +4,9 @@
 
 # This Dialog is a Subwindow for the Mainwindow MdiArea
 # This will generate a stacked networth graph
+import pickle
 
 from PySide2 import QtCore, QtGui, QtWidgets
-from win32api import GetMonitorInfo, MonitorFromPoint
 
 
 class Ui_OverTimeGraph(object):
@@ -17,8 +17,11 @@ class Ui_OverTimeGraph(object):
         Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))  # Consider hiring an artist to make different icons for different account types
 
         # Dialog size
-        monitor_info = GetMonitorInfo(MonitorFromPoint((0, 0)))
-        work_area = monitor_info.get("Work")
+        screen_dimensions_file = open("Resources/dimensions.pkl", "rb")
+        screen_dimensions = pickle.load(screen_dimensions_file)
+        screen_dimensions_file.close()
+
+        work_area = screen_dimensions
 
         size_factor = 0.50
 
@@ -50,18 +53,12 @@ class Ui_OverTimeGraph(object):
         general_font.setPixelSize(14)
         general_font.setBold(False)
 
-        legend_font = QtGui.QFont()
-        legend_font.setPixelSize(14)
-        legend_font.setBold(False)
-
-        pushButton_font = QtGui.QFont()
-        pushButton_font.setPixelSize(14)
-        pushButton_font.setBold(False)
+        subheader_font = QtGui.QFont()
+        subheader_font.setPixelSize(14)
+        subheader_font.setBold(True)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-
-        altSizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-
+        titleSizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         # hBLayout1
         self.hBLayout1 = QtWidgets.QHBoxLayout(Dialog)
         self.hBLayout1.setObjectName("hBLayout1")
@@ -74,10 +71,10 @@ class Ui_OverTimeGraph(object):
         self.vBLayout1.setObjectName("vBLayout1")
         self.hBLayout1.addLayout(self.vBLayout1)
 
-        self.hSpacer2 = QtWidgets.QSpacerItem(20, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.hSpacer2 = QtWidgets.QSpacerItem(50, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
         self.hBLayout1.addItem(self.hSpacer2)
 
-        # vBLayout1 --> vSpacer -- Label, hBLayout2, hBLayout3, hBLayout4, hBLayout5
+        # vBLayout1 --> vSpacer -- Label, hBLayout2, hBLayout3
         self.vSpacer1 = QtWidgets.QSpacerItem(0, 15, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.vBLayout1.addItem(self.vSpacer1)
 
@@ -85,8 +82,8 @@ class Ui_OverTimeGraph(object):
         self.lGraphTitle.setObjectName("lGraphTitle")
         self.lGraphTitle.setText("Net Worth Over Time")
         self.lGraphTitle.setFont(header_font)
-        self.lGraphTitle.setAlignment(QtCore.Qt.AlignHCenter)
-        self.lGraphTitle.setSizePolicy(sizePolicy)
+        self.lGraphTitle.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignHCenter)
+        self.lGraphTitle.setSizePolicy(titleSizePolicy)
         self.vBLayout1.addWidget(self.lGraphTitle)
 
         self.hBLayout2 = QtWidgets.QHBoxLayout()
@@ -96,14 +93,6 @@ class Ui_OverTimeGraph(object):
         self.hBLayout3 = QtWidgets.QHBoxLayout()
         self.hBLayout3.setObjectName("hBLayout3")
         self.vBLayout1.addLayout(self.hBLayout3)
-
-        self.hBLayout4 = QtWidgets.QHBoxLayout()
-        self.hBLayout4.setObjectName("hBLayout4")
-        self.vBLayout1.addLayout(self.hBLayout4)
-
-        self.hBLayout5 = QtWidgets.QHBoxLayout()
-        self.hBLayout5.setObjectName("hBLayout5")
-        self.vBLayout1.addLayout(self.hBLayout5)
 
         # vBLayout1 --> hBlayout2 --> --> combobox -- vSpacer
         self.graphAccountComboBox = QtWidgets.QComboBox()
@@ -116,8 +105,8 @@ class Ui_OverTimeGraph(object):
         self.hspacer6 = QtWidgets.QSpacerItem(adjusted_width - 350, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.hBLayout2.addItem(self.hspacer6)
 
-        # vBLayout1 --> hBLayout3 --> --> vSpacer3 -- nWFrame
-        self.vSpacer2 = QtWidgets.QSpacerItem(0, adjusted_height * 0.66, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        # vBLayout1 --> hBLayout3 --> --> vSpacer3 -- nWFrame -- infoFrame
+        self.vSpacer2 = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
         self.hBLayout3.addItem(self.vSpacer2)
 
         self.nWFrame = QtWidgets.QFrame()
@@ -126,9 +115,33 @@ class Ui_OverTimeGraph(object):
         # self.nWFrame.setLineWidth(1)
         self.hBLayout3.addWidget(self.nWFrame)
 
-        # vBLayout1 --> hBLayout4
-        self.legendSpacer1 = QtWidgets.QSpacerItem(25, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-        self.hBLayout4.addItem(self.legendSpacer1)
+        self.infoFrame = QtWidgets.QFrame()
+        self.infoFrame.setObjectName("inforFrame")
+        self.infoFrame.setFixedWidth(adjusted_width * 0.15)
+        # self.infoFrame.setFrameShape(QtWidgets.QFrame.Panel)
+        # self.infoFrame.setLineWidth(3)
+        self.hBLayout3.addWidget(self.infoFrame)
+
+        # vBLayout1 --> hBLayout3 --> infoFrame --> vBLayout4
+        self.vBLayout4 = QtWidgets.QVBoxLayout(self.infoFrame)
+        self.vBLayout4.setObjectName("vBLayout4")
+
+        # vBLayout1 --> hBLayout3 --> infoFrame --> vBLayout4 --> --> spacer -- Label -- hBLayout4 -- hBLayout5 -- hBLayout6 -- Label -- Peak Frame -- Spacer -- Low Frame
+        self.vSpacer3 = QtWidgets.QSpacerItem(0, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.vBLayout4.addItem(self.vSpacer3)
+
+        self.lLegend = QtWidgets.QLabel()
+        self.lLegend.setObjectName("lLengend")
+        self.lLegend.setText("Legend")
+        self.lLegend.setFont(header_font)
+        self.lLegend.setAlignment(QtCore.Qt.AlignHCenter)
+        self.lLegend.setSizePolicy(sizePolicy)
+        self.vBLayout4.addWidget(self.lLegend)
+
+        # Holds Gross Legend Information
+        self.hBLayout4 = QtWidgets.QHBoxLayout()
+        self.hBLayout4.setObjectName("hBLayout4")
+        self.vBLayout4.addLayout(self.hBLayout4)
 
         self.lGrossLegend = QtWidgets.QLabel()
         self.lGrossLegend.setObjectName("lGrossLegend")
@@ -140,122 +153,192 @@ class Ui_OverTimeGraph(object):
         self.lGrossValue = QtWidgets.QLabel()
         self.lGrossValue.setObjectName("lGrossValue")
         self.lGrossValue.setText("Gross Worth")
-        self.lGrossValue.setFont(legend_font)
-        self.lGrossValue.setSizePolicy(altSizePolicy)
+        self.lGrossValue.setFont(general_font)
+        self.lGrossValue.setSizePolicy(sizePolicy)
         self.hBLayout4.addWidget(self.lGrossValue)
+
+        # Holds Asset Legend Information
+        self.hBLayout5 = QtWidgets.QHBoxLayout()
+        self.hBLayout5.setObjectName("hBLayout5")
+        self.vBLayout4.addLayout(self.hBLayout5)
 
         self.lNetLegend = QtWidgets.QLabel()
         self.lNetLegend.setObjectName("lNetLegend")
         self.lNetLegend.setFixedWidth(75)
         self.lNetLegend.setFixedHeight(15)
         self.lNetLegend.setStyleSheet("background: rgb(56, 128, 59)")
-        self.hBLayout4.addWidget(self.lNetLegend)
+        self.hBLayout5.addWidget(self.lNetLegend)
 
         self.lNetValue = QtWidgets.QLabel()
         self.lNetValue.setObjectName("lNetValue")
         self.lNetValue.setText("Net Worth")
-        self.lNetValue.setFont(legend_font)
-        self.lNetValue.setSizePolicy(altSizePolicy)
-        self.hBLayout4.addWidget(self.lNetValue)
+        self.lNetValue.setFont(general_font)
+        self.lNetValue.setSizePolicy(sizePolicy)
+        self.hBLayout5.addWidget(self.lNetValue)
+
+        # Holds Liabilities Legend Information
+        self.hBLayout6 = QtWidgets.QHBoxLayout()
+        self.hBLayout6.setObjectName("hBLayout6")
+        self.vBLayout4.addLayout(self.hBLayout6)
 
         self.lLiabilitiesLegend = QtWidgets.QLabel()
         self.lLiabilitiesLegend.setObjectName("lLiabilitiesLegend ")
         self.lLiabilitiesLegend.setFixedWidth(75)
         self.lLiabilitiesLegend.setFixedHeight(15)
         self.lLiabilitiesLegend.setStyleSheet("background: rgb(128, 56, 56)")
-        self.hBLayout4.addWidget(self.lLiabilitiesLegend)
+        self.hBLayout6.addWidget(self.lLiabilitiesLegend)
 
         self.lLiabilitiesValue = QtWidgets.QLabel()
         self.lLiabilitiesValue.setObjectName("lLiabilitiesValue")
         self.lLiabilitiesValue.setText("Active Liabilities")
-        self.lLiabilitiesValue.setFont(legend_font)
-        self.lLiabilitiesValue.setSizePolicy(altSizePolicy)
-        self.hBLayout4.addWidget(self.lLiabilitiesValue)
+        self.lLiabilitiesValue.setFont(general_font)
+        self.lLiabilitiesValue.setSizePolicy(sizePolicy)
+        self.hBLayout6.addWidget(self.lLiabilitiesValue)
 
-        self.legendSpacer2 = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-        self.hBLayout4.addItem(self.legendSpacer2)
+        self.vSpacer4 = QtWidgets.QSpacerItem(0, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.vBLayout4.addItem(self.vSpacer4)
 
-        # hBLayout5 --> hspacer3 -- peakFrame -- hspacer4 -- lowFrame -- hspacer5
-        self.hSpacer3 = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-        self.hBLayout5.addItem(self.hSpacer3)
+        self.lHighlights = QtWidgets.QLabel()
+        self.lHighlights.setObjectName("lHeighlights")
+        self.lHighlights.setText("Peak Values")
+        self.lHighlights.setFont(header_font)
+        self.lHighlights.setAlignment(QtCore.Qt.AlignHCenter)
+        self.lHighlights.setSizePolicy(sizePolicy)
+        self.vBLayout4.addWidget(self.lHighlights)
 
         self.peakFrame = QtWidgets.QFrame()
         self.peakFrame.setObjectName("peakFrame")
-        self.peakFrame.setFrameShape(QtWidgets.QFrame.Panel)
-        self.peakFrame.setLineWidth(1)
-        self.peakFrame.setSizePolicy(altSizePolicy)
-        self.hBLayout5.addWidget(self.peakFrame)
+        # self.peakFrame.setFrameShape(QtWidgets.QFrame.Panel)
+        # self.peakFrame.setLineWidth(1)
+        self.peakFrame.setSizePolicy(sizePolicy)
+        self.vBLayout4.addWidget(self.peakFrame)
 
-        self.hSpacer4 = QtWidgets.QSpacerItem(50, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.hBLayout5.addItem(self.hSpacer4)
+        self.vSpacer5 = QtWidgets.QSpacerItem(0, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.vBLayout4.addItem(self.vSpacer5)
+
+        self.lLowPoints = QtWidgets.QLabel()
+        self.lLowPoints.setObjectName("lLowPoints")
+        self.lLowPoints.setText("Lowest Points")
+        self.lLowPoints.setFont(header_font)
+        self.lLowPoints.setAlignment(QtCore.Qt.AlignHCenter)
+        self.lLowPoints.setSizePolicy(sizePolicy)
+        self.vBLayout4.addWidget(self.lLowPoints)
 
         self.lowFrame = QtWidgets.QFrame()
         self.lowFrame.setObjectName("lowFrame")
-        self.lowFrame.setFrameShape(QtWidgets.QFrame.Panel)
-        self.lowFrame.setLineWidth(1)
-        self.lowFrame.setSizePolicy(altSizePolicy)
-        self.hBLayout5.addWidget(self.lowFrame)
+        # self.lowFrame.setFrameShape(QtWidgets.QFrame.Panel)
+        # self.lowFrame.setLineWidth(1)
+        self.lowFrame.setSizePolicy(sizePolicy)
+        self.vBLayout4.addWidget(self.lowFrame)
 
-        self.hSpacer5 = QtWidgets.QSpacerItem(25, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-        self.hBLayout5.addItem(self.hSpacer5)
+        self.vSpacer6 = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.vBLayout4.addItem(self.vSpacer6)
 
-        # hBLayout4 --> peakFrame --> --> vBLayout2
+        # vBLayout4 --> peakFrame --> hBlayout7 -- > vBLayout vBLayout
         self.vBLayout2 = QtWidgets.QVBoxLayout(self.peakFrame)
         self.vBLayout2.setObjectName("vBLayout2")
 
-        # hBLayout4 --> peakFrame --> vBLayout2 ---> 3x Label
+        # vBLayout4 --> peakFrame --> hBlayout7 --> vBLayout2 --->Label
+        self.lPeakGWLabel = QtWidgets.QLabel()
+        self.lPeakGWLabel.setObjectName("lPeakGWLabel")
+        self.lPeakGWLabel.setText("Gross Worth:")
+        self.lPeakGWLabel.setFont(subheader_font)
+        self.lPeakGWLabel.setAlignment(QtCore.Qt.AlignLeft)
+        self.lPeakGWLabel.setSizePolicy(sizePolicy)
+        self.vBLayout2.addWidget(self.lPeakGWLabel)
+
         self.lPGWorth = QtWidgets.QLabel()
         self.lPGWorth.setObjectName("lPGWorth")
-        self.lPGWorth.setText("Peak Gross Worth of $10,000,000.00 on 03/07/2021")
+        self.lPGWorth.setText(" $10,000,000.00 on 03/07/2021")
         self.lPGWorth.setFont(general_font)
         self.lPGWorth.setAlignment(QtCore.Qt.AlignLeft)
         self.lPGWorth.setSizePolicy(sizePolicy)
         self.vBLayout2.addWidget(self.lPGWorth)
 
-        self.lPNWorth = QtWidgets.QLabel()
-        self.lPNWorth.setObjectName("lPNWorth")
-        self.lPNWorth.setText("Peak Net Worth of $10,000,000.00 on 03/07/2021")
-        self.lPNWorth.setFont(general_font)
-        self.lPNWorth.setAlignment(QtCore.Qt.AlignLeft)
-        self.lPNWorth.setSizePolicy(sizePolicy)
-        self.vBLayout2.addWidget(self.lPNWorth)
+        self.lPeakLVLabel = QtWidgets.QLabel()
+        self.lPeakLVLabel.setObjectName("lPeakLVLabel")
+        self.lPeakLVLabel.setText("Liabilities Value:")
+        self.lPeakLVLabel.setFont(subheader_font)
+        self.lPeakLVLabel.setAlignment(QtCore.Qt.AlignLeft)
+        self.lPeakLVLabel.setSizePolicy(sizePolicy)
+        self.vBLayout2.addWidget(self.lPeakLVLabel)
 
         self.lPLWorth = QtWidgets.QLabel()
-        self.lPGWorth.setObjectName("lPGWorth")
-        self.lPLWorth.setText("Peak Liabilities Worth $10,000,000.00 on 03/07/2021")
+        self.lPLWorth.setObjectName("lPLWorth")
+        self.lPLWorth.setText("$10,000,000.00 on 03/07/2021")
         self.lPLWorth.setFont(general_font)
         self.lPLWorth.setAlignment(QtCore.Qt.AlignLeft)
         self.lPLWorth.setSizePolicy(sizePolicy)
         self.vBLayout2.addWidget(self.lPLWorth)
 
-        # hBLayout4 --> lowFrame --> vBLayout3
+        self.lPeakNWLabel = QtWidgets.QLabel()
+        self.lPeakNWLabel.setObjectName("lPeakNWLabel")
+        self.lPeakNWLabel.setText("Net Worth:")
+        self.lPeakNWLabel.setFont(subheader_font)
+        self.lPeakNWLabel.setAlignment(QtCore.Qt.AlignLeft)
+        self.lPeakNWLabel.setSizePolicy(sizePolicy)
+        self.vBLayout2.addWidget(self.lPeakNWLabel)
+
+        self.lPNWorth = QtWidgets.QLabel()
+        self.lPNWorth.setObjectName("lPNWorth")
+        self.lPNWorth.setText("$10,000,000.00 on 03/07/2021")
+        self.lPNWorth.setFont(general_font)
+        self.lPNWorth.setAlignment(QtCore.Qt.AlignLeft)
+        self.lPNWorth.setSizePolicy(sizePolicy)
+        self.vBLayout2.addWidget(self.lPNWorth)
+
+        # vBLayout4 --> lowFrame --> hBlayout8 -- > vBLayout vBLayout
         self.vBLayout3 = QtWidgets.QVBoxLayout(self.lowFrame)
         self.vBLayout3.setObjectName("vBLayout3")
 
-        # hBLayout4 --> lowFrame --> vBLayout3 --->  3x Label
+        # vBLayout4 --> peakFrame --> hBlayout7 --> vBLayout2 --->Label
+        self.lLowGWLabel = QtWidgets.QLabel()
+        self.lLowGWLabel.setObjectName("lLowGWLabel")
+        self.lLowGWLabel.setText("Gross Worth:")
+        self.lLowGWLabel.setFont(subheader_font)
+        self.lLowGWLabel.setAlignment(QtCore.Qt.AlignLeft)
+        self.lLowGWLabel.setSizePolicy(sizePolicy)
+        self.vBLayout3.addWidget(self.lLowGWLabel)
+
         self.lLGWorth = QtWidgets.QLabel()
         self.lLGWorth.setObjectName("lLGWorth")
-        self.lLGWorth.setText("Lowest Gross Worth of $10,000,000.00 on 03/07/2021")
+        self.lLGWorth.setText("$10,000,000.00 on 03/07/2021")
         self.lLGWorth.setFont(general_font)
         self.lLGWorth.setAlignment(QtCore.Qt.AlignLeft)
         self.lLGWorth.setSizePolicy(sizePolicy)
         self.vBLayout3.addWidget(self.lLGWorth)
 
-        self.lLNWorth = QtWidgets.QLabel()
-        self.lLNWorth.setObjectName("lPNWorth")
-        self.lLNWorth.setText("Lowest Net Worth of $10,000,000.00 on 03/07/2021")
-        self.lLNWorth.setFont(general_font)
-        self.lLNWorth.setAlignment(QtCore.Qt.AlignLeft)
-        self.lLNWorth.setSizePolicy(sizePolicy)
-        self.vBLayout3.addWidget(self.lLNWorth)
+        self.lLowLVLabel = QtWidgets.QLabel()
+        self.lLowLVLabel.setObjectName("lLowLVLabel")
+        self.lLowLVLabel.setText("Liabilities Value:")
+        self.lLowLVLabel.setFont(subheader_font)
+        self.lLowLVLabel.setAlignment(QtCore.Qt.AlignLeft)
+        self.lLowLVLabel.setSizePolicy(sizePolicy)
+        self.vBLayout3.addWidget(self.lLowLVLabel)
 
         self.lLLWorth = QtWidgets.QLabel()
-        self.lLLWorth.setObjectName("lPGWorth")
-        self.lLLWorth.setText("Lowest Liabilities Worth $10,000,000.00 on 03/07/2021")
+        self.lLLWorth.setObjectName("lLLWorth")
+        self.lLLWorth.setText("$10,000,000.00 on 03/07/2021")
         self.lLLWorth.setFont(general_font)
         self.lLLWorth.setAlignment(QtCore.Qt.AlignLeft)
         self.lLLWorth.setSizePolicy(sizePolicy)
         self.vBLayout3.addWidget(self.lLLWorth)
+
+        self.lLowNWLabel = QtWidgets.QLabel()
+        self.lLowNWLabel.setObjectName("lLowNWLabel")
+        self.lLowNWLabel.setText("Net Worth:")
+        self.lLowNWLabel.setFont(subheader_font)
+        self.lLowNWLabel.setAlignment(QtCore.Qt.AlignLeft)
+        self.lLowNWLabel.setSizePolicy(sizePolicy)
+        self.vBLayout3.addWidget(self.lLowNWLabel)
+
+        self.lLNWorth = QtWidgets.QLabel()
+        self.lLNWorth.setObjectName("lPNWorth")
+        self.lLNWorth.setText("$10,000,000.00 on 03/07/2021")
+        self.lLNWorth.setFont(general_font)
+        self.lLNWorth.setAlignment(QtCore.Qt.AlignLeft)
+        self.lLNWorth.setSizePolicy(sizePolicy)
+        self.vBLayout3.addWidget(self.lLNWorth)
 
 
 if __name__ == "__main__":

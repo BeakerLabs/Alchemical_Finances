@@ -138,7 +138,7 @@ def format_result_string(data_list):
         else:
             percentage = "   0.00%"
         formatted_subtotal = cash_format(dataPoint[2], 2)
-        temp_string = f"{count}: {percentage}%  -- {dataPoint[0]}\n          ({formatted_subtotal[2]})"
+        temp_string = f"{count}: {percentage}%  -- {dataPoint[0]}\n       [{formatted_subtotal[2]}]"
         temp_dict[dataPoint[0]] = temp_string
     return temp_dict
 

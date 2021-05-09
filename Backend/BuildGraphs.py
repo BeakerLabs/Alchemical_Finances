@@ -15,12 +15,12 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
+from math import ceil
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 from Toolbox.Formatting_Tools import add_space, decimal_places
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
-from math import ceil
 
 
 class AF_Canvas(FigureCanvas):

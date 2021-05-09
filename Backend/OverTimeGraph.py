@@ -23,6 +23,7 @@ from Toolbox.Formatting_Tools import add_space, cash_format, remove_space
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
 from Frontend.OverTimeGraphUi import Ui_OverTimeGraph
 from StyleSheets.StandardCSS import standardAppearance
+from StyleSheets.GraphCSS import overTime
 
 
 class OverTimeGraph(QDialog):
@@ -49,6 +50,10 @@ class OverTimeGraph(QDialog):
         self.ui.graphAccountComboBox.currentIndexChanged.connect(self.generate_graph)
 
         self.setStyleSheet(standardAppearance)
+        self.ui.lLegend.setStyleSheet(overTime)
+        self.ui.lHighlights.setStyleSheet(overTime)
+        self.ui.lLowPoints.setStyleSheet(overTime)
+        self.ui.lGraphTitle.setStyleSheet(overTime)
         self.show()
 
     def generate_graph(self):
@@ -70,19 +75,21 @@ class OverTimeGraph(QDialog):
             self.peakvalues = self.obtainPeakValues(account)
             # obtaining dates & value for peak Gross and Net Worth
 
-            self.ui.lPGWorth.setText(f"Peak Gross Worth of {self.peakvalues[0][1]} on {self.peakvalues[0][0]}")
-            self.ui.lLGWorth.setText(f"Low Gross Worth of {self.peakvalues[0][3]} on {self.peakvalues[0][2]}")
-            self.ui.lPNWorth.setText(f"Peak Net Worth of {self.peakvalues[1][1]} on {self.peakvalues[1][0]}")
-            self.ui.lLNWorth.setText(f"Low Net Worth of {self.peakvalues[1][3]} on {self.peakvalues[1][2]}")
-            self.ui.lPLWorth.setText(f"Peak Liabilities Worth of {self.peakvalues[2][1]} on {self.peakvalues[2][0]}")
-            self.ui.lLLWorth.setText(f"Low Liabilities Worth of {self.peakvalues[2][3]} on {self.peakvalues[2][2]}")
+            self.ui.lPGWorth.setText(f"{self.peakvalues[0][1]} on {self.peakvalues[0][0]}")
+            self.ui.lLGWorth.setText(f"{self.peakvalues[0][3]} on {self.peakvalues[0][2]}")
+            self.ui.lPNWorth.setText(f"{self.peakvalues[1][1]} on {self.peakvalues[1][0]}")
+            self.ui.lLNWorth.setText(f"{self.peakvalues[1][3]} on {self.peakvalues[1][2]}")
+            self.ui.lPLWorth.setText(f"{self.peakvalues[2][1]} on {self.peakvalues[2][0]}")
+            self.ui.lLLWorth.setText(f"{self.peakvalues[2][3]} on {self.peakvalues[2][2]}")
 
         elif account != "":
             self.peakvalues = self.obtainPeakValues(account)
             # obtaining dates & value for peak Gross and Net Worth
 
-            self.ui.lPGWorth.setText(f"Peak Account Worth of{self.peakvalues[0][1]}on {self.peakvalues[0][0]}")
-            self.ui.lLGWorth.setText(f"Low Account Worth of{self.peakvalues[0][3]}on {self.peakvalues[0][2]}")
+            self.ui.lPeakGWLabel.setText("Account Worth")
+            self.ui.lLowGWLabel.setText("Account Worth")
+            self.ui.lPGWorth.setText(f"{self.peakvalues[0][1]}on {self.peakvalues[0][0]}")
+            self.ui.lLGWorth.setText(f"{self.peakvalues[0][3]}on {self.peakvalues[0][2]}")
             self.ui.lPNWorth.setHidden(True)
             self.ui.lLNWorth.setHidden(True)
             self.ui.lPLWorth.setHidden(True)

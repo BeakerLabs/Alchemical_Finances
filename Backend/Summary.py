@@ -588,8 +588,8 @@ class Ledger_Summary(QDialog):
     def update_plot(self, focus, canvas):
         pie_data = nested_snapshot(self.refUserDB, graph_focus=focus, error_log=self.error_Logger)
         canvas.axes.clear()
-        canvas.axes.pie(pie_data[0], radius=1.5, colors=pie_data[1], wedgeprops={'linewidth': 0.5, 'edgecolor': 'grey', 'width': 0.3})
-        canvas.axes.pie(pie_data[2], radius=1.2, colors=pie_data[3], wedgeprops={'linewidth': 0.3, 'edgecolor': 'grey', 'width': 0.25})
+        canvas.axes.pie(pie_data[0], radius=1.5, colors=pie_data[1], wedgeprops={'linewidth': 0.5, 'edgecolor': 'grey', 'width': 0.3}, normalize=True)
+        canvas.axes.pie(pie_data[2], radius=1.2, colors=pie_data[3], wedgeprops={'linewidth': 0.3, 'edgecolor': 'grey', 'width': 0.25}, normalize=True)
         if focus == "Asset":
             assetSizes = pie_data[4]
             LegendLabels = ["Bank - ({0}%)".format(assetSizes[0]),
