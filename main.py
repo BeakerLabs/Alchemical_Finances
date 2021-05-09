@@ -58,8 +58,6 @@ class main(object):
     error_Log = get_logger("AF_ERROR_LOG", errorLog_Pathway)
 
     app = QApplication(sys.argv)
-    app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-    app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
     screen_dimensions_path = file_destination(['Resources'])
     screen_dimensions_path = Path.cwd() / screen_dimensions_path / "dimensions.pkl"

@@ -22,7 +22,7 @@ class Ui_AboutScreen(object):
         screen_dimensions = pickle.load(screen_dimensions_file)
         screen_dimensions_file.close()
 
-        work_area = screen_dimensions
+        work_area = screen_dimensions[1]
 
         size_factor = 0.50
 
