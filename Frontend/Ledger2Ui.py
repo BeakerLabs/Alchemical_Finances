@@ -140,7 +140,7 @@ class Ui_Ledger2(object):
         self.comboBLedger2.setObjectName("comboBLedger2")
         self.comboBLedger2.setFont(header_font)
         self.comboBLedger2.setFixedWidth(ledger_width / 3)
-        self.comboBLedger2.setFixedHeight(40)
+        self.comboBLedger2.setFixedHeight(30)
         self.comboBLedger2.setSizePolicy(sizePolicy)
         self.hBLayout1.addWidget(self.comboBLedger2)
 
@@ -149,11 +149,11 @@ class Ui_Ledger2(object):
         self.pBModAccount.setText("Modify")
         self.pBModAccount.setFont(pushButton_font)
         self.pBModAccount.setFixedWidth(150)
-        self.pBModAccount.setFixedHeight(40)
+        self.pBModAccount.setFixedHeight(30)
         self.pBModAccount.setSizePolicy(sizePolicy)
         self.hBLayout1.addWidget(self.pBModAccount)
 
-        self.hSpacer3 = QtWidgets.QSpacerItem(0, 40, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        self.hSpacer3 = QtWidgets.QSpacerItem(0, 30, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.hBLayout1.addSpacerItem(self.hSpacer3)
 
         # LedgerFrame --  vBLayout1 -- hbLayout2
@@ -266,15 +266,11 @@ class Ui_Ledger2(object):
         self.lInputFrame = QtWidgets.QFrame()
         self.lInputFrame.setObjectName("lInputFrame")
         self.lInputFrame.setFixedWidth(inputFrameWidth)
-        # self.lInputFrame.setFrameShape(QtWidgets.QFrame.Panel)
-        # self.lInputFrame.setLineWidth(1)
         self.hBLayout3.addWidget(self.lInputFrame)
 
         self.rInputFrame = QtWidgets.QFrame()
         self.rInputFrame.setObjectName("rInputFrame")
         self.rInputFrame.setFixedWidth(inputFrameWidth)
-        # self.rInputFrame.setFrameShape(QtWidgets.QFrame.Panel)
-        # self.rInputFrame.setLineWidth(1)
         self.hBLayout3.addWidget(self.rInputFrame)
 
         self.hSpacer7 = QtWidgets.QSpacerItem(25, 40, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
@@ -283,6 +279,8 @@ class Ui_Ledger2(object):
         # LedgerFrame -- VBlayout1 -- hbLayout3 -- lInputFrame --> gridlayout2 --> --> Inputs A
         self.gridLayout2 = QtWidgets.QGridLayout(self.lInputFrame)
         self.gridLayout2.setObjectName("gridLayout2")
+        self.gridLayout2.setContentsMargins(5, 5, 5, 5)
+        self.gridLayout2.setSpacing(0)
 
         # Inputs A - Row # 1 -- hspacer (C1) hSpacer9  (c2) -- hSpacer 10 (c4) -- hSpacer(C5)
         self.hSpacer13 = QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -291,7 +289,7 @@ class Ui_Ledger2(object):
         self.hSpacer9 = QtWidgets.QSpacerItem(inputFrameWidth - 600, 10, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.gridLayout2.addItem(self.hSpacer9, 1, 2, 1, 1)
 
-        self.hSpacer10 = QtWidgets.QSpacerItem(100, 10, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.hSpacer10 = QtWidgets.QSpacerItem(80, 10, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.gridLayout2.addItem(self.hSpacer10, 1, 4, 1, 1)
 
         # Inputs A - Row # 2 -- Label (c2) -- ComboBox (C3-4)
@@ -299,6 +297,7 @@ class Ui_Ledger2(object):
         self.lTransDate.setObjectName("lTransDate")
         self.lTransDate.setText("Trans. Date: ")
         self.lTransDate.setFont(general_font)
+        self.lTransDate.setFixedHeight(25)
         self.lTransDate.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.lTransDate.setSizePolicy(altSizePolicy)
         self.gridLayout2.addWidget(self.lTransDate, 2, 2, 1, 1)
@@ -312,7 +311,7 @@ class Ui_Ledger2(object):
         self.DateEditTransDate.setDisplayFormat("MM/dd/yyyy")
         self.DateEditTransDate.setCurrentSection(QtWidgets.QDateTimeEdit.YearSection)
         self.DateEditTransDate.setCalendarPopup(True)
-        self.DateEditTransDate.setFixedHeight(33)
+        self.DateEditTransDate.setFixedHeight(25)
         self.gridLayout2.addWidget(self.DateEditTransDate, 2, 3, 1, 1)
 
         # Inputs A - Row # 3 -- Label (c1) -- LineEdit (C2-3)
@@ -320,6 +319,7 @@ class Ui_Ledger2(object):
         self.lTransDesc.setObjectName("lTransDesc")
         self.lTransDesc.setText("Trans. Description: ")
         self.lTransDesc.setFont(general_font)
+        self.lTransDesc.setFixedHeight(25)
         self.lTransDesc.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.lTransDesc.setSizePolicy(altSizePolicy)
         self.gridLayout2.addWidget(self.lTransDesc, 3, 2, 1, 1)
@@ -328,6 +328,7 @@ class Ui_Ledger2(object):
         self.lEditTransDesc.setObjectName("lEditTransDesc")
         self.lEditTransDesc.setPlaceholderText(" (Max 40 Characters)")
         self.lEditTransDesc.setMaxLength(40)
+        self.lEditTransDesc.setFixedHeight(25)
         self.lEditTransDesc.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.lEditTransDesc.setFont(general_font)
         self.lEditTransDesc.setSizePolicy(altSizePolicy)
@@ -338,6 +339,7 @@ class Ui_Ledger2(object):
         self.lCategory.setObjectName("lCategory")
         self.lCategory.setText("Category: ")
         self.lCategory.setFont(general_font)
+        self.lCategory.setFixedHeight(25)
         self.lCategory.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.lCategory.setSizePolicy(altSizePolicy)
         self.gridLayout2.addWidget(self.lCategory, 4, 2, 1, 1)
@@ -346,7 +348,7 @@ class Ui_Ledger2(object):
         self.comboBCategory.setObjectName("comboBTCategory")
         self.comboBCategory.setFont(general_font)
         self.comboBCategory.setSizePolicy(altSizePolicy)
-        self.comboBCategory.setFixedHeight(33)
+        self.comboBCategory.setFixedHeight(25)
         self.gridLayout2.addWidget(self.comboBCategory, 4, 3, 1, 1)
 
         self.pBCatModify = QtWidgets.QPushButton()
@@ -354,7 +356,7 @@ class Ui_Ledger2(object):
         self.pBCatModify.setText("Modify")
         self.pBCatModify.setFont(pushButton_font)
         self.pBCatModify.setFixedWidth(150)
-        self.pBCatModify.setFixedHeight(33)
+        self.pBCatModify.setFixedHeight(25)
         self.pBCatModify.setSizePolicy(altSizePolicy)
         self.gridLayout2.addWidget(self.pBCatModify, 4, 4, 1, 1)
 
@@ -365,6 +367,7 @@ class Ui_Ledger2(object):
         self.lDebit.setFont(general_font)
         self.lDebit.setAlignment(QtCore.Qt.AlignLeft)
         self.lDebit.setSizePolicy(altSizePolicy)
+        self.lDebit.setFixedHeight(25)
         self.gridLayout2.addWidget(self.lDebit, 5, 2, 1, 1)
 
         self.lEditDebit = QtWidgets.QLineEdit()
@@ -373,6 +376,7 @@ class Ui_Ledger2(object):
         self.lEditDebit.setAlignment(QtCore.Qt.AlignRight)
         self.lEditDebit.setFont(general_font)
         self.lEditDebit.setSizePolicy(altSizePolicy)
+        self.lEditDebit.setFixedHeight(25)
         self.gridLayout2.addWidget(self.lEditDebit, 5, 3, 1, 1)
 
         # Inputs A - Row # 6 -- Label (c1) -- LineEdit (C2-3)
@@ -382,6 +386,7 @@ class Ui_Ledger2(object):
         self.lCredit.setFont(general_font)
         self.lCredit.setAlignment(QtCore.Qt.AlignLeft)
         self.lCredit.setSizePolicy(altSizePolicy)
+        self.lCredit.setFixedHeight(25)
         self.gridLayout2.addWidget(self.lCredit, 6, 2, 1, 1)
 
         self.lEditCredit = QtWidgets.QLineEdit()
@@ -390,6 +395,7 @@ class Ui_Ledger2(object):
         self.lEditCredit.setAlignment(QtCore.Qt.AlignRight)
         self.lEditCredit.setFont(general_font)
         self.lEditCredit.setSizePolicy(altSizePolicy)
+        self.lEditCredit.setFixedHeight(25)
         self.gridLayout2.addWidget(self.lEditCredit, 6, 3, 1, 1)
 
         # Inputs A - Row # 7 -- Label (c1) -- LineEdit (C2-3)
@@ -399,6 +405,7 @@ class Ui_Ledger2(object):
         self.lSharePrice.setFont(general_font)
         self.lSharePrice.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.lSharePrice.setSizePolicy(altSizePolicy)
+        self.lSharePrice.setFixedHeight(25)
         self.gridLayout2.addWidget(self.lSharePrice, 7, 2, 1, 1)
 
         self.lEditSharePrice = QtWidgets.QLineEdit()
@@ -408,6 +415,7 @@ class Ui_Ledger2(object):
         self.lEditSharePrice.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.lEditSharePrice.setFont(general_font)
         self.lEditSharePrice.setSizePolicy(altSizePolicy)
+        self.lEditSharePrice.setFixedHeight(25)
         self.gridLayout2.addWidget(self.lEditSharePrice, 7, 3, 1, 1)
 
         # Inputs A - Row # 8 -- hSpacer12
@@ -417,8 +425,10 @@ class Ui_Ledger2(object):
         # LedgerFrame -- VBlayout1 -- hbLayout3 -- rInputFrame --> gridlayout3 --> --> Inputs B
         self.gridLayout3 = QtWidgets.QGridLayout(self.rInputFrame)
         self.gridLayout3.setObjectName("gridLayout3")
+        self.gridLayout3.setContentsMargins(5, 5, 5, 5)
+        self.gridLayout3.setSpacing(8)
 
-        # Inputs B -- Row# 1 - hSpacer3(C1) -- hSpacer15 (C2)
+        # Inputs B -- Row# 1 - hSpacer3(C1) -- hSpacer14 (C3)
         self.hVSpacer3 = QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.gridLayout3.addItem(self.hVSpacer3, 1, 1, 1, 1)
 
@@ -432,6 +442,7 @@ class Ui_Ledger2(object):
         self.lSharesPurchased.setFont(general_font)
         self.lSharesPurchased.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.lSharesPurchased.setSizePolicy(altSizePolicy)
+        self.lSharesPurchased.setFixedHeight(25)
         self.gridLayout3.addWidget(self.lSharesPurchased, 2, 2, 1, 1)
 
         self.lEditSharePurch = QtWidgets.QLineEdit()
@@ -441,6 +452,7 @@ class Ui_Ledger2(object):
         self.lEditSharePurch.setFont(general_font)
         self.lEditSharePurch.setFixedWidth(125)
         self.lEditSharePurch.setSizePolicy(altSizePolicy)
+        self.lEditSharePurch.setFixedHeight(25)
         self.gridLayout3.addWidget(self.lEditSharePurch, 2, 4, 1, 1)
 
         self.lSharesSold = QtWidgets.QLabel()
@@ -449,6 +461,7 @@ class Ui_Ledger2(object):
         self.lSharesSold.setFont(general_font)
         self.lSharesSold.setAlignment(QtCore.Qt.AlignRight)
         self.lSharesSold.setSizePolicy(altSizePolicy)
+        self.lSharesSold.setFixedHeight(25)
         self.gridLayout3.addWidget(self.lSharesSold, 2, 5, 1, 1)
 
         self.lEditShareSold = QtWidgets.QLineEdit()
@@ -457,6 +470,7 @@ class Ui_Ledger2(object):
         self.lEditShareSold.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.lEditShareSold.setFont(general_font)
         self.lEditShareSold.setFixedWidth(125)
+        self.lEditShareSold.setFixedHeight(25)
         self.lEditShareSold.setSizePolicy(altSizePolicy)
         self.gridLayout3.addWidget(self.lEditShareSold, 2, 6, 1, 1)
 
@@ -476,6 +490,7 @@ class Ui_Ledger2(object):
         self.textEditAddNotes.setFont(general_font)
         self.textEditAddNotes.setMaximumHeight(80)
         self.textEditAddNotes.setSizePolicy(altSizePolicy)
+
         self.gridLayout3.addWidget(self.textEditAddNotes, 3, 4, 1, 4)
 
         # Inputs B -- Row# 4 - label (C2) -- QRadiobutton (C4) -- QRadioButton - (C5)
@@ -483,6 +498,7 @@ class Ui_Ledger2(object):
         self.lTransStatus.setObjectName("lTransStatus")
         self.lTransStatus.setText("Transaction Status: ")
         self.lTransStatus.setFont(general_font)
+        self.lTransStatus.setFixedHeight(25)
         self.lTransStatus.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.lTransStatus.setSizePolicy(altSizePolicy)
         self.gridLayout3.addWidget(self.lTransStatus, 4, 2, 1, 1)
@@ -506,6 +522,7 @@ class Ui_Ledger2(object):
         self.lReceipt.setObjectName("lReceipt")
         self.lReceipt.setText("Receipt: ")
         self.lReceipt.setFont(general_font)
+        self.lReceipt.setFixedHeight(25)
         self.lReceipt.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.lReceipt.setSizePolicy(altSizePolicy)
         self.gridLayout3.addWidget(self.lReceipt, 5, 2, 1, 1)
@@ -514,6 +531,7 @@ class Ui_Ledger2(object):
         self.lEditReceipt.setObjectName("lEditReceipt")
         self.lEditReceipt.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.lEditReceipt.setFont(general_font)
+        self.lEditReceipt.setFixedHeight(25)
         self.lEditReceipt.setSizePolicy(altSizePolicy)
         self.lEditReceipt.setEnabled(False)
         self.gridLayout3.addWidget(self.lEditReceipt, 5, 4, 1, 4)
@@ -521,6 +539,7 @@ class Ui_Ledger2(object):
         # Inputs B -- Row# 6 - blank (C2-3) pushButtons x4 (C3-7)
         self.receptHBLayout = QtWidgets.QHBoxLayout()
         self.receptHBLayout.setObjectName("receiptHBLayout")
+        self.receptHBLayout.setSpacing(0)
         self.gridLayout3.addLayout(self.receptHBLayout, 6, 4, 1, 4, alignment=QtCore.Qt.Alignment())
 
         self.pBUpload = QtWidgets.QPushButton()
@@ -565,17 +584,18 @@ class Ui_Ledger2(object):
 
         self.hBLayout4 = QtWidgets.QHBoxLayout()
         self.hBLayout4.setObjectName("hBlayout4")
+        self.hBLayout4.setSpacing(0)
         self.vBLayout1.addLayout(self.hBLayout4)
 
         self.comboBPeriod = QtWidgets.QComboBox()
         self.comboBPeriod.setObjectName("comboBLedger1")
         self.comboBPeriod.setFont(general_font)
         self.comboBPeriod.setFixedWidth(300)
-        self.comboBPeriod.setFixedHeight(33)
+        self.comboBPeriod.setFixedHeight(30)
         self.comboBPeriod.setSizePolicy(sizePolicy)
         self.hBLayout4.addWidget(self.comboBPeriod)
 
-        self.hSpacer8 = QtWidgets.QSpacerItem(25, 40, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        self.hSpacer8 = QtWidgets.QSpacerItem(25, 30, QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
         self.hBLayout4.addSpacerItem(self.hSpacer8)
 
         self.pBAddTransaction = QtWidgets.QPushButton()
@@ -583,7 +603,7 @@ class Ui_Ledger2(object):
         self.pBAddTransaction.setText("Add Transaction")
         self.pBAddTransaction.setFont(pushButton_font)
         self.pBAddTransaction.setFixedWidth(250)
-        self.pBAddTransaction.setFixedHeight(40)
+        self.pBAddTransaction.setFixedHeight(30)
         self.pBAddTransaction.setSizePolicy(sizePolicy)
         self.hBLayout4.addWidget(self.pBAddTransaction)
 
@@ -592,7 +612,7 @@ class Ui_Ledger2(object):
         self.pBSelect.setText("Select")
         self.pBSelect.setFont(pushButton_font)
         self.pBSelect.setFixedWidth(125)
-        self.pBSelect.setFixedHeight(40)
+        self.pBSelect.setFixedHeight(30)
         self.pBSelect.setSizePolicy(sizePolicy)
         self.hBLayout4.addWidget(self.pBSelect)
 
@@ -601,7 +621,7 @@ class Ui_Ledger2(object):
         self.pBUpdate.setText("Update")
         self.pBUpdate.setFont(pushButton_font)
         self.pBUpdate.setFixedWidth(125)
-        self.pBUpdate.setFixedHeight(40)
+        self.pBUpdate.setFixedHeight(30)
         self.pBUpdate.setSizePolicy(sizePolicy)
         self.hBLayout4.addWidget(self.pBUpdate)
 
@@ -610,7 +630,7 @@ class Ui_Ledger2(object):
         self.pBDelete.setText("Delete")
         self.pBDelete.setFont(pushButton_font)
         self.pBDelete.setFixedWidth(125)
-        self.pBDelete.setFixedHeight(40)
+        self.pBDelete.setFixedHeight(30)
         self.pBDelete.setSizePolicy(sizePolicy)
         self.hBLayout4.addWidget(self.pBDelete)
 
@@ -619,7 +639,7 @@ class Ui_Ledger2(object):
         self.pBClearInputs.setText("Clear Inputs")
         self.pBClearInputs.setFont(pushButton_font)
         self.pBClearInputs.setFixedWidth(125)
-        self.pBClearInputs.setFixedHeight(40)
+        self.pBClearInputs.setFixedHeight(30)
         self.pBClearInputs.setSizePolicy(sizePolicy)
         self.hBLayout4.addWidget(self.pBClearInputs)
 
@@ -628,7 +648,7 @@ class Ui_Ledger2(object):
         self.pBUStockPrice.setText("Update Stock Price")
         self.pBUStockPrice.setFont(pushButton_font)
         self.pBUStockPrice.setFixedWidth(250)
-        self.pBUStockPrice.setFixedHeight(40)
+        self.pBUStockPrice.setFixedHeight(30)
         self.pBUStockPrice.setSizePolicy(sizePolicy)
         self.hBLayout4.addWidget(self.pBUStockPrice)
 

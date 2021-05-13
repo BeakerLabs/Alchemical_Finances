@@ -121,6 +121,7 @@ def decimal_places(value: str, number: int):
     """
     from decimal import Decimal
     if value == "" or value == " ":
+        value = round(Decimal(0.00), number)
         return value
     else:
         final = round(Decimal(value), number)

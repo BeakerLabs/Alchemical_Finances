@@ -14,6 +14,7 @@ list_o_people = ["Jacob Goldstein", "Daniel Morrison", "Nicole Lauch", "Lily Kul
 list_o_people.sort()
 
 AboutDict = {
+    "0.80": ["Jonathan Shamberg", "May 10, 2021", "Jmshamberg@gmail.com", list_o_people],
     "1.00": ["Jonathan Shamberg", "September 30, 2021", "Jmshamberg@gmail.com", list_o_people]
 }
 
@@ -49,18 +50,18 @@ def welcome_messages():
 
 
 if __name__ == "__main__":
-    f = open("welcomedictionary.pkl", "wb")
-    welcomeMessageDict = welcome_messages()
-    pickle.dump(welcomeMessageDict, f)
-    f.close()
+    # f = open("welcomedictionary.pkl", "wb")
+    # welcomeMessageDict = welcome_messages()
+    # pickle.dump(welcomeMessageDict, f)
+    # f.close()
 
     # f = codecs.open("version", "w", "utf-8-sig")
-    # f.write("1.00")
+    # f.write("0.80")
     # f.close()
     #
-    # f = open("../AboutInfo.pkl", "wb")
-    # pickle.dump(AboutDict, f)
-    # f.close()
+    f = open("../AboutInfo.pkl", "wb")
+    pickle.dump(AboutDict, f)
+    f.close()
 
     # f = open("../sql_Keyword_list.pkl", "wb")
     # pickle.dump(sqlite3_keyword_masterlist, f)

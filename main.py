@@ -13,7 +13,6 @@ import pickle
 import sys
 
 from pathlib import Path
-from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtWidgets import QDialog, QApplication
 
 from Backend.UserLogin import LoginForm
@@ -24,15 +23,7 @@ from Toolbox.Logging_System import create_log_fileName, get_logger
 from Toolbox.OS_Tools import file_destination
 
 
-class main(object):
-    def __init__(self, path):
-        super().__init__()
-        path = os.path.expanduser(path)
-
-        self._path = path
-        print("test")
-        print(self._path)
-
+def main():
     log_created = False
     sessionCount = 0
 
@@ -63,6 +54,7 @@ class main(object):
     screen_dimensions_path = Path.cwd() / screen_dimensions_path / "dimensions.pkl"
 
     f = open(screen_dimensions_path, "wb")
+    os.chmod(screen_dimensions_path, 0o777)
     screen = app.primaryScreen()
     size = screen.size()
     dimensions = [0, 0, size.width(), size.height()]

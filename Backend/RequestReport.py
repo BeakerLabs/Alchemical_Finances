@@ -77,7 +77,7 @@ class user_report_request(QDialog):
 
     # --- -- Obtain user input directory --------------------------------------------------------------------------------------------------------------------------------------
     def obtain_user_dir(self):
-        dirname = QFileDialog.getExistingDirectory(self, "Chose Destination", os.getcwd(), QFileDialog.ShowDirsOnly)
+        dirname = QFileDialog.getExistingDirectory(self, "Cho0se Destination", os.getcwd(), QFileDialog.ShowDirsOnly)
         if dirname:
             self.ui.lEditPath.setText(dirname)
         else:

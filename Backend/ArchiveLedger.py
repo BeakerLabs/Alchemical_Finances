@@ -9,11 +9,12 @@ Future Concepts
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabs.com
 
+import os
 import shutil
 
 from PySide2.QtWidgets import QMessageBox, QDialog, QInputDialog
 from PySide2 import QtCore
-from pathlib import Path
+from pathlib import Path, PurePath
 from Frontend.ArchiveUi import Ui_Archive
 from Backend.ReceiptViewer import Receipt
 
@@ -100,7 +101,7 @@ class Archive(QDialog):
             shutil.rmtree(receipt_directory_path)
             self.ui.comboBAccounts.clear()
             self.ui.comboBStatements.clear()
-            self.fill_combobox(self.ui.comboBAccounts, "Accounts")
+            self.fill_combobox(self.ui.comboBAccounts, "Account")
             self.fill_combobox(self.ui.comboBStatements, "Statement")
             self.ui.tWArchive.clear()
             self.display_ledger()
@@ -130,10 +131,10 @@ class Archive(QDialog):
                 self.input_error_msg(error)
 
     def display_receipt(self):
-        ledger = self.widgetlist[0].currentText()
+        ledger = self.ui.comboBAccounts.currentText()
         ledger_sql = remove_space(ledger)
 
-        parentType_statement = "SELECT ParentType FROM Account_Archive WHERE ID='" + ledger + "'"
+        parentType_statement = f"SELECT ParentType FROM Account_Archive WHERE ID='{ledger}'"
         parentType_value = obtain_sql_value(parentType_statement, self.refUserDB, self.error_Logger)
         parentType_value = parentType_value[0]
 
@@ -145,16 +146,19 @@ class Archive(QDialog):
         elif row == 0:
             pass
         else:
-            file_Name_Statement = f"SELECT Receipt FROM {ledger_sql} WHERE RowID = {str(row)}"
-            file_Name = obtain_sql_value(file_Name_Statement, self.refUserDB, self.error_Logger)
-            file_Name = file_Name[0]
+            row -= 1
+            file_Name = self.ui.tWArchive.item(row, 7).text()
+            suffix = PurePath(file_Name).suffix
+
+            file_pathway = file_destination(['Receipts', self.refUser, parentType_value, ledger_sql])
+            pathway = Path.cwd() / file_pathway / file_Name
 
             if file_Name == "":
                 noReceipt = "Sorry, No Receipt Uploaded"
                 self.input_error_msg(noReceipt)
+            elif suffix == ".pdf":
+                os.startfile(pathway)
             else:
-                file_pathway = file_destination(['Receipts', self.refUser, parentType_value, ledger_sql])
-                pathway = Path.cwd() / file_pathway / file_Name
                 ion = Receipt(str(pathway), file_Name)
                 if ion.exec_() == QDialog.Accepted:
                     pass
@@ -170,11 +174,14 @@ class Archive(QDialog):
             combobox.model().sort(0)
             combobox.setCurrentIndex(0)
 
-        else:
+        else:  # Statement
             account = self.ui.comboBAccounts.currentText()
-            statement_period_list = generate_statement_months(account, "Archive", self.refUserDB, self.error_Logger)
-            combobox.addItems(statement_period_list)
-            combobox.setCurrentIndex(0)
+            if account is None or account == "" or account == " ":
+                pass
+            else:
+                statement_period_list = generate_statement_months(account, "Archive", self.refUserDB, self.error_Logger)
+                combobox.addItems(statement_period_list)
+                combobox.setCurrentIndex(0)
 
     def input_error_msg(self, message):
         reply = QMessageBox.warning(self, 'Input Error', message, QMessageBox.Ok, QMessageBox.NoButton)
@@ -187,7 +194,7 @@ class Archive(QDialog):
         move_sql_tables("Account_Summary", "Account_Archive", "ID", self.ui.comboBAccounts.currentText(), self.refUserDB, self.error_Logger)
         self.ui.comboBAccounts.clear()
         self.ui.comboBStatements.clear()
-        self.fill_combobox(self.ui.comboBAccounts, "Accounts")
+        self.fill_combobox(self.ui.comboBAccounts, "Account")
 
         if self.ui.comboBAccounts.currentText() != "":
             self.fill_combobox(self.ui.comboBStatements, "Statement")

@@ -108,7 +108,7 @@ class Ui_Summary(object):
         self.scrollLayout.addLayout(self.hBLayout3)
 
         # hBoxLayout2 --> FrameAsset -- FrameLiability
-        self.hSpacer3 = QtWidgets.QSpacerItem(25, 200, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.hSpacer3 = QtWidgets.QSpacerItem(25, 160, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         self.hBLayout2.addSpacerItem(self.hSpacer3)
 
         self.frameAsset = QtWidgets.QFrame()
@@ -117,7 +117,7 @@ class Ui_Summary(object):
         # self.frameAsset.setLineWidth(1)
         self.hBLayout2.addWidget(self.frameAsset)
 
-        self.hSpacer4 = QtWidgets.QSpacerItem(25, 200, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.hSpacer4 = QtWidgets.QSpacerItem(25, 160, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         self.hBLayout2.addSpacerItem(self.hSpacer4)
 
         self.frameLiability = QtWidgets.QFrame()
@@ -126,7 +126,7 @@ class Ui_Summary(object):
         # self.frameLiability.setLineWidth(1)
         self.hBLayout2.addWidget(self.frameLiability)
 
-        self.hSpacer5 = QtWidgets.QSpacerItem(25, 200, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.hSpacer5 = QtWidgets.QSpacerItem(25, 160, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         self.hBLayout2.addSpacerItem(self.hSpacer5)
 
         # FrameAsset --> vBoxLayout3

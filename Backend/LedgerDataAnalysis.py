@@ -177,7 +177,7 @@ def equity_subtype_data(database, parentType, error_log):
         subType_dic[subtype][1] += investment[2]
         total += investment[2]
 
-        sector_statement = f"SELECT Sector FROM {parentType}_account_details WHERE Account_Name='{remove_space(investment[0])}'"
+        sector_statement = f"SELECT Sector FROM {parentType}_account_details WHERE Account_Name='{investment[0]}'"
         sector_raw = obtain_sql_value(sector_statement, database, error_log)
         sector_value = sector_raw[0]
         sector_dictionary[sector_value][1] += investment[2]

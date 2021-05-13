@@ -140,10 +140,10 @@ class OverTimeGraph(QDialog):
         canvas.axes.set_yticks(np.arange(0, lg_data[6] + 10, lg_data[5]))
 
         canvas.axes.minorticks_on()
-        canvas.axes.tick_params(axis='y', which='major', labelsize='3', grid_alpha=1, width=0.35)
-        canvas.axes.tick_params(axis='y', which='minor', width=0.2)
-        canvas.axes.tick_params(axis='x', which='major', labelsize='3', pad=2.0, width=0.35)
-        canvas.axes.tick_params(axis='x', which='minor', bottom=False, width=0.2)
+        canvas.axes.tick_params(axis='y', which='major', right=False,labelsize='3', grid_alpha=1, width=0.35)
+        canvas.axes.tick_params(axis='y', which='minor', right=False, width=0.2)
+        canvas.axes.tick_params(axis='x', which='major', top=False, labelsize='3', pad=2.0, width=0.35)
+        canvas.axes.tick_params(axis='x', which='minor', bottom=False, top=False, width=0.2)
 
         canvas.axes.set_ylim(bottom=0)
         canvas.axes.set_xlim(left=0, right=len(lg_data[0]))
