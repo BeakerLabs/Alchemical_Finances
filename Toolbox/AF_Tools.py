@@ -38,7 +38,7 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, parentType, tablew
         pass
     else:
         modifiedLN = remove_space(ledgerName)
-        sortTable = "SELECT Transaction_Date, Transaction_Method, Transaction_Description, Category, (Credit - Debit), Balance, Status, Receipt, Note, Post_Date FROM {0} " \
+        sortTable = "SELECT Transaction_Date, Transaction_Method, Transaction_Description, Category, (Credit - Debit), Balance, Status, Receipt, Note, Post_Date FROM '{0}' " \
                     "ORDER BY Transaction_Date ASC LIMIT 0, 49999".format(modifiedLN)
 
         # 0 - TDate 1 - TMeth 2 - TDesc 3 - Cat 4 - Amount 5 - balance 6 - Status - 7 - Receipt - 8 Notes - 9 Date
@@ -127,7 +127,7 @@ def disp_LedgerV2_Table(account_combobox, statement_combobox, tablewidget, datab
     else:
         modifiedLN = remove_space(ledgerName)
         sortTable = "SELECT Transaction_Date, Transaction_Description, Category, (Credit - Debit), (Purchased - Sold), Price, Status, Receipt, Note," \
-                    " Post_Date, Update_Date FROM {0} ORDER BY Transaction_Date ASC LIMIT 0, 49999".format(modifiedLN)
+                    " Post_Date, Update_Date FROM '{0}' ORDER BY Transaction_Date ASC LIMIT 0, 49999".format(modifiedLN)
 
         # 0 - TDate 1 - TDes 2 - Cat 3 - Amount 4 - Shares 5 - Price 6 - Status - 7 - Receipt - 8 Notes - 9 Date
         complete_ledger = obtain_sql_list(sortTable, database, error_log)
@@ -271,7 +271,7 @@ def generate_statement_months(account, ledger, database, error_log):
     if date_value > 10:
         date_value = f"0{str(date_value)}"
 
-    sortDates = f"SELECT Transaction_Date FROM {sql_active_ledger} ORDER By Transaction_Date ASC Limit 0, 49999"
+    sortDates = f"SELECT Transaction_Date FROM '{sql_active_ledger}' ORDER By Transaction_Date ASC Limit 0, 49999"
     ledger_dates = obtain_sql_list(sortDates, database, error_log)
 
     raw_month_list = []
@@ -434,16 +434,16 @@ def update_ledger_balance(comboBox, database, error_log):
 
     running_balance = 0
 
-    rowID_Statement = f"SELECT ROWID FROM {sql_active_ledger} Order by Transaction_Date ASC Limit 0, 49999"
+    rowID_Statement = f"SELECT ROWID FROM '{sql_active_ledger}' Order by Transaction_Date ASC Limit 0, 49999"
     rowID_list = obtain_sql_list(rowID_Statement, database, error_log)
 
     for rowID in rowID_list:
         row = rowID[0]
-        transaction = f"SELECT SUM(Credit - Debit) FROM {sql_active_ledger} WHERE ROWID='{row}'"
+        transaction = f"SELECT SUM(Credit - Debit) FROM '{sql_active_ledger}' WHERE ROWID='{row}'"
         CreditDebit = obtain_sql_value(transaction, database, error_log)
         transaction_balance = running_balance + CreditDebit[0]
         transaction_balance = decimal_places(transaction_balance, 2)
-        update_balance = f"UPDATE {sql_active_ledger} SET Balance='{transaction_balance}' WHERE ROWID='{row}'"
+        update_balance = f"UPDATE '{sql_active_ledger}' SET Balance='{transaction_balance}' WHERE ROWID='{row}'"
         specific_sql_statement(update_balance, database, error_log)
         running_balance = float(transaction_balance)
 

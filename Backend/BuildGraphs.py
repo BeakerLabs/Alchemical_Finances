@@ -19,7 +19,7 @@ from math import ceil
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-from Toolbox.Formatting_Tools import add_space, decimal_places
+from Toolbox.Formatting_Tools import add_space, cash_format, decimal_places
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
 
 
@@ -198,7 +198,7 @@ def overTimeLineGraph(database, account, error_log):
     return lg_data
 
 
-def nested_snapshot(database, graph_focus, error_log):
+def snapshot_chart(database, graph_focus, error_log):
     if graph_focus == "Asset":
         parentTypes = ["Bank", "Cash", "CD", "Equity", "Treasury", "Retirement", "Property"]
     elif graph_focus == "Liability":
@@ -208,30 +208,9 @@ def nested_snapshot(database, graph_focus, error_log):
         error_log.error(error_message, exc_info=True)
         raise AttributeError(error_message)
 
-    bank_accounts = ["Asset", 0, []]
-    cash_accounts = ["Asset", 0, []]
-    cd_accounts = ["Asset", 0, []]
-    equity_accounts = ["Asset", 0, []]
-    treasury_accounts = ["Asset", 0, []]
-    retirement_accounts = ["Asset", 0, []]
-    property_accounts = ["Asset", 0, []]
-    debt_accounts = ["Liability", 0, []]
-    credit_accounts = ["Liability", 0, []]
-    flat_values = []
-    sizes = []
-    inner_colors = []
-
-    parentType_dict = {
-        "Bank": bank_accounts,
-        "Cash": cash_accounts,
-        "CD": cd_accounts,
-        "Equity": equity_accounts,
-        "Treasury": treasury_accounts,
-        "Retirement": retirement_accounts,
-        "Property": property_accounts,
-        "Debt": debt_accounts,
-        "Credit": credit_accounts,
-    }
+    segment_data_raw = []
+    segment_data = []
+    segment_balances = []
 
     gross_statement = "SELECT SUM(Balance) FROM Account_Summary WHERE ItemType='{0}'".format(graph_focus)
     gross_worth = obtain_sql_value(gross_statement, database, error_log)[0]
@@ -247,60 +226,36 @@ def nested_snapshot(database, graph_focus, error_log):
         if value is None or value < 0:
             value = 0
         percentage = (float(value) / float(gross_worth)) * 100
-        percentage = decimal_places(percentage, 2)
-        sizes.append(percentage)
+        formatted_value = cash_format(value, 2)
+        percentage = decimal_places(str(percentage), 2)
+        segment_data_raw.append([parent, percentage, formatted_value[2], value])
 
-        balance_statement = "SELECT Balance FROM Account_Summary WHERE ParentType='{0}'".format(parent)
-        account_balances = obtain_sql_list(balance_statement, database, error_log)
-        account_balances.sort(reverse=True)
-        if len(account_balances) > 0:
-            for balance in account_balances:
-                correction = balance[0]
-                if correction < 0:
-                    correction = 0
-                parentType_dict[parent][1] += 1
-                parentType_dict[parent][2].append(correction)
-                flat_values.append(correction)
+    segment_data_raw.sort(key=lambda x: x[1], reverse=True)
+
+    for parentType in segment_data_raw:
+        if parentType[1] > 0:
+            segment_data.append(parentType[:3])
+            segment_balances.append(parentType[3])
 
     if graph_focus == "Asset":
-        sum_balances = [sum(bank_accounts[2]), sum(cash_accounts[2]), sum(cd_accounts[2]),
-                        sum(equity_accounts[2]), sum(treasury_accounts[2]), sum(retirement_accounts[2]),
-                        sum(property_accounts[2])]
-        if sum(sum_balances) <= 0:
+        if gross_worth < 1:
             cmap = plt.cm.Greys
-            sum_balances[0] = 1
+            segment_data.append(["", 100, 0])
+            segment_colors = [*cmap(np.linspace(0.8, .33, 1))]
         else:
-            cmap = plt.cm.BuGn
-        outer_colors = [*cmap(np.linspace(1, .33, 7))]
-        for parentType in parentType_dict:
-            accounts = parentType_dict[parentType]
-            if accounts[0] == "Asset" and accounts[1] > 0:
-                cmap_value = cmap(np.linspace(0.6, .1, accounts[1]))
-                inner_colors.append(cmap_value)
+            cmap = plt.cm.terrain
+            segment_colors = [*cmap(np.linspace(0, 0.8, len(segment_data)))]
 
     else:  # graph_focus == 'Liability'
-        sum_balances = [sum(debt_accounts[2]), sum(credit_accounts[2])]
-        if sum(sum_balances) <= 0:
+        if gross_worth < 1:
             cmap = plt.cm.Greys
-            sum_balances[0] = 1
+            segment_data.append(["", 100, 0])
+            segment_colors = [*cmap(np.linspace(0.8, .33, 1))]
         else:
             cmap = plt.cm.OrRd
-        outer_colors = [*cmap(np.linspace(0.8, .33, 2))]
-        for parentType in parentType_dict:
-            accounts = parentType_dict[parentType]
-            if accounts[0] == "Liability" and accounts[1] > 0:
-                cmap_value = cmap(np.linspace(0.6, .1, accounts[1]))
-                inner_colors.append(cmap_value)
+            segment_colors = [*cmap(np.linspace(0.8, .33, 2))]
 
-    if len(inner_colors) == 0:
-        flat_values.append(1)
-        cmap = plt.cm.bone
-        cmap_value = cmap(np.linspace(0.6, .1, 1))
-        inner_colors.append(cmap_value)
-
-    target_values = [sum_balances, outer_colors, flat_values, inner_colors, sizes]
-
-    return target_values
+    return segment_balances, segment_data, segment_colors
 
 
 if __name__ == "__main__":

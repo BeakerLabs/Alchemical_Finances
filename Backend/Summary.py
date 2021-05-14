@@ -20,7 +20,7 @@ from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
 from Toolbox.Formatting_Tools import add_comma, cash_format, decimal_places, remove_space
 from Toolbox.AF_Tools import set_font
 
-from Backend.BuildGraphs import nested_snapshot, AF_Canvas
+from Backend.BuildGraphs import snapshot_chart, AF_Canvas
 from StyleSheets.SummaryCSS import summarySTD, parentFormat, columnHeader, accountDetails, messageFormat, subtotalBalanceFormat
 
 
@@ -229,7 +229,7 @@ class Ledger_Summary(QDialog):
                     self.accountHBoxLayout.addWidget(lSubType)
 
                     if parentType in ["Equity", "Retirement"]:
-                        shareBalance_Statement = f"SELECT SUM(Purchased - Sold) FROM {accountID}"
+                        shareBalance_Statement = f"SELECT SUM(Purchased - Sold) FROM '{accountID}'"
                         shareBalance_raw = obtain_sql_value(shareBalance_Statement, self.refUserDB, self.error_Logger)
                         if shareBalance_raw[0] is None:
                             shareBalance_checked = 0
@@ -410,7 +410,7 @@ class Ledger_Summary(QDialog):
                     self.accountHBoxLayout.addWidget(lSubType)
 
                     if parentType in ["Equity", "Retirement"]:
-                        shareBalance_Statement = f"SELECT SUM(Purchased - Sold) FROM {accountID}"
+                        shareBalance_Statement = f"SELECT SUM(Purchased - Sold) FROM '{accountID}'"
                         shareBalance_raw = obtain_sql_value(shareBalance_Statement, self.refUserDB, self.error_Logger)
                         if shareBalance_raw[0] is None:
                             shareBalance_checked = 0
@@ -539,7 +539,7 @@ class Ledger_Summary(QDialog):
                     sqlparentType = "Treasury"
                 else:
                     sqlparentType = parentType
-                subTotalStatement = "SELECT SUM(Balance), ItemType FROM Account_Summary WHERE ParentType='" + sqlparentType + "'"
+                subTotalStatement = f"SELECT SUM(Balance), ItemType FROM Account_Summary WHERE ParentType='{sqlparentType}'"
                 subTotalInfo = obtain_sql_value(subTotalStatement, self.refUserDB, self.error_Logger)
                 preModSubTotal = subTotalInfo[0]
 
@@ -563,7 +563,7 @@ class Ledger_Summary(QDialog):
                     targetlabel.setText("  ($  " + modSubTotal + ")    ")
 
     def obtain_liability_start(self, col, tableName, accountName):
-        startStatement = "SELECT " + col + " FROM " + tableName + " WHERE Account_Name='" + accountName + "'"
+        startStatement = f"SELECT {col} FROM {tableName} WHERE Account_Name='{accountName}'"
         start_value_raw = obtain_sql_value(startStatement, self.refUserDB, self.error_Logger)
         start_value = start_value_raw[0]
 
@@ -586,26 +586,27 @@ class Ledger_Summary(QDialog):
             messagelabel.show()
 
     def update_plot(self, focus, canvas):
-        pie_data = nested_snapshot(self.refUserDB, graph_focus=focus, error_log=self.error_Logger)
-        canvas.axes.clear()
-        canvas.axes.pie(pie_data[0], radius=1.5, colors=pie_data[1], wedgeprops={'linewidth': 0.5, 'edgecolor': 'grey', 'width': 0.3}, normalize=True)
-        # canvas.axes.pie(pie_data[2], radius=1.2, colors=pie_data[3], wedgeprops={'linewidth': 0.3, 'edgecolor': 'grey', 'width': 0.25}, normalize=True)
-        if focus == "Asset":
-            assetSizes = pie_data[4]
-            LegendLabels = ["Bank - ({0}%)".format(assetSizes[0]),
-                            "Cash - ({0}%)".format(assetSizes[1]),
-                            "CD - ({0}%)".format(assetSizes[2]),
-                            "Equity - ({0}%)".format(assetSizes[3]),
-                            "Treasury - ({0}%)".format(assetSizes[4]),
-                            "Retirement - ({0}%)".format(assetSizes[5]),
-                            "Property - ({0}%)".format(assetSizes[6])]
+        """ Generates a Ring Style Pie Chart, for Asset and Liability distributions on the Summary Page."""
+        # focus = "Asset" or "Liability"
+        segment_balances, segment_data, segment_colors = snapshot_chart(self.refUserDB, graph_focus=focus, error_log=self.error_Logger)
+        # pie_data = [segment_data = [parent, percentage, value], segment_colors]
 
-        elif focus == "Liability":
-            liabilitySizes = pie_data[4]
-            LegendLabels = ["Debt - ({0}%)".format(liabilitySizes[0]),
-                            "Credit - ({0}%)".format(liabilitySizes[1])]
-        else:
-            LegendLabels = ["Input Error: Asset/Liability only"]
+        canvas.axes.clear()
+        canvas.axes.pie(segment_balances,
+                        radius=1.5,
+                        colors=segment_colors,
+                        counterclock=True,
+                        startangle=90,
+                        wedgeprops={'linewidth': 0.2, 'edgecolor': 'grey', 'width': 0.4},
+                        normalize=True)
+
+        LegendLabels = []
+        for segment in segment_data:
+            parent = segment[0]
+            percentage = segment[1]
+            balance = segment[2]
+            if percentage > 0:
+                LegendLabels.append(f"{parent} - {percentage}%\n[{balance}]")
 
         canvas.axes.legend(
             loc="center",

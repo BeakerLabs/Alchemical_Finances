@@ -457,7 +457,7 @@ class AFBackbone(QMainWindow):
         for account in target_accounts_raw:
             account = account[0]
             sql_account = remove_space(account)
-            contribution_statement = f"SELECT SUM(Credit - Debit) FROM {sql_account}"
+            contribution_statement = f"SELECT SUM(Credit - Debit) FROM '{sql_account}'"
             contribution_sum_raw = obtain_sql_value(contribution_statement, self.refUserDB, self.error_Logger)
 
             if contribution_sum_raw[0] is None:

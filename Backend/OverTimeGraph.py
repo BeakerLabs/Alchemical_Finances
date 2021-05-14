@@ -75,12 +75,22 @@ class OverTimeGraph(QDialog):
             self.peakvalues = self.obtainPeakValues(account)
             # obtaining dates & value for peak Gross and Net Worth
 
+            self.ui.lPeakGWLabel.setText("Gross Worth")
+            self.ui.lLowGWLabel.setText("Gross Worth")
             self.ui.lPGWorth.setText(f"{self.peakvalues[0][1]} on {self.peakvalues[0][0]}")
             self.ui.lLGWorth.setText(f"{self.peakvalues[0][3]} on {self.peakvalues[0][2]}")
             self.ui.lPNWorth.setText(f"{self.peakvalues[1][1]} on {self.peakvalues[1][0]}")
             self.ui.lLNWorth.setText(f"{self.peakvalues[1][3]} on {self.peakvalues[1][2]}")
             self.ui.lPLWorth.setText(f"{self.peakvalues[2][1]} on {self.peakvalues[2][0]}")
             self.ui.lLLWorth.setText(f"{self.peakvalues[2][3]} on {self.peakvalues[2][2]}")
+            self.ui.lPeakLVLabel.setHidden(False)
+            self.ui.lPeakNWLabel.setHidden(False)
+            self.ui.lLowLVLabel.setHidden(False)
+            self.ui.lLowNWLabel.setHidden(False)
+            self.ui.lPNWorth.setHidden(False)
+            self.ui.lLNWorth.setHidden(False)
+            self.ui.lPLWorth.setHidden(False)
+            self.ui.lLLWorth.setHidden(False)
 
         elif account != "":
             self.peakvalues = self.obtainPeakValues(account)
@@ -88,8 +98,12 @@ class OverTimeGraph(QDialog):
 
             self.ui.lPeakGWLabel.setText("Account Worth")
             self.ui.lLowGWLabel.setText("Account Worth")
-            self.ui.lPGWorth.setText(f"{self.peakvalues[0][1]}on {self.peakvalues[0][0]}")
-            self.ui.lLGWorth.setText(f"{self.peakvalues[0][3]}on {self.peakvalues[0][2]}")
+            self.ui.lPGWorth.setText(f"{self.peakvalues[0][1]} on {self.peakvalues[0][0]}")
+            self.ui.lLGWorth.setText(f"{self.peakvalues[0][3]} on {self.peakvalues[0][2]}")
+            self.ui.lPeakLVLabel.setHidden(True)
+            self.ui.lPeakNWLabel.setHidden(True)
+            self.ui.lLowLVLabel.setHidden(True)
+            self.ui.lLowNWLabel.setHidden(True)
             self.ui.lPNWorth.setHidden(True)
             self.ui.lLNWorth.setHidden(True)
             self.ui.lPLWorth.setHidden(True)

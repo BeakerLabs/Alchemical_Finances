@@ -257,7 +257,7 @@ class Ui_OverTimeGraph(object):
 
         self.lPeakLVLabel = QtWidgets.QLabel()
         self.lPeakLVLabel.setObjectName("lPeakLVLabel")
-        self.lPeakLVLabel.setText("Liabilities Value:")
+        self.lPeakLVLabel.setText("Liability:")
         self.lPeakLVLabel.setFont(subheader_font)
         self.lPeakLVLabel.setAlignment(QtCore.Qt.AlignLeft)
         self.lPeakLVLabel.setSizePolicy(sizePolicy)
@@ -310,7 +310,7 @@ class Ui_OverTimeGraph(object):
 
         self.lLowLVLabel = QtWidgets.QLabel()
         self.lLowLVLabel.setObjectName("lLowLVLabel")
-        self.lLowLVLabel.setText("Liabilities Value:")
+        self.lLowLVLabel.setText("Liability:")
         self.lLowLVLabel.setFont(subheader_font)
         self.lLowLVLabel.setAlignment(QtCore.Qt.AlignLeft)
         self.lLowLVLabel.setSizePolicy(sizePolicy)

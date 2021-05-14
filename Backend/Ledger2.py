@@ -253,7 +253,7 @@ class LedgerV2(QDialog):
                 currentDate = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
                 # 2- date -- 3- T Description -- 4- Category -- 5- Debit
                 # 6- credit -- 8- sold -- 7- Purchased -- 10/11- Status -- ## - UserDate -- 12- Receipt
-                addStatement = "INSERT INTO " + modifiedLN + " VALUES('"\
+                addStatement = "INSERT INTO '" + modifiedLN + "' VALUES('"\
                                + self.ui.DateEditTransDate.date().toString("yyyy/MM/dd") + "', '"\
                                + self.ui.lEditTransDesc.text() + "', '"\
                                + self.ui.comboBCategory.currentText() + "', '"\
@@ -332,7 +332,7 @@ class LedgerV2(QDialog):
                 self.ui.lAccountBalance.setText(ledgerValue[1])
                 self.ui.lShareBalance.setText(self.net_share_balance())
                 self.tickerPrice = self.obtain_ticker_price()
-                self.ui.lSharePrice.setText("$ " + self.tickerPrice)
+                # self.ui.lSharePrice.setText("$ " + self.tickerPrice)
             else:
                 error = "Parent Type doesn't belong with this ledger"
                 self.input_error_msg(error)
@@ -352,7 +352,7 @@ class LedgerV2(QDialog):
             netValue = ["0.00", "0.00"]
             return netValue
         else:
-            netValueStatement = "SELECT SUM(Purchased - Sold) FROM " + modifiedLN + " WHERE Status='Posted'"
+            netValueStatement = f"SELECT SUM(Purchased - Sold) FROM '{modifiedLN}' WHERE Status='Posted'"
             qtyShares = obtain_sql_value(netValueStatement, self.refUserDB, self.error_Logger)
             if qtyShares[0] is None:
                 netValue = "0.00"
@@ -379,7 +379,7 @@ class LedgerV2(QDialog):
             shareBalance = "0.0000"
             return shareBalance
         else:
-            netSBalance = "SELECT SUM(Purchased - Sold) FROM " + modifiedLN + " WHERE Status='Posted'"
+            netSBalance = f"SELECT SUM(Purchased - Sold) FROM '{modifiedLN}' WHERE Status='Posted'"
             shareBalance = obtain_sql_value(netSBalance, self.refUserDB, self.error_Logger)
             if shareBalance[0] is None:
                 shareBalance = "0.0000"
@@ -393,8 +393,7 @@ class LedgerV2(QDialog):
                 return formatedStrShares
 
     def obtain_ticker_price(self):
-        tickerPriceStatement = "SELECT Stock_Price FROM " + self.parentType_dict[self.parentType] +\
-                                    " WHERE Account_Name ='" + self.ui.comboBLedger2.currentText() + "'"
+        tickerPriceStatement = f"SELECT Stock_Price FROM {self.parentType_dict[self.parentType]} WHERE Account_Name ='{self.ui.comboBLedger2.currentText()}'"
         tickerPrice = obtain_sql_value(tickerPriceStatement, self.refUserDB, self.error_Logger)
         if tickerPrice is None:
             tickerPrice = "Unknown"
@@ -403,12 +402,11 @@ class LedgerV2(QDialog):
         return tickerPrice
 
     def refresh_ticker_price(self):
-        tickerUpdate = "SELECT Stock_Price FROM " + self.parentType_dict[self.parentType] + " WHERE Account_Name='" + self.ui.comboBLedger2.currentText() + "'"
+        tickerUpdate = f"SELECT Stock_Price FROM {self.parentType_dict[self.parentType]} WHERE Account_Name ='{self.ui.comboBLedger2.currentText()}'"
         tickerPrice = obtain_sql_value(tickerUpdate, self.refUserDB, self.error_Logger)
         updateLedgerValue = decimal_places(tickerPrice[0], 4) * decimal_places(self.ui.lShareBalance.text(), 4)
         updateLedgerValue = decimal_places(updateLedgerValue, 2)
-        balanceUpdate = "UPDATE Account_Summary SET Balance='" + str(updateLedgerValue) + "' WHERE ID='" + \
-                        self.ui.comboBLedger2.currentText() + "'"
+        balanceUpdate = f"UPDATE Account_Summary SET Balance='{str(updateLedgerValue)}' WHERE ID='{self.ui.comboBLedger2.currentText()}'"
         specific_sql_statement(balanceUpdate, self.refUserDB, self.error_Logger)
         newledgerValue = self.net_ledger_value()
         self.ui.lAccountBalance.setText(newledgerValue[1])
@@ -459,7 +457,6 @@ class LedgerV2(QDialog):
                     elif dataPoint[len(dataPoint) - 1:] == " ":
                         dataPoint = dataPoint[:len(dataPoint) - 1]
                         displayValue = remove_comma(dataPoint)
-                        adjustment = widget + 1
                         self.ui.lEditCredit.setText(displayValue)
                 elif widget == 6:
                     # col 4 = Shares (+/-)
@@ -511,7 +508,7 @@ class LedgerV2(QDialog):
         self.ui.lShareBalance.setText(self.net_share_balance())
 
         # Updates the database Account_Summary to reflect the "posted" balance
-        balanceStatement = "UPDATE Account_Summary SET Balance='" + ledgerValue[0] + "' WHERE ID='" + self.ui.comboBLedger2.currentText() + "'"
+        balanceStatement = f"UPDATE Account_Summary SET Balance='{ledgerValue[0]}' WHERE ID='{self.ui.comboBLedger2.currentText()}'"
         specific_sql_statement(balanceStatement, self.refUserDB, self.error_Logger)
 
         self.update_tab_display("SubType")
@@ -532,7 +529,7 @@ class LedgerV2(QDialog):
         modPrice = str(decimal_places(self.ui.lEditSharePrice.text(), 4))
         status = self.transaction_status(self.ui.rBPending, self.ui.rBPosted)
         currentDate = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-        updateStatement = "Update " + modifiedLN \
+        updateStatement = "Update '" + modifiedLN + "'" \
                           + " SET Transaction_Date='" + self.ui.DateEditTransDate.date().toString("yyyy/MM/dd") \
                           + "', Transaction_Description='" + self.ui.lEditTransDesc.text() \
                           + "', Category='" + self.ui.comboBCategory.currentText() \
@@ -580,10 +577,9 @@ class LedgerV2(QDialog):
     def update_ticker_price(self):
         tickerPrice = self.get_ticker_price()
         tickerPrice = decimal_places(tickerPrice, 4)
-        tickerUpdate = "UPDATE " + self.parentType_dict[self.parentType] + " SET Stock_Price='" + str(tickerPrice) \
-                       + "' WHERE Account_Name='" + self.ui.comboBLedger2.currentText() + "'"
+        tickerUpdate = f"UPDATE {self.parentType_dict[self.parentType]} SET Stock_Price='{str(tickerPrice)}' WHERE Account_Name='{self.ui.comboBLedger2.currentText()}'"
         updateLedgerValue = tickerPrice * decimal_places(self.ui.lShareBalance.text(), 4)
-        balanceUpdate = "UPDATE Account_Summary SET Balance='" + str(updateLedgerValue) + "' WHERE ID='" + self.ui.comboBLedger2.currentText() + "'"
+        balanceUpdate = f"UPDATE Account_Summary SET Balance='{str(updateLedgerValue)}' WHERE ID='{self.ui.comboBLedger2.currentText()}'"
         execute_sql_statement_list([tickerUpdate, balanceUpdate], self.refUserDB, self.error_Logger)
         newledgerValue = self.net_ledger_value()
         self.ui.lAccountBalance.setText(newledgerValue[1])

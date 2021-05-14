@@ -294,7 +294,7 @@ class LedgerV1(QDialog):
                 currentDate = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
                 # 2- date -- 3- T Method -- 4- T Description -- 5- Category
                 # 6- Debit -- 7- Credit -- 8 - Balance -- 9- Notes -- 10- Status -- 11- UserDate -- 12- Receipt
-                addStatement = "INSERT INTO " + modifiedLN + " VALUES('"\
+                addStatement = "INSERT INTO '" + modifiedLN + "' VALUES('"\
                                + self.ui.DateEditTransDate.date().toString("yyyy/MM/dd") + "', '"\
                                + self.ui.lEditTransMethod.text() + "', '"\
                                + self.ui.lEditTransDesc.text() + "', '"\
@@ -492,7 +492,7 @@ class LedgerV1(QDialog):
         modDebit = str(decimal_places(self.ui.lEditDebit.text(), 2))
         modCredit = str(decimal_places(self.ui.lEditCredit.text(), 2))
         currentDate = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-        updateStatement = "Update " + modifiedLN \
+        updateStatement = "Update '" + modifiedLN + "'" \
                           + " SET Transaction_Date='" + self.ui.DateEditTransDate.date().toString("yyyy/MM/dd") \
                           + "', Transaction_Method='" + self.ui.lEditTransMethod.text() \
                           + "', Transaction_Description='" + self.ui.lEditTransDesc.text() \
@@ -548,7 +548,7 @@ class LedgerV1(QDialog):
             netValue = ["0.00", "0.00"]
             return netValue
         else:
-            netValueStatement = "SELECT SUM(Credit - Debit) FROM " + modifiedLN + " WHERE Status='Posted'"
+            netValueStatement = f"SELECT SUM(Credit - Debit) FROM '{modifiedLN}' WHERE Status='Posted'"
             qtyMoney = obtain_sql_value(netValueStatement, self.refUserDB, self.error_Logger)
             if qtyMoney[0] is None:
                 moneyWOComma = "0.00"

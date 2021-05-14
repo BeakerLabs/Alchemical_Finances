@@ -170,7 +170,7 @@ class Ui_Summary(object):
         self.vBLayout4.addWidget(self.frameLGraph)
 
         # hBLayout3 --> hspacer6 -- FrameSummary -- hspacer7
-        self.hSpacer6 = QtWidgets.QSpacerItem(350, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.hSpacer6 = QtWidgets.QSpacerItem(350, 0, QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Expanding)
 
         self.hBLayout3.addSpacerItem(self.hSpacer6)
 
@@ -180,7 +180,7 @@ class Ui_Summary(object):
         # self.frameSummary.setLineWidth(1)
         self.hBLayout3.addWidget(self.frameSummary)
 
-        self.hSpacer7 = QtWidgets.QSpacerItem(350, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.hSpacer7 = QtWidgets.QSpacerItem(350, 0, QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Expanding)
         self.hBLayout3.addSpacerItem(self.hSpacer7)
 
         # vBoxLayout5 --> FrameSummary

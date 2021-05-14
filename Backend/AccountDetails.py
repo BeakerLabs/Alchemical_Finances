@@ -508,7 +508,7 @@ class AccountsDetails(QDialog):
                                 "', '" + accountStatement + \
                                 "', '" + accountVariable1 + \
                                 "', '" + accountVariable2 + "')"
-            elif self.parentType in variant4:
+            elif self.parentType in variant3:
                 detailsUpdate = "INSERT INTO " + self.accountDetailsTable + \
                                 " VALUES('" + accountName + \
                                 "', '" + accountSubType + \
@@ -536,7 +536,7 @@ class AccountsDetails(QDialog):
                                 "', '" + accountBank + "')"
 
             if sqlCurrentLedgerName != sqlNewLedgerName:
-                ledgerUpdate = "ALTER TABLE " + sqlCurrentLedgerName + " RENAME TO " + sqlNewLedgerName
+                ledgerUpdate = f"ALTER TABLE {sqlCurrentLedgerName} RENAME TO '{sqlNewLedgerName}'"
                 accountWorth = f"ALTER TABLE AccountWorth RENAME COLUMN '{sqlCurrentLedgerName}' TO '{sqlNewLedgerName}'"
 
                 old_dir_path = file_destination(['Receipts', self.refUser, self.parentType, sqlCurrentLedgerName])

@@ -197,7 +197,7 @@ def obtain_sql_list(statement: str, database: str, error_log):
             value = cur.fetchall()
             rValue = value
     except Error:
-        error_string = f"""SQLTools_Func: obtain_sql_lst \n statement: "{statement}" \n database: {database}"""
+        error_string = f"""SQLTools_Func: obtain_sql_list \n statement: "{statement}" \n database: {database}"""
         error_log.error(error_string, exc_info=True)
     finally:
         conn.close()
