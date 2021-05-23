@@ -8,7 +8,8 @@ Future Concepts
 
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 import numpy as np
 
@@ -218,7 +219,7 @@ class OverTimeGraph(QDialog):
             # Date, Gross, Liabilities, Net
             row = obtain_sql_list(statement, self.refUserDB, self.error_Logger)
         else:
-            statement = f"SELECT Date, {account} FROM AccountWorth ORDER BY DATE ASC Limit 0, 49999"
+            statement = f"""SELECT Date, "{account}" FROM AccountWorth ORDER BY DATE Limit 0, 49999"""
             row = obtain_sql_list(statement, self.refUserDB, self.error_Logger)
 
         # Gross peak format will be used as the Account Value from Account Worth

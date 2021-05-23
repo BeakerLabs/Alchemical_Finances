@@ -10,12 +10,12 @@ the message dictionary.
 import codecs
 import pickle
 
-list_o_people = ["Jacob Goldstein", "Daniel Morrison", "Nicole Lauch", "Lily Kull", "Briana Smith", "Morgan Huyler"]
+list_o_people = [["Will be updated upon alpha testing launch"],["Jacob Goldstein", "Daniel Morrison", "Nicole Lauch", "Lily Kull", "Briana Smith", "Morgan Huyler"]]
 list_o_people.sort()
 
 AboutDict = {
-    "0.80": ["Jonathan Shamberg", "May 10, 2021", "Jmshamberg@gmail.com", list_o_people],
-    "1.00": ["Jonathan Shamberg", "September 30, 2021", "Jmshamberg@gmail.com", list_o_people]
+    "0.80": ["Beaker Labs LLC", "May 23, 2021", "Contact@BeakerLabsTech.com", list_o_people[0]],
+    "1.00": ["Beaker Labs LLC", "September 30, 2021", "Contact@BeakerLabsTech.com", list_o_people[1]]
 }
 
 sqlite3_keyword_masterlist = ["ABORT", "ACTION", "ADD", "AFTER", "ALL", "ALTER", "ALWAYS", "ANALYZE", "AND", "AS",
@@ -36,7 +36,7 @@ sqlite3_keyword_masterlist = ["ABORT", "ACTION", "ADD", "AFTER", "ALL", "ALTER",
 
 
 def welcome_messages():
-    list_of_messages = [['message0.txt', 0, 'Welcome'], ['message1.txt', 1, 'Welcome Back' ]]
+    list_of_messages = [['message0.txt', 0, 'Welcome'], ['message1.txt', 1, 'Welcome Back']]
     MessageDict = {}
 
     for textFile in list_of_messages:

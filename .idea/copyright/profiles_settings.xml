@@ -1,5 +1,5 @@
 <component name="CopyrightManager">
-  <settings>
+  <settings default="Beaker Labs">
     <module2copyright>
       <element module="All" copyright="Beaker Labs" />
     </module2copyright>

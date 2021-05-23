@@ -8,14 +8,15 @@ Future Concepts
 
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 import operator
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
-from Toolbox.Formatting_Tools import add_space, cash_format, decimal_places, remove_space
+from Toolbox.Formatting_Tools import add_space, cash_format, decimal_places
 
 
 def category_spending_data(database, account, error_log):

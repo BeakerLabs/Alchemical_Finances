@@ -11,9 +11,11 @@ to clarify function/purpose of any given object.
 
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 import os
+import time
 
 from PySide2.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog
 from PySide2.QtCore import QDate
@@ -279,6 +281,7 @@ class LedgerV1(QDialog):
 
     # Functions that depend on SQLite3
     def add_transaction(self):
+        tic = time.perf_counter()
         if self.ui.comboBLedger1.currentText() == "":
             noLedger_msg = "Create a new Ledger"
             self.input_error_msg(noLedger_msg)
@@ -312,7 +315,11 @@ class LedgerV1(QDialog):
                 # It is easier to just update the ledger's balance column every time, versus attempt to calculate the value when adding the transaction.
                 # This will cover both the new transaction and its placement in the ledger.
                 update_ledger_balance(self.ui.comboBLedger1, self.refUserDB, self.error_Logger)
+                subtoc = time.perf_counter()
                 self.transaction_refresh()
+                toc = time.perf_counter()
+                print(f'Update ledger took {subtoc - tic:0.4f} seconds')
+                print(f'Full Transaction took {toc - tic:0.4f} seconds')
             else:
                 input_error = """
                     Transaction Input Instructions:
@@ -486,6 +493,7 @@ class LedgerV1(QDialog):
 
     def update_sql(self, row):
         from datetime import datetime
+        tic = time.perf_counter()
         status = self.transaction_status(self.ui.rBPending, self.ui.rBPosted)
         ledgerName = self.ui.comboBLedger1.currentText()
         modifiedLN = remove_space(ledgerName)
@@ -508,7 +516,11 @@ class LedgerV1(QDialog):
 
         # It is easier to just update the ledger's balance column every time, versus attempt to calculate the value when adding the transaction.
         # This will cover both the new transaction and its placement in the ledger.
+        subtoc = time.perf_counter()
         update_ledger_balance(self.ui.comboBLedger1, self.refUserDB, self.error_Logger)
+        toc = time.perf_counter()
+        print(f'Update ledger took {subtoc - tic:0.4f} seconds')
+        print(f'Full Transaction took {subtoc - toc:0.4f} seconds')
 
     def update_transaction(self):
         inputText1 = "Update Transaction"

@@ -1,6 +1,7 @@
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 # This Front End Code is used to Generate the GUI for the MainWindow of the Alchemical Finances Program
 # Many of the UI will be placed into the MdiArea as sub windows. Some will be dialog boxes

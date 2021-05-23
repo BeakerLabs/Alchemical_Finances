@@ -1,9 +1,10 @@
 Alchemical Finances: Hands on Personal Finance
 ==============================================
-Version: 0.1.0
+Version: 0.8.0
 Release Date: 04/26/2021
 Copyright (c) 2021, Beaker Labs LLC
-Website: <Pending>
+Website: www.BeakerLabsTech.com
+contact: contact@beakerlabstech.com
 
 License
 -------

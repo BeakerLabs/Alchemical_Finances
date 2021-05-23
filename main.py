@@ -6,7 +6,8 @@ As the current file name states. This file is to execute the entire program. I w
 """
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 import os
 import pickle

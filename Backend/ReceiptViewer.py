@@ -7,7 +7,8 @@ Future Concepts
 
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 from PySide2 import QtCore, QtWidgets
 from PySide2.QtWidgets import QDialog
