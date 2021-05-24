@@ -259,7 +259,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate('MainWindow', "Alchemical Finances - Reformulated", None))
+        MainWindow.setWindowTitle(_translate('MainWindow', "Alchemical Finances", None))
         self.menuFile.setTitle(_translate("MainWindow", "File", None))
         self.menuAssets.setTitle(_translate("MainWindow", "Assets", None))
         self.menuLiabilities.setTitle(_translate("MainWindow", "Liabilities", None))
