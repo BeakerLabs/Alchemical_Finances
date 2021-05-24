@@ -8,13 +8,15 @@
 
 License
 -------
-Provided in the repository file **LICENSE.txt**
+Provided in the repository file [LICENSE.txt](LICENSE.txt)
 
 This software is intended to be built with Pyside6. Currently utilizes PyQt5 to operate with the Matplotlib model properly. This should be updated and reverted before the years end.  PyQt5 also functions under the LGPL as it is built upon
 the Qt C++ framework in the same manner as the native Pyside6.
 
 ~~This software was built using Pyside6 from the Qt Company which is produced and distributed under the GNU LGPLv3.0 License, as such so is this program. This repository doesn't come with the Pyside6 Module. The best way
-to obtain the software is there _python -m pip install Pyside6_ (or your systems variant.)~~ License information for Pyside6 can be located at the following website [Pyside6 License](https://doc.qt.io/qtforpython/licenses.html)
+to obtain the software is there _python -m pip install Pyside6_ (or your systems variant.)~~ 
+
+License information for Pyside6 can be located at the following website [Pyside6 License](https://doc.qt.io/qtforpython/licenses.html)
 
 Description / Purpose of the Project:
 -------------------------------------
