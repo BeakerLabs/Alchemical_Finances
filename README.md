@@ -38,11 +38,11 @@ This software also offers the following features:
     * export data to .csv file(s)
     * **more to come**
 
-For additional features, consider looking at the premium version that comes as a packaged executable. Future features will hit the premium version first. Information can be found on the Beaker Labs website
+For additional features, consider looking at the premium version that comes as a packaged executable. Future features will hit the premium version first. Information can be found on the Beaker Labs website.
 
 Installation
 ------------
-To install Alchemical Finances as a Python Program, it is recommended to clone this github repository to your desktop and load all dependencies listed within the [requirements](requirements.txt) file. The program operates from the
+To install Alchemical Finances as a Python Program, it is recommended to clone this GitHub repository to your desktop and load all dependencies listed within the [requirements](requirements.txt) file. The program operates from the
 main.py file.
 
 Alternatively you can choose to purchase the executable version of the program at the following location: **Pending**
