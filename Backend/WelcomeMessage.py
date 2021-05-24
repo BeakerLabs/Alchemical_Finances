@@ -49,12 +49,12 @@ class Message(QDialog):
         self.ui.pushButtonClose.clicked.connect(self.close_message)
 
         # Obtain User Name if exists
-        name_statement = f"SELECT FirstName || ' ' || LastName FROM Users"
+        name_statement = f"SELECT FirstName || ' ' || LastName FROM Users WHERE Profile='{self.refuser}'"
         name_raw = obtain_sql_value(name_statement, self.dbPathway, self.error_log)
         self.userName = name_raw[0]
 
         if self.userName is None:
-            username = self.refuser
+            username = self.refuser.capitalize()
         else:
             username = self.userName
 

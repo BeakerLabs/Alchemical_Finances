@@ -168,7 +168,7 @@ class Ui_WelcomeMessage(object):
         self.signaturelabel.setFont(signature_font)
         self.signaturelabel.setSizePolicy(sizePolicy)
         self.signaturelabel.setAlignment(QtCore.Qt.AlignLeft)
-        self.signaturelabel.setText("""Your Grateful Programmer,\nJonathan Shamberg\nJmshamberg@gmail.com""")
+        self.signaturelabel.setText("""Your Grateful Software Developer,\nBeaker Labs LLC\nContact@beakerlabstech.com""")
         self.hlr3.addWidget(self.signaturelabel)
 
         self.signatureRspacer = QtWidgets.QSpacerItem(int((adjusted_height - 90)/2) - 10, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
