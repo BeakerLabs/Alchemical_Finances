@@ -28,7 +28,7 @@ contextualize and/or rationalize your habits. Reducing the tendency to pay for u
 This software also offers the following features:
 
 1. No 2nd/3rd party Data Mining of user information.
-2. All Data is currently stored in the users possession.
+2. All Data is currently stored under the user's possession.
 3. No Automatically filled ledgers.
 4. Ability to attached Invoices/Receipts to all transactions.
 5. Future features are planned.
@@ -37,8 +37,8 @@ For additional features, consider looking at the premium version that comes as a
 
 Installation
 ------------
-To install Alchemical Finances as a Python Program, it is recommended to clone this github repository to your desktop and load all dependencies listed within the **requirements.txt** file. The program operates from the
-setup.py file.
+To install Alchemical Finances as a Python Program, it is recommended to clone this github repository to your desktop and load all dependencies listed within the [requirements](requirements.txt) file. The program operates from the
+main.py file.
 
 Alternatively you can choose to purchase the executable version of the program at the following location: **Pending**
 
