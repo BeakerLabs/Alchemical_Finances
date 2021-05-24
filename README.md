@@ -32,6 +32,11 @@ This software also offers the following features:
 3. No Automatically filled ledgers.
 4. Ability to attached Invoices/Receipts to all transactions.
 5. Future features are planned.
+    * decreased latency in posting transactions on older large ledgers
+    * transfer transaction tab
+    * print account specific statement report
+    * export data to .csv file(s)
+    * **more to come**
 
 For additional features, consider looking at the premium version that comes as a packaged executable. Future features will hit the premium version first. Information can be found on the Beaker Labs website
 
