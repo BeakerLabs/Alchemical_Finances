@@ -135,7 +135,6 @@ class LedgerV1(QDialog):
 
         self.display_ledger_1()
 
-
         self.initialMoneyList = self.net_ledger_value()
         self.ui.lAccountBalance.setText(self.initialMoneyList[1])
         if self.ui.comboBLedger1.currentText() != "":
@@ -393,6 +392,8 @@ class LedgerV1(QDialog):
         else:
             if self.parentType in ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit", "Property"]:
                 disp_LedgerV1_Table(self.ui.comboBLedger1, self.ui.comboBPeriod, self.parentType, self.ui.tableWLedger1, self.refUserDB, self.error_Logger)
+                self.initialMoneyList = self.net_ledger_value()
+                self.ui.lAccountBalance.setText(self.initialMoneyList[1])
             else:
                 error = "Parent Type doesn't belong with this ledger"
                 self.input_error_msg(error)
