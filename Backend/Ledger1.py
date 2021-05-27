@@ -317,8 +317,9 @@ class LedgerV1(QDialog):
                 subtoc = time.perf_counter()
                 self.transaction_refresh()
                 toc = time.perf_counter()
-                print(f'Update ledger took {subtoc - tic:0.4f} seconds')
-                print(f'Full Transaction took {toc - tic:0.4f} seconds')
+                # Keeping timer for future reference. I will want to revisit the method of handling the ledgers.
+                # print(f'Update ledger took {subtoc - tic:0.4f} seconds')
+                # print(f'Full Transaction took {toc - tic:0.4f} seconds')
             else:
                 input_error = """
                     Transaction Input Instructions:
@@ -520,8 +521,8 @@ class LedgerV1(QDialog):
         subtoc = time.perf_counter()
         update_ledger_balance(self.ui.comboBLedger1, self.refUserDB, self.error_Logger)
         toc = time.perf_counter()
-        print(f'Update ledger took {subtoc - tic:0.4f} seconds')
-        print(f'Full Transaction took {subtoc - toc:0.4f} seconds')
+        # print(f'Update ledger took {subtoc - tic:0.4f} seconds')
+        # print(f'Full Transaction took {subtoc - toc:0.4f} seconds')
 
     def update_transaction(self):
         inputText1 = "Update Transaction"

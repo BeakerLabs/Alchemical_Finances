@@ -98,7 +98,10 @@ def overTimeLineGraph(database, account, error_log):
         largest_y_raw = []
 
         for value in largest_y_tuple:
-            largest_y_raw.append(int(float(value[0])))
+            if value is None:
+                largest_y_raw.append(int(0))
+            else:
+                largest_y_raw.append(int(float(value[0])))
 
         largest_y_value = max(largest_y_raw)
 

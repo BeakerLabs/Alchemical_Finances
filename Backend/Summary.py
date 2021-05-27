@@ -363,13 +363,14 @@ class Ledger_Summary(QDialog):
     def refresh_balance_labels(self):
         current_accounts_statement = f"SELECT ItemType, ParentType, SubType, ID, Balance FROM Account_Summary"
         current_accounts_raw = obtain_sql_list(current_accounts_statement, self.refUserDB, self.error_Logger)
+        current_accounts = []
 
         for account in current_accounts_raw:
-            if account[3] in self.balancelabeldic:
-                current_accounts_raw.remove(account)
+            if account[3] not in self.balancelabeldic:
+                current_accounts.append(account)
 
-        if len(current_accounts_raw) > 0:
-            for account in current_accounts_raw:
+        if len(current_accounts) > 0:
+            for account in current_accounts:
                 try:
                     target_layout = self.accountLayoutdic[account[1]]
                 except KeyError:

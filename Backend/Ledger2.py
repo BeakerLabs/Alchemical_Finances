@@ -495,8 +495,7 @@ class LedgerV2(QDialog):
         return row
 
     def transaction_refresh(self):
-        # Clears Inputs to allow for a new transaction
-        self.clear_inputs()
+
 
         self.ui.comboBPeriod.clear()
         fill_statement_period(self.ui.comboBLedger2, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
@@ -515,6 +514,9 @@ class LedgerV2(QDialog):
         self.update_tab_display("SubType")
         self.update_tab_display("Investment")
         self.update_tab_display("Sector")
+
+        # Clears Inputs to allow for a new transaction
+        self.clear_inputs()
 
         # Triggers to refresh the other variables on the QMainWindow and subsequently the Summary window (if open)
         self.trigger_refresh()
@@ -594,7 +596,7 @@ class LedgerV2(QDialog):
         else:
             oRName = self.ui.lEditReceipt.text()
             self.ui.lEditReceipt.setText("")
-            rowList = find_mult_row(self.ui.tableWLedger2, 6, oRName)
+            rowList = find_mult_row(self.ui.tableWLedger2, 7, oRName)
             # if no rows are found with the file. The image is just deleted
             if len(rowList) == 0:
                 self.ui.lEditReceipt.setText("")
