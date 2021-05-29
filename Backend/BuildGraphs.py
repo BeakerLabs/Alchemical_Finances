@@ -62,9 +62,9 @@ def overTimeLineGraph(database, account, error_log):
             largest_y_value = largest_liabilityValue
 
     elif account != "Net_Worth_Graph" and parentType in ["Equity", "Retirement"]:
-        value_data_statement = f"SELECT Date, {account} FROM AccountWorth ORDER BY Date ASC Limit 0, 49999"
+        value_data_statement = f"""SELECT Date, "{account}" FROM AccountWorth ORDER BY Date ASC Limit 0, 49999"""
         value_data_tuple = obtain_sql_list(value_data_statement, database, error_log)
-        contribution_data_statement = f"SELECT Date, {account} FROM ContributionTotals ORDER BY Date ASC Limit 0, 49999"
+        contribution_data_statement = f"""SELECT Date, "{account}" FROM ContributionTotals ORDER BY Date ASC Limit 0, 49999"""
         contribution_tuple = obtain_sql_list(contribution_data_statement, database, error_log)
 
         combined_data_tuple = []
@@ -91,9 +91,9 @@ def overTimeLineGraph(database, account, error_log):
             largest_y_value = largest_ContributionValue
 
     else:
-        combined_data_statement = f"SELECT Date, {account} FROM AccountWorth ORDER BY Date ASC Limit 0, 49999"
+        combined_data_statement = f"""SELECT Date, "{account}" FROM AccountWorth ORDER BY Date ASC Limit 0, 49999"""
         combined_data_tuple = obtain_sql_list(combined_data_statement, database, error_log)
-        largest_value_statement = f"SELECT {account} FROM AccountWorth"
+        largest_value_statement = f"""SELECT "{account}" FROM AccountWorth"""
         largest_y_tuple = obtain_sql_list(largest_value_statement, database, error_log)
         largest_y_raw = []
 

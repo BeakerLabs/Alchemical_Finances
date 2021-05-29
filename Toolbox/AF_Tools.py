@@ -95,7 +95,7 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, parentType, tablew
                                            "Posted Date",
                                            "Updated Date"])
     tablewidget.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignHCenter)
-    table_widths = [140, 160, 350, 150, 150, 150, 100, 250, 150]
+    table_widths = [140, 160, 250, 150, 150, 150, 150, 250, 150]
     for column in range(0, 9, 1):
         tablewidget.setColumnWidth(column, table_widths[column])
     tablewidget.setColumnHidden(9, True)
@@ -182,7 +182,7 @@ def disp_LedgerV2_Table(account_combobox, statement_combobox, tablewidget, datab
                                                "Posted Date",
                                                "Updated Date"])
         tablewidget.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignHCenter)
-        table_widths = [140, 350, 150, 150, 150, 150, 100, 250, 150]
+        table_widths = [140, 250, 150, 150, 150, 150, 150, 250, 150]
         for column in range(0, 9, 1):
             tablewidget.setColumnWidth(column, table_widths[column])
         tablewidget.setColumnHidden(9, True)
