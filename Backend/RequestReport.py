@@ -22,6 +22,7 @@ from Backend.BuildReports import Generate_user_report
 
 from StyleSheets.StandardCSS import standardAppearance
 
+
 class user_report_request(QDialog):
     def __init__(self, database, user, error_log):
         super().__init__()
@@ -78,7 +79,7 @@ class user_report_request(QDialog):
 
     # --- -- Obtain user input directory --------------------------------------------------------------------------------------------------------------------------------------
     def obtain_user_dir(self):
-        dirname = QFileDialog.getExistingDirectory(self, "Cho0se Destination", os.getcwd(), QFileDialog.ShowDirsOnly)
+        dirname = QFileDialog.getExistingDirectory(self, "Choose Destination", os.getcwd(), QFileDialog.ShowDirsOnly)
         if dirname:
             self.ui.lEditPath.setText(dirname)
         else:

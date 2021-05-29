@@ -635,11 +635,19 @@ class LedgerV2(QDialog):
             noReceipt = "Sorry, No Receipt Uploaded"
             self.input_error_msg(noReceipt)
         elif suffix == ".pdf":
-            os.startfile(receipt_path)
+            try:
+                os.startfile(receipt_path)
+            except FileNotFoundError:
+                noFileMessage = f"{fileName} was not located.\n\nDelete Receipt and Re-Upload if necessary."
+                self.input_error_msg(noFileMessage)
         else:
-            ion = Receipt(str(receipt_path), fileName)
-            if ion.exec_() == QDialog.Accepted:
-                pass
+            if os.path.isfile(receipt_path):
+                ion = Receipt(str(receipt_path), fileName)
+                if ion.exec_() == QDialog.Accepted:
+                    pass
+            else:
+                noFileMessage = f"{fileName} was not located.\n\nDelete Receipt and Re-Upload if necessary."
+                self.input_error_msg(noFileMessage)
 
     def receipt_check_on_close(self):
         if self.ui.lEditReceipt.text() != "":

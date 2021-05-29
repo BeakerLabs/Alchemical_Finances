@@ -10,11 +10,15 @@ Future Concepts
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
+import os
+import shutil
+
+from pathlib import PurePath
 from PySide2 import QtCore, QtWidgets
-from PySide2.QtWidgets import QDialog
+from PySide2.QtWidgets import QDialog, QMessageBox
 from PySide2.QtGui import QPixmap, QTransform
 from Frontend.ReceiptUi import Ui_Receipt
-# from Frontend.StyleSheets import UniversalStyleSheet
+from StyleSheets.StandardCSS import standardAppearance
 
 
 class Receipt(QDialog):
@@ -29,18 +33,58 @@ class Receipt(QDialog):
         self.ui.setupUi(self)
         self.degree = 0
         self.scale = 0.50
-        self.receiptImage = QPixmap(pathway)
+        self.receiptPathway = pathway
+        self.filename = image
+        self.receiptImage = QPixmap(self.receiptPathway)
         self.receiptAdjustment = self.receiptImage.transformed(QTransform().rotate(self.degree).scale(self.scale, self.scale))
         self.ui.lRImage.setPixmap(self.receiptAdjustment)
+        self.ui.pBDownload.clicked.connect(self.downloadReceipt)
         self.ui.pBRotateCC.clicked.connect(lambda: self.rotate_image(clockwise=False))
         self.ui.pBZoomIn.clicked.connect(lambda: self.zoom_image("Enlarge"))
         self.ui.pBZoomOut.clicked.connect(lambda: self.zoom_image("Shrink"))
         self.ui.pBRotateC.clicked.connect(lambda: self.rotate_image())
 
         self.ui.lRName.setText(image)
-        # self.setStyleSheet(UniversalStyleSheet)
+        self.setStyleSheet(standardAppearance)
         self.setModal(True)
         self.show()
+
+    def downloadReceipt(self):
+        copyNum = 0
+        nameReady = False
+        suffix = PurePath(self.filename).suffix
+        noSuffix = self.filename[:-len(suffix)]
+
+        while not nameReady:
+
+            if copyNum == 0:
+                newName = self.filename
+            elif copyNum == 1:
+                newName = f"{noSuffix} (Copy)" + suffix
+            else:
+                newName = f"{noSuffix} (Copy {copyNum})" + suffix
+
+            destination = os.path.join(os.path.expanduser("~"), f"Downloads/{newName}")
+
+            if os.path.isfile(destination):
+                copyNum += 1
+            else:
+                nameReady = True
+
+        try:
+            shutil.copy(self.receiptPathway, destination)
+            downloadMSG = f"{self.filename} \n\nHas been downloaded."
+            self.input_error_msg(downloadMSG)
+        except IOError:
+            errorMSG = f"{self.filename} \n\nHas encountered an Error"
+            self.input_error_msg(errorMSG)
+
+    def input_error_msg(self, message):
+        reply = QMessageBox.information(self, 'Input Error', message, QMessageBox.Ok, QMessageBox.NoButton)
+        if reply == QMessageBox.Ok:
+            pass
+        else:
+            pass
 
     def rotate_image(self, clockwise=True):
 

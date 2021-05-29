@@ -39,10 +39,13 @@ class Ui_Receipt(object):
         self.hSpacer1 = QtWidgets.QSpacerItem(290, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.gridLayout.addItem(self.hSpacer1, 1, 2, 1, 1)
 
-        self.hSpacer2 = QtWidgets.QSpacerItem(290, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.hSpacer2 = QtWidgets.QSpacerItem(190, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.gridLayout.addItem(self.hSpacer2, 1, 3, 1, 1)
 
-        # Row 2 -- Label (C2-3)
+        self.hSpacer3 = QtWidgets.QSpacerItem(100, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.gridLayout.addItem(self.hSpacer2, 1, 4, 1, 1)
+
+        # Row 2 -- Label (C2-3) -- button (C4)
         self.lRName = QtWidgets.QLabel()
         self.lRName.setObjectName("lRName")
         self.lRName.setText("Placeholder Text")
@@ -51,7 +54,14 @@ class Ui_Receipt(object):
         self.lRName.setSizePolicy(sizePolicy)
         self.gridLayout.addWidget(self.lRName, 2, 2, 1, 2)
 
-        # Row 3 -- Label (C2-3)
+        self.pBDownload = QtWidgets.QPushButton()
+        self.pBDownload.setObjectName("pBDownload")
+        self.pBDownload.setText("Download")
+        self.pBDownload.setFont(general_font)
+        self.pBDownload.setSizePolicy(sizePolicy)
+        self.gridLayout.addWidget(self.pBDownload, 2, 4, 1, 1)
+
+        # Row 3 -- Label (C2-4)
         self.vSpacer1 = QtWidgets.QSpacerItem(0, 600, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.MinimumExpanding)
         self.gridLayout.addItem(self.vSpacer1, 3, 1, 1, 1)
 
@@ -60,7 +70,7 @@ class Ui_Receipt(object):
         self.imageScroll.horizontalScrollBar().setEnabled(True)
         self.imageScroll.verticalScrollBar().setEnabled(True)
         self.imageScroll.setFrameStyle(1)
-        self.gridLayout.addWidget(self.imageScroll, 3, 2, 1, 2)
+        self.gridLayout.addWidget(self.imageScroll, 3, 2, 1, 3)
 
         widget = QtWidgets.QWidget()
         self.imageScroll.setWidget(widget)
@@ -77,7 +87,7 @@ class Ui_Receipt(object):
 
         # Row 4 -- pBRotate CounterClockwise(C2) -- pBRotate Clockwise (C3)
         self.buttonLayout = QtWidgets.QHBoxLayout()
-        self.gridLayout.addLayout(self.buttonLayout, 4, 2, 1, 2, alignment=QtCore.Qt.Alignment())
+        self.gridLayout.addLayout(self.buttonLayout, 4, 2, 1, 3, alignment=QtCore.Qt.Alignment())
 
         self.pBRotateCC = QtWidgets.QPushButton()
         self.pBRotateCC.setObjectName("pBRotate")
@@ -109,9 +119,9 @@ class Ui_Receipt(object):
         self.buttonLayout.addWidget(self.pBRotateC)
         # self.gridLayout.addWidget(self.pBRotateC, 4, 3, 1, 1)
 
-        # Row 5 -- HVSpacer2 (C4)
+        # Row 5 -- HVSpacer2 (C5)
         self.hVSpacer1 = QtWidgets.QSpacerItem(10, 10, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.gridLayout.addItem(self.hVSpacer1, 5, 4, 1, 1)
+        self.gridLayout.addItem(self.hVSpacer1, 5, 5, 1, 1)
 
 
 if __name__ == "__main__":
