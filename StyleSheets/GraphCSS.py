@@ -15,65 +15,34 @@ Colors:
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-transFrame = """
-QWidget#scrollWidget{
-    background-color: #FAFAFA;  
-}
-
-QGridLayout#gridLayout{
-    background-color: #BEDF7C;
-}
-
-QFrame#lInputFrame{
+overTime = """
+QLabel#lGraphTitle{
     border-top: 3px solid #BEDF7C;
-    border-top-left-radius: 45px;
-    border-bottom: 3px solid #8BA78C;
-    background: rgba(163, 163, 163, 0.3);
-    margin-right: -1px;
-}
-
-QFrame#rInputFrame{
-    border-top: 3px solid #BEDF7C;
-    border-bottom: 3px solid #8BA78C;
-    border-bottom-right-radius: 45px;
-    background: rgba(163, 163, 163, 0.3);
-    margin-left: -1px;
-}
-
-QFrame#leftFrame{
-    border-top: 3px solid #BEDF7C;
-    border-bottom: 3px solid #8BA78C;
+    border-bottom: 3px solid #BEDF7C;
     border-radius: 5px;
-    background-color: #FAFAFA;
-}
-
-QFrame#centerFrame{
-    border-top: 3px solid #BEDF7C;
-    border-bottom: 3px solid #8BA78C;
-    border-radius: 5px;
-    background-color: #FAFAFA;
-}
-
-QFrame#rightFrame{
-    border-top: 3px solid #BEDF7C;
-    border-bottom: 3px solid #8BA78C;
-    border-radius: 5px;
-    background-color: #FAFAFA;
-}
-
-"""
-
-spendingLabel = """
-QLabel{
-    border-bottom: 3px solid #8BA78C;
-    border-radius: 5px;
-    background-color: #FAFAFA;
-    padding-top: 10px;
+    background-color: #8BA78C;
     padding-bottom: 10px;
-    margin-bottom: 3px;
+    padding-top: 10px;
+}
+
+QLabel#lLengend{
+    border-top: 3px solid #BEDF7C;
+    border-bottom: 3px solid #8BA78C;
+    border-radius: 5px;
+    background-color: #FAFAFA;
+}
+
+QLabel#lHeighlights{
+    border-top: 3px solid #BEDF7C;
+    border-bottom: 3px solid #8BA78C;
+    border-radius: 5px;
+    background-color: #FAFAFA;
+}
+
+QLabel#lLowPoints{
+    border-top: 3px solid #BEDF7C;
+    border-bottom: 3px solid #8BA78C;
+    border-radius: 5px;
+    background-color: #FAFAFA;
 }
 """
-
-
-if __name__ == "__main__":
-    print("error")

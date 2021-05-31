@@ -11,14 +11,16 @@ to clarify function/purpose of any given object.
 
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 import os
+import time
 
-from PySide6.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog
-from PySide6.QtCore import QDate
-from PySide6.QtGui import QPixmap
-from PySide6 import QtCore, QtWidgets, QtGui
+from PySide2.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog
+from PySide2.QtCore import QDate
+from PySide2.QtGui import QPixmap
+from PySide2 import QtCore, QtWidgets, QtGui
 
 from pathlib import Path, PurePath
 from shutil import copy
@@ -132,7 +134,6 @@ class LedgerV1(QDialog):
             self.ui.pBDeleteHouse.clicked.connect(self.delete_house_action)
 
         self.display_ledger_1()
-
 
         self.initialMoneyList = self.net_ledger_value()
         self.ui.lAccountBalance.setText(self.initialMoneyList[1])
@@ -279,6 +280,7 @@ class LedgerV1(QDialog):
 
     # Functions that depend on SQLite3
     def add_transaction(self):
+        tic = time.perf_counter()
         if self.ui.comboBLedger1.currentText() == "":
             noLedger_msg = "Create a new Ledger"
             self.input_error_msg(noLedger_msg)
@@ -294,7 +296,7 @@ class LedgerV1(QDialog):
                 currentDate = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
                 # 2- date -- 3- T Method -- 4- T Description -- 5- Category
                 # 6- Debit -- 7- Credit -- 8 - Balance -- 9- Notes -- 10- Status -- 11- UserDate -- 12- Receipt
-                addStatement = "INSERT INTO " + modifiedLN + " VALUES('"\
+                addStatement = "INSERT INTO '" + modifiedLN + "' VALUES('"\
                                + self.ui.DateEditTransDate.date().toString("yyyy/MM/dd") + "', '"\
                                + self.ui.lEditTransMethod.text() + "', '"\
                                + self.ui.lEditTransDesc.text() + "', '"\
@@ -312,7 +314,12 @@ class LedgerV1(QDialog):
                 # It is easier to just update the ledger's balance column every time, versus attempt to calculate the value when adding the transaction.
                 # This will cover both the new transaction and its placement in the ledger.
                 update_ledger_balance(self.ui.comboBLedger1, self.refUserDB, self.error_Logger)
+                subtoc = time.perf_counter()
                 self.transaction_refresh()
+                toc = time.perf_counter()
+                # Keeping timer for future reference. I will want to revisit the method of handling the ledgers.
+                # print(f'Update ledger took {subtoc - tic:0.4f} seconds')
+                # print(f'Full Transaction took {toc - tic:0.4f} seconds')
             else:
                 input_error = """
                     Transaction Input Instructions:
@@ -386,6 +393,8 @@ class LedgerV1(QDialog):
         else:
             if self.parentType in ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit", "Property"]:
                 disp_LedgerV1_Table(self.ui.comboBLedger1, self.ui.comboBPeriod, self.parentType, self.ui.tableWLedger1, self.refUserDB, self.error_Logger)
+                self.initialMoneyList = self.net_ledger_value()
+                self.ui.lAccountBalance.setText(self.initialMoneyList[1])
             else:
                 error = "Parent Type doesn't belong with this ledger"
                 self.input_error_msg(error)
@@ -486,13 +495,14 @@ class LedgerV1(QDialog):
 
     def update_sql(self, row):
         from datetime import datetime
+        tic = time.perf_counter()
         status = self.transaction_status(self.ui.rBPending, self.ui.rBPosted)
         ledgerName = self.ui.comboBLedger1.currentText()
         modifiedLN = remove_space(ledgerName)
         modDebit = str(decimal_places(self.ui.lEditDebit.text(), 2))
         modCredit = str(decimal_places(self.ui.lEditCredit.text(), 2))
         currentDate = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-        updateStatement = "Update " + modifiedLN \
+        updateStatement = "Update '" + modifiedLN + "'" \
                           + " SET Transaction_Date='" + self.ui.DateEditTransDate.date().toString("yyyy/MM/dd") \
                           + "', Transaction_Method='" + self.ui.lEditTransMethod.text() \
                           + "', Transaction_Description='" + self.ui.lEditTransDesc.text() \
@@ -508,7 +518,11 @@ class LedgerV1(QDialog):
 
         # It is easier to just update the ledger's balance column every time, versus attempt to calculate the value when adding the transaction.
         # This will cover both the new transaction and its placement in the ledger.
+        subtoc = time.perf_counter()
         update_ledger_balance(self.ui.comboBLedger1, self.refUserDB, self.error_Logger)
+        toc = time.perf_counter()
+        # print(f'Update ledger took {subtoc - tic:0.4f} seconds')
+        # print(f'Full Transaction took {subtoc - toc:0.4f} seconds')
 
     def update_transaction(self):
         inputText1 = "Update Transaction"
@@ -548,7 +562,7 @@ class LedgerV1(QDialog):
             netValue = ["0.00", "0.00"]
             return netValue
         else:
-            netValueStatement = "SELECT SUM(Credit - Debit) FROM " + modifiedLN + " WHERE Status='Posted'"
+            netValueStatement = f"SELECT SUM(Credit - Debit) FROM '{modifiedLN}' WHERE Status='Posted'"
             qtyMoney = obtain_sql_value(netValueStatement, self.refUserDB, self.error_Logger)
             if qtyMoney[0] is None:
                 moneyWOComma = "0.00"
@@ -760,11 +774,19 @@ class LedgerV1(QDialog):
             noReceipt = "Sorry, No Receipt Uploaded"
             self.input_error_msg(noReceipt)
         elif suffix == ".pdf":
-            os.startfile(receipt_path)
+            try:
+                os.startfile(receipt_path)
+            except FileNotFoundError:
+                noFileMessage = f"{fileName} was not located.\n\nDelete Receipt and Re-Upload if necessary."
+                self.input_error_msg(noFileMessage)
         else:
-            ion = Receipt(str(receipt_path), fileName)
-            if ion.exec_() == QDialog.Accepted:
-                pass
+            if os.path.isfile(receipt_path):
+                ion = Receipt(str(receipt_path), fileName)
+                if ion.exec_() == QDialog.Accepted:
+                    pass
+            else:
+                noFileMessage = f"{fileName} was not located.\n\nDelete Receipt and Re-Upload if necessary."
+                self.input_error_msg(noFileMessage)
 
     def receipt_check_on_close(self):
         if self.ui.lEditReceipt.text() != "":
@@ -903,11 +925,12 @@ class LedgerV1(QDialog):
         self.ui.pBUpdate.setEnabled(toggle)
         self.ui.pBDelete.setEnabled(toggle)
         self.ui.pBClearInputs.setEnabled(toggle)
-        self.ui.tabWidget.setEnabled(toggle)
+
 
         if self.parentType == "Property":
             self.ui.pBUploadHouse.setEnabled(toggle)
         else:
+            self.ui.tabWidget.setEnabled(toggle)
             self.ui.pBToggle.setEnabled(toggle)
             self.ui.comboBTab2Year.setEnabled(toggle)
 

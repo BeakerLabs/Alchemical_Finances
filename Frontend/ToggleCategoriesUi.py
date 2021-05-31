@@ -1,12 +1,13 @@
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 # Dialog screen for use to determine what categories are used to calculate spending habits
 import sys
 
-from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtWidgets import QMainWindow, QDialog, QApplication, QLayout
+from PySide2 import QtCore, QtGui, QtWidgets
+from PySide2.QtWidgets import QMainWindow, QDialog, QApplication, QLayout
 
 
 class Ui_ToggleCategories(object):

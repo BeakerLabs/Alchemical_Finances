@@ -8,11 +8,12 @@ Future Concepts
 
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 from Frontend.ToggleCategoriesUi import Ui_ToggleCategories
 
-from PySide6.QtWidgets import QDialog, QApplication
+from PySide2.QtWidgets import QDialog, QApplication
 
 from Toolbox.AF_Tools import fill_widget
 from Toolbox.SQL_Tools import specific_sql_statement

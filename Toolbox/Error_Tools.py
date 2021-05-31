@@ -1,6 +1,7 @@
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 def alpha_numeric_check(userValue: str):
     """
@@ -32,12 +33,11 @@ def check_characters(question: str, focus="general"):
     :param focus: the type of user input
     :return: bool
     """
-    checkString = question
     x = 0
     focus_dic = {
         "login": ["~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "=", ":",
                   "+", "<", "?", ";", "'", "[", "]", "{", "}", '"', "-", ".", ",", "/", chr(92)],
-        "general": ["~", "!", "@", "#", "$", "%", "^", "*", "(", ")", "=",
+        "general": ["~", "!", "@", "#", "$", "%", "^", "*", "(", ")", "=", "'",
                     "+", "<", "?", ";", "[", "]", "{", "}", '"', chr(92)],
         "monetary": ["~", "!", "@", "#", "$", "%", "^", "&", "*", "(", ")", "=", ":",
                      "+", "<", "?", ";", "'", "[", "]", "{", "}", '"', "-", ",", "/", chr(92)],
@@ -45,7 +45,7 @@ def check_characters(question: str, focus="general"):
 
     badCharacters = focus_dic[focus]
 
-    for piece in checkString:
+    for piece in question:
         if piece in badCharacters:
             x += 1
         else:

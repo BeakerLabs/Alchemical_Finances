@@ -8,26 +8,28 @@ Future Concepts
 
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 import os
 
 import matplotlib.pyplot as plt
 import numpy as np
 
+from math import ceil
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-from Toolbox.Formatting_Tools import add_space, decimal_places
+from Toolbox.Formatting_Tools import add_space, cash_format, decimal_places
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
-from math import ceil
 
 
 class AF_Canvas(FigureCanvas):
-    def __init__(self, parent=None, width=5, height=4, dpi=100, facecolor="#f5fbef"):
+    def __init__(self, parent=None, width=5, height=4, dpi=100, facecolor="#FAFAFA"):
         fig = Figure(figsize=(width, height), dpi=dpi, facecolor=facecolor)
         self.axes = fig.add_subplot(111)
         self.axes.set_facecolor('#e3e3e3')
+        self.axes.spines[["top", "bottom", "left", "right"]].set_linewidth(0.5)
         super(AF_Canvas, self).__init__(fig)
 
 
@@ -60,9 +62,9 @@ def overTimeLineGraph(database, account, error_log):
             largest_y_value = largest_liabilityValue
 
     elif account != "Net_Worth_Graph" and parentType in ["Equity", "Retirement"]:
-        value_data_statement = f"SELECT Date, {account} FROM AccountWorth ORDER BY Date ASC Limit 0, 49999"
+        value_data_statement = f"""SELECT Date, "{account}" FROM AccountWorth ORDER BY Date ASC Limit 0, 49999"""
         value_data_tuple = obtain_sql_list(value_data_statement, database, error_log)
-        contribution_data_statement = f"SELECT Date, {account} FROM ContributionTotals ORDER BY Date ASC Limit 0, 49999"
+        contribution_data_statement = f"""SELECT Date, "{account}" FROM ContributionTotals ORDER BY Date ASC Limit 0, 49999"""
         contribution_tuple = obtain_sql_list(contribution_data_statement, database, error_log)
 
         combined_data_tuple = []
@@ -89,14 +91,17 @@ def overTimeLineGraph(database, account, error_log):
             largest_y_value = largest_ContributionValue
 
     else:
-        combined_data_statement = f"SELECT Date, {account} FROM AccountWorth ORDER BY Date ASC Limit 0, 49999"
+        combined_data_statement = f"""SELECT Date, "{account}" FROM AccountWorth ORDER BY Date ASC Limit 0, 49999"""
         combined_data_tuple = obtain_sql_list(combined_data_statement, database, error_log)
-        largest_value_statement = f"SELECT {account} FROM AccountWorth"
+        largest_value_statement = f"""SELECT "{account}" FROM AccountWorth"""
         largest_y_tuple = obtain_sql_list(largest_value_statement, database, error_log)
         largest_y_raw = []
 
         for value in largest_y_tuple:
-            largest_y_raw.append(int(float(value[0])))
+            if value is None:
+                largest_y_raw.append(int(0))
+            else:
+                largest_y_raw.append(int(float(value[0])))
 
         largest_y_value = max(largest_y_raw)
 
@@ -171,7 +176,7 @@ def overTimeLineGraph(database, account, error_log):
                 y1_gross_fill.append(int(float(date[1]) / divisor) - 1)
 
     # determines axis internals and max values. This is to help keep the graph legible with fluctuating input quantities
-    x_interval = ceil(len(x_date) / 6)
+    x_interval = ceil(len(x_date) / 10)
 
     mod_lar_y = largest_y_value / divisor
 
@@ -197,43 +202,26 @@ def overTimeLineGraph(database, account, error_log):
     return lg_data
 
 
-def nested_snapshot(database, graph_focus, error_log):
+def snapshot_chart(database, graph_focus, error_log):
     if graph_focus == "Asset":
         parentTypes = ["Bank", "Cash", "CD", "Equity", "Treasury", "Retirement", "Property"]
     elif graph_focus == "Liability":
         parentTypes = ["Debt", "Credit"]
     else:
-        # User shouldn't hit this
-        parentTypes = ["Bank"]
+        error_message = "BuildGraphs: nested_snapshot \n incorrect graph_focus ['Asset', 'Liability']"
+        error_log.error(error_message, exc_info=True)
+        raise AttributeError(error_message)
 
-    bank_accounts = []
-    cash_accounts = []
-    cd_accounts = []
-    equity_accounts = []
-    treasury_accounts = []
-    retirement_accounts = []
-    property_accounts = []
-    debt_accounts = []
-    credit_accounts = []
-    flat_values = []
-    sizes = []
-
-    parentType_dict = {
-        "Bank": bank_accounts,
-        "Cash": cash_accounts,
-        "CD": cd_accounts,
-        "Equity": equity_accounts,
-        "Treasury": treasury_accounts,
-        "Retirement": retirement_accounts,
-        "Property": property_accounts,
-        "Debt": debt_accounts,
-        "Credit": credit_accounts,
-    }
+    segment_data_raw = []
+    segment_data = []
+    segment_balances = []
 
     gross_statement = "SELECT SUM(Balance) FROM Account_Summary WHERE ItemType='{0}'".format(graph_focus)
     gross_worth = obtain_sql_value(gross_statement, database, error_log)[0]
 
-    if gross_worth <= 0 or gross_worth is None:
+    if gross_worth is None:
+        gross_worth = 1
+    if gross_worth <= 0:
         gross_worth = 1
 
     for parent in parentTypes:
@@ -242,50 +230,36 @@ def nested_snapshot(database, graph_focus, error_log):
         if value is None or value < 0:
             value = 0
         percentage = (float(value) / float(gross_worth)) * 100
-        percentage = decimal_places(percentage, 2)
-        sizes.append(percentage)
+        formatted_value = cash_format(value, 2)
+        percentage = decimal_places(str(percentage), 2)
+        segment_data_raw.append([parent, percentage, formatted_value[2], value])
 
-        balance_statement = "SELECT Balance FROM Account_Summary WHERE ParentType='{0}'".format(parent)
-        account_balances = obtain_sql_list(balance_statement, database, error_log)
-        account_balances.sort(reverse=True)
-        for balance in account_balances:
-            correction = balance[0]
-            if correction < 0:
-                correction = 0
-            parentType_dict[parent].append(correction)
-            flat_values.append(correction)
+    segment_data_raw.sort(key=lambda x: x[1], reverse=True)
+
+    for parentType in segment_data_raw:
+        if parentType[1] > 0:
+            segment_data.append(parentType[:3])
+            segment_balances.append(parentType[3])
 
     if graph_focus == "Asset":
-        sum_balances = [sum(bank_accounts), sum(cash_accounts), sum(cd_accounts), sum(equity_accounts), sum(treasury_accounts), sum(retirement_accounts), sum(property_accounts)]
-        cmap = plt.cm.BuGn
-        outer_colors = [*cmap(np.linspace(1, .33, 7))]
-        inner_colors = [*cmap(np.linspace(0.6, .1, len(bank_accounts))),
-                        *cmap(np.linspace(0.6, .1, len(cash_accounts))),
-                        *cmap(np.linspace(0.6, .1, len(cd_accounts))),
-                        *cmap(np.linspace(0.6, .1, len(equity_accounts))),
-                        *cmap(np.linspace(0.6, .1, len(treasury_accounts))),
-                        *cmap(np.linspace(0.6, .1, len(retirement_accounts))),
-                        *cmap(np.linspace(0.6, .1, len(property_accounts))),
-                        ]
+        if gross_worth < 1:
+            cmap = plt.cm.Greys
+            segment_data.append(["", 100, 0])
+            segment_colors = [*cmap(np.linspace(0.8, .33, 1))]
+        else:
+            cmap = plt.cm.terrain
+            segment_colors = [*cmap(np.linspace(0, 0.8, len(segment_data)))]
 
-    elif graph_focus == "Liability":
-        sum_balances = [sum(debt_accounts), sum(credit_accounts)]
-        cmap = plt.cm.OrRd
-        outer_colors = [*cmap(np.linspace(0.8, .33, 2))]
-        inner_colors = [*cmap(np.linspace(0.6, .1, len(debt_accounts))),
-                        *cmap(np.linspace(0.6, .1, len(credit_accounts))),
-                        ]
+    else:  # graph_focus == 'Liability'
+        if gross_worth < 1:
+            cmap = plt.cm.Greys
+            segment_data.append(["", 100, 0])
+            segment_colors = [*cmap(np.linspace(0.8, .33, 1))]
+        else:
+            cmap = plt.cm.OrRd
+            segment_colors = [*cmap(np.linspace(0.8, .33, 2))]
 
-    else:  # Shouldn't use this
-        sum_balances = [sum(bank_accounts)]
-        cmap = plt.cm.Greys
-        outer_colors = [*cmap(np.linspace(0.8, .33, 6))]
-        inner_colors = [*cmap(np.linspace(0.6, .1, len(debt_accounts))),
-                        ]
-
-    target_values = [sum_balances, outer_colors, flat_values, inner_colors, sizes]
-
-    return target_values
+    return segment_balances, segment_data, segment_colors
 
 
 if __name__ == "__main__":

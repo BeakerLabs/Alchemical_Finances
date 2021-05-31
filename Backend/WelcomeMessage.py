@@ -7,14 +7,15 @@ Future Concepts
 
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 import pickle
 
 from pathlib import Path
 from Frontend.WelcomeMessageUi import Ui_WelcomeMessage
 
-from PySide6.QtWidgets import QDialog
+from PySide2.QtWidgets import QDialog
 
 from Toolbox.OS_Tools import file_destination
 from Toolbox.SQL_Tools import obtain_sql_value, specific_sql_statement
@@ -48,12 +49,12 @@ class Message(QDialog):
         self.ui.pushButtonClose.clicked.connect(self.close_message)
 
         # Obtain User Name if exists
-        name_statement = f"SELECT FirstName || ' ' || LastName FROM Users"
+        name_statement = f"SELECT FirstName || ' ' || LastName FROM Users WHERE Profile='{self.refuser}'"
         name_raw = obtain_sql_value(name_statement, self.dbPathway, self.error_log)
         self.userName = name_raw[0]
 
         if self.userName is None:
-            username = self.refuser
+            username = self.refuser.capitalize()
         else:
             username = self.userName
 

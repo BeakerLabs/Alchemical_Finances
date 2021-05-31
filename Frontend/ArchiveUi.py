@@ -1,6 +1,7 @@
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 # MdiArea SubWindow -- Displays the ledgers for Archived Accounts
 # Archived Accounts are accounts that have been closed.
@@ -8,7 +9,7 @@
 
 import pickle
 
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 class Ui_Archive(object):
     def setupUi(self, Dialog):
@@ -84,9 +85,10 @@ class Ui_Archive(object):
 
         self.hBLayout2 = QtWidgets.QHBoxLayout()
         self.hBLayout2.setObjectName("hBlayout2")
+        self.hBLayout2.setSpacing(0)
         self.vBLayout1.addLayout(self.hBLayout2)
 
-        self.vSpacer2 = QtWidgets.QSpacerItem(0, 25, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        self.vSpacer2 = QtWidgets.QSpacerItem(0, 5, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.vBLayout1.addItem(self.vSpacer2)
 
         self.tWArchive = QtWidgets.QTableWidget()
@@ -114,7 +116,8 @@ class Ui_Archive(object):
         self.lArchived.setObjectName("InputLabel")
         self.lArchived.setText("Archived Account: ")
         self.lArchived.setFont(general_font)
-        self.lArchived.setAlignment(QtCore.Qt.AlignHCenter)
+        self.lArchived.setFixedHeight(30)
+        self.lArchived.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
         self.lArchived.setSizePolicy(label_sizePolicy)
         self.hBLayout2.addWidget(self.lArchived)
 
@@ -122,6 +125,7 @@ class Ui_Archive(object):
         self.comboBAccounts.setObjectName("comboBAccounts")
         self.comboBAccounts.setFont(general_font)
         self.comboBAccounts.setSizePolicy(sizePolicy)
+        self.comboBAccounts.setFixedHeight(30)
         self.comboBAccounts.setMaximumWidth(adjusted_width/4)
         self.hBLayout2.addWidget(self.comboBAccounts)
 
@@ -130,6 +134,7 @@ class Ui_Archive(object):
         self.pBRestore.setText("Restore")
         self.pBRestore.setFont(pushButton_font)
         self.pBRestore.setSizePolicy(pushButton_sizePolicy)
+        self.pBRestore.setFixedHeight(30)
         self.pBRestore.setFixedWidth(150)
         self.hBLayout2.addWidget(self.pBRestore)
 
@@ -138,6 +143,7 @@ class Ui_Archive(object):
         self.pBDisplayReceipt.setText("Display Receipt")
         self.pBDisplayReceipt.setFont(pushButton_font)
         self.pBDisplayReceipt.setSizePolicy(pushButton_sizePolicy)
+        self.pBDisplayReceipt.setFixedHeight(30)
         self.pBDisplayReceipt.setFixedWidth(150)
         self.hBLayout2.addWidget(self.pBDisplayReceipt)
 
@@ -146,17 +152,19 @@ class Ui_Archive(object):
         self.pBDelete.setText("Delete")
         self.pBDelete.setFont(pushButton_font)
         self.pBDelete.setSizePolicy(pushButton_sizePolicy)
+        self.pBDelete.setFixedHeight(30)
         self.pBDelete.setFixedWidth(150)
         self.hBLayout2.addWidget(self.pBDelete)
 
-        self.hVSpacer1 = QtWidgets.QSpacerItem(adjusted_width/6, 40, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        self.hVSpacer1 = QtWidgets.QSpacerItem(adjusted_width/6, 30, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.hBLayout2.addItem(self.hVSpacer1)
 
         self.lStatementPeriod = QtWidgets.QLabel()
         self.lStatementPeriod.setObjectName("lStatementPeriod")
         self.lStatementPeriod.setText("Statement Period: ")
         self.lStatementPeriod.setFont(general_font)
-        self.lStatementPeriod.setAlignment(QtCore.Qt.AlignHCenter)
+        self.lStatementPeriod.setFixedHeight(30)
+        self.lStatementPeriod.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
         self.lStatementPeriod.setSizePolicy(label_sizePolicy)
         self.hBLayout2.addWidget(self.lStatementPeriod)
 
@@ -164,6 +172,7 @@ class Ui_Archive(object):
         self.comboBStatements.setObjectName("comboBStatements")
         self.comboBStatements.setFont(general_font)
         self.comboBStatements.setSizePolicy(sizePolicy)
+        self.comboBStatements.setFixedHeight(30)
         self.comboBStatements.setMaximumWidth(adjusted_width/4)
         self.hBLayout2.addWidget(self.comboBStatements)
 

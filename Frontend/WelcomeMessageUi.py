@@ -1,6 +1,7 @@
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 # This file is used as a welcome/update message dialog for users.
 # This layout was manual coded without Qt Designer.
@@ -13,8 +14,8 @@ Future Feature
 """
 import pickle
 
-from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6.QtGui import QPixmap
+from PySide2 import QtCore, QtGui, QtWidgets
+from PySide2.QtGui import QPixmap
 from win32api import GetMonitorInfo, MonitorFromPoint
 
 
@@ -167,7 +168,7 @@ class Ui_WelcomeMessage(object):
         self.signaturelabel.setFont(signature_font)
         self.signaturelabel.setSizePolicy(sizePolicy)
         self.signaturelabel.setAlignment(QtCore.Qt.AlignLeft)
-        self.signaturelabel.setText("""Your Grateful Programmer,\nJonathan Shamberg\nJmshamberg@gmail.com""")
+        self.signaturelabel.setText("""Your Grateful Software Developer,\nBeaker Labs LLC\nContact@beakerlabstech.com""")
         self.hlr3.addWidget(self.signaturelabel)
 
         self.signatureRspacer = QtWidgets.QSpacerItem(int((adjusted_height - 90)/2) - 10, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)

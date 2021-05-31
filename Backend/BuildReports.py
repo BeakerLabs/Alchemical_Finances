@@ -8,7 +8,8 @@ Future Concepts
 
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 import os
 
@@ -71,7 +72,7 @@ class Generate_user_report:
 
         # documentRuler(pdf)
         # Part 0 - Logo Import
-        logo = os.path.join(os.getcwd(), '../Resources/AF Logo.jpg')  # Add , '../', when testing BuildReports.py directly
+        logo = os.path.join(os.getcwd(), 'Resources/AF Logo.jpg')  # Add , '../', when testing BuildReports.py directly
         pdf.drawImage(logo, 50, 645, width=75, height=75)
 
         # Part 1 - Report Title

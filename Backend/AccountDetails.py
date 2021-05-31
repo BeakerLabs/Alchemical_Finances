@@ -8,20 +8,24 @@ Future Concepts
 
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 import os
 import shutil
 
 from Backend.Question import YNTypeQuestion
 from Frontend.AccountsUi import Ui_Accounts
-from PySide6.QtWidgets import QDialog, QMessageBox, QListWidgetItem
+from PySide2.QtWidgets import QDialog, QMessageBox, QListWidgetItem
 from Toolbox.AF_Tools import fill_widget
 from Toolbox.Error_Tools import check_characters, find_character, first_character_check
 from Toolbox.Formatting_Tools import decimal_places, remove_space
 from Toolbox.OS_Tools import file_destination
 from Toolbox.SQL_Tools import move_sql_tables, check_for_data, delete_column, obtain_sql_value, execute_sql_statement_list, specific_sql_statement,\
     sqlite3_keyword_check
+
+from StyleSheets.StandardCSS import standardAppearance
+from StyleSheets.ErrorCSS import generalError
 
 
 class AccountsDetails(QDialog):
@@ -66,6 +70,7 @@ class AccountsDetails(QDialog):
         self.ui.listWidgetAccount.itemClicked.connect(self.disp_current_selection)
         self.ui.listWidgetAccount.itemClicked.connect(lambda: self.toggle_widgets(False))
         self.setModal(True)
+        self.setStyleSheet(standardAppearance)
         self.show()
         self.initial_appearance(self.parentType)
 
@@ -298,37 +303,38 @@ class AccountsDetails(QDialog):
         for value in detail_inputs:
             if find_character(value[0]) is False:
                 self.ui.lError.setText("No Blank Inputs")
-                # Change appearance here
+                self.ui.lError.setStyleSheet(generalError)
                 error_status = True
                 return error_status
             elif check_characters(value[0]) is False:
                 self.ui.lError.setText("Alphanumeric Characters only")
-                # Change appearance here
+                self.ui.lError.setStyleSheet(generalError)
                 error_status = True
                 return error_status
             elif sqlite3_keyword_check(value[0]) is True:
                 self.ui.lError.setText("Restricted Keyword")
-                # Change appearance here
+                self.ui.lError.setStyleSheet(generalError)
                 error_status = True
                 return error_status
 
         if error_status is False:
             if first_character_check(detail_inputs[0][0]) is False:
                 self.ui.lError.setText("Start Account Name\nwith letter")
+                self.ui.lError.setStyleSheet(generalError)
                 error_status = True
                 return error_status
 
         if error_status is False and purpose != "Edit":
             if check_for_data(self.accountDetailsTable, "Account_Name", accountName, self.refUserDB, self.error_Logger) is False:
                 self.ui.lError.setText("Duplicate Account:\nTry Unique Name")
-                # Change appearance here
+                self.ui.lError.setStyleSheet(generalError)
                 error_status = True
                 return error_status
 
         if error_status is False and purpose != "Edit":
             if check_for_data("Account_Summary", "ID", accountName, self.refUserDB, self.error_Logger) is False:
                 self.ui.lError.setText("Duplicate Account:\nTry Unique Name")
-                # Change appearance here
+                self.ui.lError.setStyleSheet(generalError)
                 error_status = True
                 return error_status
 
@@ -336,13 +342,13 @@ class AccountsDetails(QDialog):
             if self.parentType in ["Bank", "CD", "Treasury", "Debt", "Credit"]:
                 if check_characters(accountVariable1, "monetary") is False:
                     self.ui.lError.setText("Monetary Format: 0.00")
-                    # Change appearance here
+                    self.ui.lError.setStyleSheet(generalError)
                     error_status = True
                     return error_status
             elif self.parentType in ["Equity", "Retirement", "Property"]:
                 if find_character(accountVariable1) is False:
                     self.ui.lError.setText("Alphanumeric Inputs")
-                    # Change appearance here
+                    self.ui.lError.setStyleSheet(generalError)
                     error_status = True
                     return error_status
             else:
@@ -355,12 +361,12 @@ class AccountsDetails(QDialog):
             if check_characters(accountVariable2) is False:
                 if self.parentType in ["CD", "Treasury"]:
                     self.ui.lError.setText("Date Format")
-                    # Change appearance here
+                    self.ui.lError.setStyleSheet(generalError)
                     error_status = True
                     return error_status
                 elif self.parentType in ["Equity", "Retirement", "Debt"]:
                     self.ui.lError.setText("Monitary Format: 0.00")
-                    # Change appearance here
+                    self.ui.lError.setStyleSheet(generalError)
                     error_status = True
                     return error_status
                 else:
@@ -371,7 +377,7 @@ class AccountsDetails(QDialog):
                 int(accountZip)
             except ValueError:
                 self.ui.lError.setText("Numerical Input Only")
-                # Change appearance here
+                self.ui.lError.setStyleSheet(generalError)
                 error_status = True
                 return error_status
             else:
@@ -503,7 +509,7 @@ class AccountsDetails(QDialog):
                                 "', '" + accountStatement + \
                                 "', '" + accountVariable1 + \
                                 "', '" + accountVariable2 + "')"
-            elif self.parentType in variant4:
+            elif self.parentType in variant3:
                 detailsUpdate = "INSERT INTO " + self.accountDetailsTable + \
                                 " VALUES('" + accountName + \
                                 "', '" + accountSubType + \
@@ -531,7 +537,7 @@ class AccountsDetails(QDialog):
                                 "', '" + accountBank + "')"
 
             if sqlCurrentLedgerName != sqlNewLedgerName:
-                ledgerUpdate = "ALTER TABLE " + sqlCurrentLedgerName + " RENAME TO " + sqlNewLedgerName
+                ledgerUpdate = f"ALTER TABLE {sqlCurrentLedgerName} RENAME TO '{sqlNewLedgerName}'"
                 accountWorth = f"ALTER TABLE AccountWorth RENAME COLUMN '{sqlCurrentLedgerName}' TO '{sqlNewLedgerName}'"
 
                 old_dir_path = file_destination(['Receipts', self.refUser, self.parentType, sqlCurrentLedgerName])

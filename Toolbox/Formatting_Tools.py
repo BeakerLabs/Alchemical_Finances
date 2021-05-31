@@ -1,6 +1,7 @@
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 import secrets
 
@@ -121,6 +122,7 @@ def decimal_places(value: str, number: int):
     """
     from decimal import Decimal
     if value == "" or value == " ":
+        value = round(Decimal(0.00), number)
         return value
     else:
         final = round(Decimal(value), number)

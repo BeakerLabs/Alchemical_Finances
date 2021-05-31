@@ -8,13 +8,15 @@ Future Concepts
 
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
+
 import operator
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
-from Toolbox.Formatting_Tools import add_space, cash_format, decimal_places, remove_space
+from Toolbox.Formatting_Tools import add_space, cash_format, decimal_places
 
 
 def category_spending_data(database, account, error_log):
@@ -137,7 +139,7 @@ def format_result_string(data_list):
         else:
             percentage = "   0.00%"
         formatted_subtotal = cash_format(dataPoint[2], 2)
-        temp_string = f"{count}: {percentage}%  -- {dataPoint[0]}\n          ({formatted_subtotal[2]})"
+        temp_string = f"{count}: {percentage}%  -- {dataPoint[0]}\n       [{formatted_subtotal[2]}]"
         temp_dict[dataPoint[0]] = temp_string
     return temp_dict
 
@@ -176,7 +178,7 @@ def equity_subtype_data(database, parentType, error_log):
         subType_dic[subtype][1] += investment[2]
         total += investment[2]
 
-        sector_statement = f"SELECT Sector FROM {parentType}_account_details WHERE Account_Name='{remove_space(investment[0])}'"
+        sector_statement = f"SELECT Sector FROM {parentType}_account_details WHERE Account_Name='{investment[0]}'"
         sector_raw = obtain_sql_value(sector_statement, database, error_log)
         sector_value = sector_raw[0]
         sector_dictionary[sector_value][1] += investment[2]

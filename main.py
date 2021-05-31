@@ -6,14 +6,15 @@ As the current file name states. This file is to execute the entire program. I w
 """
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 import os
 import pickle
 import sys
 
 from pathlib import Path
-from PySide6.QtWidgets import QDialog, QApplication
+from PySide2.QtWidgets import QDialog, QApplication
 
 from Backend.UserLogin import LoginForm
 from Backend.WelcomeMessage import Message
@@ -24,7 +25,6 @@ from Toolbox.OS_Tools import file_destination
 
 
 def main():
-
     log_created = False
     sessionCount = 0
 
@@ -55,6 +55,7 @@ def main():
     screen_dimensions_path = Path.cwd() / screen_dimensions_path / "dimensions.pkl"
 
     f = open(screen_dimensions_path, "wb")
+    os.chmod(screen_dimensions_path, 0o777)
     screen = app.primaryScreen()
     size = screen.size()
     dimensions = [0, 0, size.width(), size.height()]
@@ -75,5 +76,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print("testing a branch system")
+    # This is so i can push to github
 
 

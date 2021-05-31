@@ -7,17 +7,20 @@ Future Concepts
 
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 import os
 
-from PySide6.QtWidgets import QDialog, QFileDialog
-from PySide6 import QtCore, QtWidgets
+from PySide2.QtWidgets import QDialog, QFileDialog
+from PySide2 import QtCore, QtWidgets
 
 
 from Frontend.GenReportUi import Ui_GenReport
-# from Frontend.StyleSheets import UniversalStyleSheet
+
 from Backend.BuildReports import Generate_user_report
+
+from StyleSheets.StandardCSS import standardAppearance
 
 
 class user_report_request(QDialog):
@@ -28,6 +31,7 @@ class user_report_request(QDialog):
         self.setWindowTitle("Request Summary Report")
         # self.setStyleSheet(UniversalStyleSheet)
         self.setModal(True)
+        self.setStyleSheet(standardAppearance)
         self.show()
 
         # --- Class Global Variables ------------------------------------------------------------------------------------------------------------------------------------------
@@ -75,7 +79,7 @@ class user_report_request(QDialog):
 
     # --- -- Obtain user input directory --------------------------------------------------------------------------------------------------------------------------------------
     def obtain_user_dir(self):
-        dirname = QFileDialog.getExistingDirectory(self, "Chose Destination", os.getcwd(), QFileDialog.ShowDirsOnly)
+        dirname = QFileDialog.getExistingDirectory(self, "Choose Destination", os.getcwd(), QFileDialog.ShowDirsOnly)
         if dirname:
             self.ui.lEditPath.setText(dirname)
         else:

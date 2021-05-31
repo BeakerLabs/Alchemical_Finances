@@ -1,14 +1,14 @@
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 # This Front End Code is used to Generate the GUI for the MainWindow of the Alchemical Finances Program
 # Many of the UI will be placed into the MdiArea as sub windows. Some will be dialog boxes
 
 import pickle
 
-from PySide6 import QtCore, QtGui, QtWidgets
-from win32api import GetMonitorInfo, MonitorFromPoint
+from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class Ui_MainWindow(object):
@@ -112,7 +112,7 @@ class Ui_MainWindow(object):
 
             initial_x = 0
             constant_y = 0
-            label_length = 186
+            label_length = 200
             label_height = 200
 
             label[0].setGeometry(QtCore.QRect(initial_x, constant_y, label_length, label_height))
@@ -122,9 +122,6 @@ class Ui_MainWindow(object):
             else:
                 label[0].setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
 
-        self.SpotlightSpacer = QtWidgets.QSpacerItem(75, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-        self.horizontalLayout.addItem(self.SpotlightSpacer)
-
         self.horizontalLayout.setSpacing(0)
         self.horizontalLayout.setContentsMargins(0, 10, 0, 10)
         self.horizontalLayout.addWidget(self.labelStaticTN)
@@ -133,9 +130,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout.addWidget(self.labelTAssests)
         self.horizontalLayout.addWidget(self.labelStaticTL)
         self.horizontalLayout.addWidget(self.labelTLiabilities)
-
-        self.SpotlightSpacer2 = QtWidgets.QSpacerItem(75, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
-        self.horizontalLayout.addItem(self.SpotlightSpacer2)
 
         self.mdiArea = QtWidgets.QMdiArea(self.centralwidget)
         self.mdiArea.setObjectName("mdiArea")
@@ -265,7 +259,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate('MainWindow', "Alchemical Finances - Reformulated", None))
+        MainWindow.setWindowTitle(_translate('MainWindow', "Alchemical Finances", None))
         self.menuFile.setTitle(_translate("MainWindow", "File", None))
         self.menuAssets.setTitle(_translate("MainWindow", "Assets", None))
         self.menuLiabilities.setTitle(_translate("MainWindow", "Liabilities", None))
@@ -294,5 +288,5 @@ class Ui_MainWindow(object):
         self.actionArchive.setText(_translate("MainWindow", "Archive", None))
         self.actionBudgeting_Future.setText(_translate("MainWindow", "Budgeting [Future]", None))
         self.actionGenerate.setText(_translate("MainWindow", "Generate Report", None))
-        self.actionNWG.setText(_translate("MainWindow", "Net Worth Graph", None))
+        self.actionNWG.setText(_translate("MainWindow", "Over Time Graph", None))
         self.actionProfile.setText(_translate("MainWindow", "User Profile", None))

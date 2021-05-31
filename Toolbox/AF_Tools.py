@@ -1,14 +1,15 @@
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
 
-from PySide6.QtWidgets import QTableWidgetItem
-from PySide6.QtGui import QColor
-from PySide6 import QtCore, QtGui
+from PySide2.QtWidgets import QTableWidgetItem
+from PySide2.QtGui import QColor
+from PySide2 import QtCore, QtGui
 
 from Toolbox.Formatting_Tools import cash_format, decimal_places, remove_space
 from Toolbox.SQL_Tools import obtain_sql_value, obtain_sql_list, specific_sql_statement
@@ -38,7 +39,7 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, parentType, tablew
         pass
     else:
         modifiedLN = remove_space(ledgerName)
-        sortTable = "SELECT Transaction_Date, Transaction_Method, Transaction_Description, Category, (Credit - Debit), Balance, Status, Receipt, Note, Post_Date FROM {0} " \
+        sortTable = "SELECT Transaction_Date, Transaction_Method, Transaction_Description, Category, (Credit - Debit), Balance, Status, Receipt, Note, Post_Date FROM '{0}' " \
                     "ORDER BY Transaction_Date ASC LIMIT 0, 49999".format(modifiedLN)
 
         # 0 - TDate 1 - TMeth 2 - TDesc 3 - Cat 4 - Amount 5 - balance 6 - Status - 7 - Receipt - 8 Notes - 9 Date
@@ -90,11 +91,11 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, parentType, tablew
                                            "Balance",
                                            "Status",
                                            "Receipt",
-                                           "Additional Transaction Notes",
+                                           "Additional Notes",
                                            "Posted Date",
                                            "Updated Date"])
     tablewidget.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignHCenter)
-    table_widths = [160, 160, 350, 150, 150, 150, 100, 300, 120]
+    table_widths = [140, 160, 250, 150, 150, 150, 150, 250, 150]
     for column in range(0, 9, 1):
         tablewidget.setColumnWidth(column, table_widths[column])
     tablewidget.setColumnHidden(9, True)
@@ -127,7 +128,7 @@ def disp_LedgerV2_Table(account_combobox, statement_combobox, tablewidget, datab
     else:
         modifiedLN = remove_space(ledgerName)
         sortTable = "SELECT Transaction_Date, Transaction_Description, Category, (Credit - Debit), (Purchased - Sold), Price, Status, Receipt, Note," \
-                    " Post_Date, Update_Date FROM {0} ORDER BY Transaction_Date ASC LIMIT 0, 49999".format(modifiedLN)
+                    " Post_Date, Update_Date FROM '{0}' ORDER BY Transaction_Date ASC LIMIT 0, 49999".format(modifiedLN)
 
         # 0 - TDate 1 - TDes 2 - Cat 3 - Amount 4 - Shares 5 - Price 6 - Status - 7 - Receipt - 8 Notes - 9 Date
         complete_ledger = obtain_sql_list(sortTable, database, error_log)
@@ -181,7 +182,7 @@ def disp_LedgerV2_Table(account_combobox, statement_combobox, tablewidget, datab
                                                "Posted Date",
                                                "Updated Date"])
         tablewidget.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignHCenter)
-        table_widths = [160, 350, 150, 150, 150, 150, 100, 300, 120]
+        table_widths = [140, 250, 150, 150, 150, 150, 150, 250, 150]
         for column in range(0, 9, 1):
             tablewidget.setColumnWidth(column, table_widths[column])
         tablewidget.setColumnHidden(9, True)
@@ -196,6 +197,7 @@ def disp_LedgerV2_Table(account_combobox, statement_combobox, tablewidget, datab
 def fill_statement_period(accountComboBox, statementComboBox, Ledger, database, error_log):
     """ Fills a target combobox with Statement periods based upon the Account Details"""
     account = accountComboBox.currentText()
+    statementComboBox.clear()
     statement_period_list = generate_statement_months(account, Ledger, database, error_log)
     statementComboBox.addItems(statement_period_list)
     statementComboBox.setCurrentIndex(0)
@@ -264,14 +266,14 @@ def generate_statement_months(account, ledger, database, error_log):
         parentType_statement = f"SELECT ParentType FROM Account_Summary WHERE ID='{active_ledger}'"
     parentType = obtain_sql_value(parentType_statement, database, error_log)
     parentType = parentType[0]
-    date_statement = f"SELECT Statement_Date FROM {parentType_dict[parentType]}"
+    date_statement = f"SELECT Statement_Date FROM {parentType_dict[parentType]} WHERE Account_Name='{active_ledger}'"
     date_value = obtain_sql_value(date_statement, database, error_log)
     date_value = date_value[0]
 
-    if date_value > 10:
+    if date_value < 10:
         date_value = f"0{str(date_value)}"
 
-    sortDates = f"SELECT Transaction_Date FROM {sql_active_ledger} ORDER By Transaction_Date ASC Limit 0, 49999"
+    sortDates = f"SELECT Transaction_Date FROM '{sql_active_ledger}' ORDER By Transaction_Date Limit 0, 49999"
     ledger_dates = obtain_sql_list(sortDates, database, error_log)
 
     raw_month_list = []
@@ -434,18 +436,23 @@ def update_ledger_balance(comboBox, database, error_log):
 
     running_balance = 0
 
-    rowID_Statement = f"SELECT ROWID FROM {sql_active_ledger} Order by Transaction_Date ASC Limit 0, 49999"
+    rowID_Statement = f"SELECT ROWID, Credit - Debit, Balance FROM '{sql_active_ledger}' Order by Transaction_Date Limit 0, 49999"
     rowID_list = obtain_sql_list(rowID_Statement, database, error_log)
 
     for rowID in rowID_list:
         row = rowID[0]
-        transaction = f"SELECT SUM(Credit - Debit) FROM {sql_active_ledger} WHERE ROWID='{row}'"
-        CreditDebit = obtain_sql_value(transaction, database, error_log)
-        transaction_balance = running_balance + CreditDebit[0]
-        transaction_balance = decimal_places(transaction_balance, 2)
-        update_balance = f"UPDATE {sql_active_ledger} SET Balance='{transaction_balance}' WHERE ROWID='{row}'"
-        specific_sql_statement(update_balance, database, error_log)
-        running_balance = float(transaction_balance)
+        CreditDebit = rowID[1]
+        trans_balance_ledger = rowID[2]
+        trans_balance_calc = running_balance + CreditDebit
+        trans_balance_calc = decimal_places(trans_balance_calc, 2)
+
+        if trans_balance_calc == trans_balance_ledger:
+            pass
+        else:
+            update_balance = f"UPDATE '{sql_active_ledger}' SET Balance='{trans_balance_calc}' WHERE ROWID='{row}'"
+            specific_sql_statement(update_balance, database, error_log)
+
+        running_balance = float(trans_balance_calc)
 
 
 # --- Catchall --- #

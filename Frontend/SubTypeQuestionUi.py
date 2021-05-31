@@ -1,12 +1,13 @@
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 # Custom InputDialog box that contains three options.
 # Created for the purposes of allowing user to create / delete / nvm a new Account Sub Type.
 # This dialog box is activated through the ledger Category "Modify" pushbutton
 
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class Ui_YNCInput(object):  # YNC == Yes No Cancel
@@ -18,10 +19,6 @@ class Ui_YNCInput(object):  # YNC == Yes No Cancel
         # This dialog size will be constant. Unlike other screens it should always fit.
         Dialog.setWindowModality(QtCore.Qt.ApplicationModal)
         Dialog.resize(600, 200)  # width x height
-        # sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        # sizePolicy.setHorizontalStretch(0)
-        # sizePolicy.setVerticalStretch(0)
-        # Dialog.setSizePolicy(sizePolicy)
         Dialog.setMinimumSize(QtCore.QSize(300, 150))
         Dialog.setMaximumSize(QtCore.QSize(600, 200))
 

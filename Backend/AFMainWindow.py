@@ -8,16 +8,17 @@ Future Concepts
 
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 import os
 import shutil
 import sqlite3
 
 from pathlib import Path
-from PySide6.QtWidgets import QMainWindow, QMessageBox
-from PySide6 import QtCore, QtWidgets, QtGui
-from PySide6.QtCore import Slot
+from PySide2.QtWidgets import QMainWindow, QMessageBox
+from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2.QtCore import Slot
 from sqlite3 import Error
 
 from Frontend.AFui import Ui_MainWindow
@@ -30,7 +31,7 @@ from Backend.Profile import Profile
 from Backend.ArchiveLedger import Archive
 from Backend.RequestReport import user_report_request
 # from Backend.Scrape import update_stock_price
-# from Backend.OverTimeGraph import OverTimeGraph
+from Backend.OverTimeGraph import OverTimeGraph
 
 from Toolbox.OS_Tools import file_destination
 from Toolbox.AF_Tools import set_networth
@@ -323,12 +324,12 @@ class AFBackbone(QMainWindow):
                 archive.remove_tab_archive.connect(self.remove_tab)
                 archive.showMaximized()
                 self.tabdic.update({parentType: archive})
-            # elif parentType == "OTG":
-            #     graph = OverTimeGraph(self, self.refUserDB, self.error_Logger)
-            #     self.ui.mdiArea.addSubWindow(graph)
-            #     graph.remove_tab_NWG.connect(self.remove_tab)
-            #     graph.showMaximized()
-            #     self.tabdic.update({parentType: graph})
+            elif parentType == "OTG":
+                graph = OverTimeGraph(self, self.refUserDB, self.error_Logger)
+                self.ui.mdiArea.addSubWindow(graph)
+                graph.remove_tab_OTG.connect(self.remove_tab)
+                graph.showMaximized()
+                self.tabdic.update({parentType: graph})
             else:
                 print(f"""ERROR: AFMainWindow: switch_tab \n Input Error -- Variable = {parentType}""")
 
@@ -457,7 +458,7 @@ class AFBackbone(QMainWindow):
         for account in target_accounts_raw:
             account = account[0]
             sql_account = remove_space(account)
-            contribution_statement = f"SELECT SUM(Credit - Debit) FROM {sql_account}"
+            contribution_statement = f"SELECT SUM(Credit - Debit) FROM '{sql_account}'"
             contribution_sum_raw = obtain_sql_value(contribution_statement, self.refUserDB, self.error_Logger)
 
             if contribution_sum_raw[0] is None:

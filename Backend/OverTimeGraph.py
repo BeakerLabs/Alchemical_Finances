@@ -8,13 +8,14 @@ Future Concepts
 
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 import numpy as np
 
-from PySide6 import QtGui, QtCore, QtWidgets
-from PySide6.QtWidgets import QDialog, QVBoxLayout
-from PySide6.QtGui import QPainter, QColor
+from PySide2 import QtGui, QtCore, QtWidgets
+from PySide2.QtWidgets import QDialog, QVBoxLayout
+from PySide2.QtGui import QPainter, QColor
 
 
 from Backend.BuildGraphs import AF_Canvas, overTimeLineGraph
@@ -22,6 +23,8 @@ from Toolbox.AF_Tools import fill_widget
 from Toolbox.Formatting_Tools import add_space, cash_format, remove_space
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
 from Frontend.OverTimeGraphUi import Ui_OverTimeGraph
+from StyleSheets.StandardCSS import standardAppearance
+from StyleSheets.GraphCSS import overTime
 
 
 class OverTimeGraph(QDialog):
@@ -42,10 +45,16 @@ class OverTimeGraph(QDialog):
 
         self.ui.graphAccountComboBox.addItem("Net Worth Graph")
         account_statement = "SELECT ID FROM Account_Summary"
-        fill_widget(self.ui.graphAccountComboBox, account_statement, True, self.refUserDB)
+        fill_widget(self.ui.graphAccountComboBox, account_statement, True, self.refUserDB, self.error_Logger)
 
         self.generate_graph()
         self.ui.graphAccountComboBox.currentIndexChanged.connect(self.generate_graph)
+
+        self.setStyleSheet(standardAppearance)
+        self.ui.lLegend.setStyleSheet(overTime)
+        self.ui.lHighlights.setStyleSheet(overTime)
+        self.ui.lLowPoints.setStyleSheet(overTime)
+        self.ui.lGraphTitle.setStyleSheet(overTime)
         self.show()
 
     def generate_graph(self):
@@ -67,19 +76,35 @@ class OverTimeGraph(QDialog):
             self.peakvalues = self.obtainPeakValues(account)
             # obtaining dates & value for peak Gross and Net Worth
 
-            self.ui.lPGWorth.setText(f"Peak Gross Worth of {self.peakvalues[0][1]} on {self.peakvalues[0][0]}")
-            self.ui.lLGWorth.setText(f"Low Gross Worth of {self.peakvalues[0][3]} on {self.peakvalues[0][2]}")
-            self.ui.lPNWorth.setText(f"Peak Net Worth of {self.peakvalues[1][1]} on {self.peakvalues[1][0]}")
-            self.ui.lLNWorth.setText(f"Low Net Worth of {self.peakvalues[1][3]} on {self.peakvalues[1][2]}")
-            self.ui.lPLWorth.setText(f"Peak Liabilities Worth of {self.peakvalues[2][1]} on {self.peakvalues[2][0]}")
-            self.ui.lLLWorth.setText(f"Low Liabilities Worth of {self.peakvalues[2][3]} on {self.peakvalues[2][2]}")
+            self.ui.lPeakGWLabel.setText("Gross Worth")
+            self.ui.lLowGWLabel.setText("Gross Worth")
+            self.ui.lPGWorth.setText(f"{self.peakvalues[0][1]} on {self.peakvalues[0][0]}")
+            self.ui.lLGWorth.setText(f"{self.peakvalues[0][3]} on {self.peakvalues[0][2]}")
+            self.ui.lPNWorth.setText(f"{self.peakvalues[1][1]} on {self.peakvalues[1][0]}")
+            self.ui.lLNWorth.setText(f"{self.peakvalues[1][3]} on {self.peakvalues[1][2]}")
+            self.ui.lPLWorth.setText(f"{self.peakvalues[2][1]} on {self.peakvalues[2][0]}")
+            self.ui.lLLWorth.setText(f"{self.peakvalues[2][3]} on {self.peakvalues[2][2]}")
+            self.ui.lPeakLVLabel.setHidden(False)
+            self.ui.lPeakNWLabel.setHidden(False)
+            self.ui.lLowLVLabel.setHidden(False)
+            self.ui.lLowNWLabel.setHidden(False)
+            self.ui.lPNWorth.setHidden(False)
+            self.ui.lLNWorth.setHidden(False)
+            self.ui.lPLWorth.setHidden(False)
+            self.ui.lLLWorth.setHidden(False)
 
         elif account != "":
             self.peakvalues = self.obtainPeakValues(account)
             # obtaining dates & value for peak Gross and Net Worth
 
-            self.ui.lPGWorth.setText(f"Peak Account Worth of{self.peakvalues[0][1]}on {self.peakvalues[0][0]}")
-            self.ui.lLGWorth.setText(f"Low Account Worth of{self.peakvalues[0][3]}on {self.peakvalues[0][2]}")
+            self.ui.lPeakGWLabel.setText("Account Worth")
+            self.ui.lLowGWLabel.setText("Account Worth")
+            self.ui.lPGWorth.setText(f"{self.peakvalues[0][1]} on {self.peakvalues[0][0]}")
+            self.ui.lLGWorth.setText(f"{self.peakvalues[0][3]} on {self.peakvalues[0][2]}")
+            self.ui.lPeakLVLabel.setHidden(True)
+            self.ui.lPeakNWLabel.setHidden(True)
+            self.ui.lLowLVLabel.setHidden(True)
+            self.ui.lLowNWLabel.setHidden(True)
             self.ui.lPNWorth.setHidden(True)
             self.ui.lLNWorth.setHidden(True)
             self.ui.lPLWorth.setHidden(True)
@@ -130,14 +155,14 @@ class OverTimeGraph(QDialog):
         canvas.axes.set_yticks(np.arange(0, lg_data[6] + 10, lg_data[5]))
 
         canvas.axes.minorticks_on()
-        canvas.axes.tick_params(axis='y', which='major', labelsize='3', grid_alpha=1, width=0.35)
-        canvas.axes.tick_params(axis='y', which='minor', width=0.2)
-        canvas.axes.tick_params(axis='x', which='major', labelsize='3', pad=2.0, width=0.35)
-        canvas.axes.tick_params(axis='x', which='minor', bottom=False, width=0.2)
+        canvas.axes.tick_params(axis='y', which='major', right=False,labelsize='3', grid_alpha=1, width=0.35)
+        canvas.axes.tick_params(axis='y', which='minor', right=False, width=0.2)
+        canvas.axes.tick_params(axis='x', which='major', top=False, labelsize='3', pad=2.0, width=0.35)
+        canvas.axes.tick_params(axis='x', which='minor', bottom=False, top=False, width=0.2)
 
         canvas.axes.set_ylim(bottom=0)
         canvas.axes.set_xlim(left=0, right=len(lg_data[0]))
-        canvas.axes.set_xlabel('Date (MM/DD/YY) ', labelpad=3, size='3')
+        # canvas.axes.set_xlabel('Date (MM/DD/YY) ', labelpad=1, size='3')
         canvas.axes.set_ylabel(f'$ ({lg_data[7]})', labelpad=3, size='3')
 
         canvas.axes.grid(b=True,
@@ -194,7 +219,7 @@ class OverTimeGraph(QDialog):
             # Date, Gross, Liabilities, Net
             row = obtain_sql_list(statement, self.refUserDB, self.error_Logger)
         else:
-            statement = f"SELECT Date, {account} FROM AccountWorth ORDER BY DATE ASC Limit 0, 49999"
+            statement = f"""SELECT Date, "{account}" FROM AccountWorth ORDER BY DATE Limit 0, 49999"""
             row = obtain_sql_list(statement, self.refUserDB, self.error_Logger)
 
         # Gross peak format will be used as the Account Value from Account Worth

@@ -6,12 +6,13 @@ Due to the "static" nature of the tab. Anything kinetic can be done in the Front
 """
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
-#  www.BeakerLabs.com
+#  www.BeakerLabsTech.com
+#  contact@beakerlabstech.com
 
 from pathlib import Path
 
-from PySide6 import QtGui, QtCore, QtWidgets
-from PySide6.QtWidgets import QDialog, QMessageBox
+from PySide2 import QtGui, QtCore, QtWidgets
+from PySide2.QtWidgets import QDialog, QMessageBox
 
 from Frontend.ProfileUi import Ui_Profile
 
