@@ -213,7 +213,7 @@ class Generate_user_report:
             for account in parent:
                 if account[3] == "Equity":
                     sql_account = remove_space(account[0])
-                    share_statement = f"""SELECT SUM(Purchased - Sold) FROM {sql_account}"""
+                    share_statement = f"""SELECT SUM(Purchased - Sold) FROM '{sql_account}'"""
                     shares = obtain_sql_value(share_statement, request[0], self.error_Logger)
                     shares_dct[account[0]] = decimal_places(shares[0], 4)
 

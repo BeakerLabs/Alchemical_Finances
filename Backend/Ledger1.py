@@ -91,7 +91,7 @@ class LedgerV1(QDialog):
 
         # Prepare Spending By Category Data Representation.
         if self.parentType != "Property" and self.ui.comboBLedger1.currentText() != "":
-            fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
+            fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Active", self.refUserDB, self.error_Logger)
             sql_account = remove_space(self.ui.comboBLedger1.currentText())
             years, *_ = category_spending_data(self.refUserDB, sql_account, self.error_Logger)
             self.ui.comboBTab2Year.addItems(years)
@@ -162,7 +162,7 @@ class LedgerV1(QDialog):
             self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
             fill_widget(self.ui.comboBLedger1, self.comboBoxAccountStatement, True, self.refUserDB, self.error_Logger)
             if self.ui.comboBLedger1.currentText() != "" and self.parentType != "Property":
-                fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
+                fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Active", self.refUserDB, self.error_Logger)
                 self.toggle_entire_ledger(True)
 
             elif self.ui.comboBLedger1.currentText() == "":
@@ -359,7 +359,7 @@ class LedgerV1(QDialog):
         else:
             if self.parentType != "Property":
                 self.ui.comboBTab2Year.clear()
-                fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Ledger", self.refUserDB, self.error_Logger)
+                fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Active", self.refUserDB, self.error_Logger)
                 sql_account = remove_space(self.ui.comboBLedger1.currentText())
                 years, *_ = category_spending_data(self.refUserDB, sql_account, self.error_Logger)
                 self.ui.comboBTab2Year.addItems(years)
@@ -925,7 +925,6 @@ class LedgerV1(QDialog):
         self.ui.pBUpdate.setEnabled(toggle)
         self.ui.pBDelete.setEnabled(toggle)
         self.ui.pBClearInputs.setEnabled(toggle)
-
 
         if self.parentType == "Property":
             self.ui.pBUploadHouse.setEnabled(toggle)

@@ -46,6 +46,11 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, parentType, tablew
         complete_ledger = obtain_sql_list(sortTable, database, error_log)
         if parentType != "Property":
             target_transactions = statement_range(complete_ledger, month)
+
+            if len(target_transactions) == 0:
+                statement_index = statement_combobox.currentIndex()
+                statement_combobox.removeItem(statement_index)
+
         else:
             target_transactions = complete_ledger
 
@@ -133,6 +138,11 @@ def disp_LedgerV2_Table(account_combobox, statement_combobox, tablewidget, datab
         # 0 - TDate 1 - TDes 2 - Cat 3 - Amount 4 - Shares 5 - Price 6 - Status - 7 - Receipt - 8 Notes - 9 Date
         complete_ledger = obtain_sql_list(sortTable, database, error_log)
         target_transactions = statement_range(complete_ledger, month)
+
+        if len(target_transactions) == 0:
+            statement_index = statement_combobox.currentIndex()
+            statement_combobox.removeItem(statement_index)
+
         tablewidget.setColumnCount(11)
 
         for data_point in target_transactions:
@@ -262,7 +272,7 @@ def generate_statement_months(account, ledger, database, error_log):
     if ledger == "Archive":
         parentType_statement = f"SELECT ParentType FROM Account_Archive WHERE ID='{active_ledger}'"
 
-    elif ledger == "Ledger":
+    elif ledger == "Active":
         parentType_statement = f"SELECT ParentType FROM Account_Summary WHERE ID='{active_ledger}'"
     parentType = obtain_sql_value(parentType_statement, database, error_log)
     parentType = parentType[0]
@@ -280,11 +290,11 @@ def generate_statement_months(account, ledger, database, error_log):
     display_month_list = []
 
     for date_tuple in ledger_dates:
-        date_w_day = f"{date_tuple[0][:7]}/{date_value}"
-        if date_w_day in raw_month_list:
+        month_w_day = f"{date_tuple[0][:7]}/{date_value}"
+        if month_w_day in raw_month_list:
             pass
         else:
-            raw_month_list.append(date_w_day)
+            raw_month_list.append(month_w_day)
 
     raw_month_list.sort(reverse=True)
 
