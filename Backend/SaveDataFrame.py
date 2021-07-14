@@ -63,7 +63,7 @@ class ProgressThread(QObject):
         self.errorLog = error_log
         self.ledger_dictionary = empty_container(self.ledgerContainer)
         self.ledger_count = len(self.ledger_dictionary)
-        print(self.ledger_count)
+        print(f"Total Ledger Count: {self.ledger_count}")
         self.savePercentage = 0
         self.count = 0
 
@@ -75,18 +75,20 @@ class ProgressThread(QObject):
                 if saveSuccess:
                     self.savePercentage += (1 / self.ledger_count) * 100
                     self.count += 1
-                    self.progressBar.setProperty("value", self.savePercentage)
-                    print(f"Success {self.count}")
+                    self.progressBar.setValue(self.savePercentage)
+                    print(f"Saved: {self.count}/{self.ledger_count}")
                     time.sleep(0.3)
                 else:
-                    self.actionLabel.setText(f"ERROR OCCURRED - Check Error Log")
-                    time.sleep(5)
+                    print(f"Failed: {self.count}/{self.ledger_count} -- {account}")
+                    time.sleep(0.3)
                     self.connected = False
 
             if round(self.savePercentage) == 100 and self.count == self.ledger_count:
-                print("Check Point")
                 self.connected = False
             else:
+                self.savePercentage = 100
+                self.progressBar.setValue(self.savePercentage)
+                time.sleep(0.3)
                 self.connected = False
 
         self.saveFinishedSignal.emit("Saved")

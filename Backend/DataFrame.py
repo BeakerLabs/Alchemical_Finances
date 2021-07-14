@@ -91,7 +91,6 @@ def df_saveto_sql(account, ledger, database, error_log):
                              index_label=None)
     except Error:
         conn.close()
-        print("error")
         error_string = f"""DataFrame_Func: df_saveto_sql \n account: "{account} \n database: {database}"""
         error_log.error(error_string, exc_info=True)
         return False

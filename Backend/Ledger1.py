@@ -320,10 +320,8 @@ class LedgerV1(QDialog):
                 self.activeLedger = self.activeLedger.sort_values(by=['Transaction_Date', 'Update_Date'], ascending=True)
                 self.activeLedger = update_df_balance(self.activeLedger)
 
-                subtoc = time.perf_counter()
                 self.transaction_refresh()
                 toc = time.perf_counter()
-                print(f'Update ledger took {subtoc - tic:0.4f} seconds')
                 print(f'Full Transaction took {toc - tic:0.4f} seconds')
             else:
                 input_error = """

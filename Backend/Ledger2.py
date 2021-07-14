@@ -250,8 +250,6 @@ class LedgerV2(QDialog):
         else:
             if self.check_transactions():
                 from datetime import datetime
-                # ledgerName = self.ui.comboBLedger2.currentText()
-                # modifiedLN = remove_space(ledgerName)
                 modDebit = decimal_places(self.ui.lEditDebit.text(), 2)
                 modCredit = decimal_places(self.ui.lEditCredit.text(), 2)
                 modPurchased = decimal_places(self.ui.lEditSharePurch.text(), 4)
@@ -277,24 +275,6 @@ class LedgerV2(QDialog):
                 self.activeLedger = self.activeLedger.append(transaction_df, ignore_index=True)
                 self.activeLedger = self.activeLedger.sort_values(by=['Transaction_Date', 'Update_Date'], ascending=True)
                 self.activeLedger = update_df_balance(self.activeLedger)
-
-                # 2- date -- 3- T Description -- 4- Category -- 5- Debit
-                # 6- credit -- 8- sold -- 7- Purchased -- 10/11- Status -- ## - UserDate -- 12- Receipt
-                # addStatement = "INSERT INTO '" + modifiedLN + "' VALUES('"\
-                #                + self.ui.DateEditTransDate.date().toString("yyyy/MM/dd") + "', '"\
-                #                + self.ui.lEditTransDesc.text() + "', '"\
-                #                + self.ui.comboBCategory.currentText() + "', '"\
-                #                + str(modDebit) + "', '"\
-                #                + str(modCredit) + "', '"\
-                #                + str(modSold) + "', '"\
-                #                + str(modPurchased) + "', '" \
-                #                + str(modPrice) + "', '" \
-                #                + self.ui.textEditAddNotes.toPlainText() + "', '"\
-                #                + status + "', '"\
-                #                + self.ui.lEditReceipt.text() + "', '"\
-                #                + currentDate + "', '"\
-                #                + currentDate + "')"
-                # specific_sql_statement(addStatement, self.refUserDB, self.error_Logger)
                 self.transaction_refresh()
             else:
                 input_error = """
@@ -338,7 +318,6 @@ class LedgerV2(QDialog):
 
     def delete_transaction(self):
         ledgerName = self.ui.comboBLedger2.currentText()
-        modifiedLN = remove_space(ledgerName)
         inputText1 = "Delete Transaction"
         inputText2 = "Enter Row #: "
         row = self.user_selection_input(self.ui.tableWLedger2, inputText1, inputText2) - 1
@@ -346,11 +325,6 @@ class LedgerV2(QDialog):
                         "\nrow #: " + str(row + 1) + " from the ledger"
         confirm = QMessageBox.warning(self, 'Confirm', deleteMessage, QMessageBox.Ok, QMessageBox.Cancel)
         if confirm == QMessageBox.Ok:
-            # deleteStatement = "DELETE FROM " + modifiedLN + " WHERE " \
-            #                   + "Post_Date='" + self.ui.tableWLedger2.item(row, 9).text() + "'"
-            #
-            # specific_sql_statement(deleteStatement, self.refUserDB, self.error_Logger)
-
             target_transaction = self.activeLedger[(self.activeLedger['Post_Date'] == self.ui.tableWLedger2.item(row, 9).text()) &
                                                    (self.activeLedger['Transaction_Description'] == self.ui.tableWLedger2.item(row, 1).text())].index
             self.activeLedger = self.activeLedger.drop(target_transaction, inplace=False)
@@ -398,8 +372,6 @@ class LedgerV2(QDialog):
             netValue = ["0.00", "0.00"]
             return netValue
         else:
-            # netValueStatement = f"SELECT SUM(Purchased - Sold) FROM '{modifiedLN}' WHERE Status='Posted'"
-            # qtyShares = obtain_sql_value(netValueStatement, self.refUserDB, self.error_Logger)
             netValue_df = self.activeLedger[['Purchased', 'Sold']][self.activeLedger['Status'] == 'Posted'].copy()
             total_purchased = pd.to_numeric(netValue_df['Purchased'], errors='coerce').sum()
             total_sold = pd.to_numeric(netValue_df['Sold'], errors='coerce').sum()
@@ -427,14 +399,10 @@ class LedgerV2(QDialog):
 
     def net_share_balance(self):
         ledgerName = self.ui.comboBLedger2.currentText()
-        # modifiedLN = remove_space(ledgerName)
         if ledgerName == "":
             shareBalance = "0.0000"
             return shareBalance
         else:
-            # netSBalance = f"SELECT SUM(Purchased - Sold) FROM '{modifiedLN}' WHERE Status='Posted'"
-            # shareBalance = obtain_sql_value(netSBalance, self.refUserDB, self.error_Logger)
-
             netSBalance = self.activeLedger[['Purchased', 'Sold']][self.activeLedger['Status'] == 'Posted'].copy()
             total_purchased = pd.to_numeric(netSBalance['Purchased'], errors='coerce').sum()
             total_sold = pd.to_numeric(netSBalance['Sold'], errors='coerce').sum()
@@ -579,8 +547,6 @@ class LedgerV2(QDialog):
 
     def update_sql(self, row):
         from datetime import datetime
-        # ledgerName = self.ui.comboBLedger2.currentText()
-        # modifiedLN = remove_space(ledgerName)
         modDebit = str(decimal_places(self.ui.lEditDebit.text(), 2))
         modCredit = str(decimal_places(self.ui.lEditCredit.text(), 2))
         modPurchased = str(decimal_places(self.ui.lEditSharePurch.text(), 4))
@@ -617,22 +583,6 @@ class LedgerV2(QDialog):
 
         target_transaction = self.activeLedger[self.activeLedger['Post_Date'] == self.ui.tableWLedger2.item(row, 9).text()].index
         self.activeLedger.at[target_transaction, column_headers] = new_transaction
-
-        # updateStatement = "Update '" + modifiedLN + "'" \
-        #                   + " SET Transaction_Date='" + self.ui.DateEditTransDate.date().toString("yyyy/MM/dd") \
-        #                   + "', Transaction_Description='" + self.ui.lEditTransDesc.text() \
-        #                   + "', Category='" + self.ui.comboBCategory.currentText() \
-        #                   + "', Debit='" + modDebit \
-        #                   + "', Credit='" + modCredit \
-        #                   + "', Sold='" + modSold \
-        #                   + "', Purchased='" + modPurchased \
-        #                   + "', Price='" + modPrice \
-        #                   + "', Note='" + self.ui.textEditAddNotes.toPlainText() \
-        #                   + "', Status='" + status \
-        #                   + "', Receipt='" + self.ui.lEditReceipt.text() \
-        #                   + "', Update_Date='" + currentDate \
-        #                   + "' WHERE Post_Date='" + self.ui.tableWLedger2.item(row, 9).text() + "'"
-        # specific_sql_statement(updateStatement, self.refUserDB, self.error_Logger)
 
     def update_transaction(self):
         inputText1 = "Update Transaction"
