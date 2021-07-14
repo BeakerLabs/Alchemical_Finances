@@ -1,6 +1,6 @@
 **Alchemical Finances: _Hands on Personal Finance_**
 ==============================================
-* **Version:** 0.8.0
+* **Version:** 0.2.01 (Changed to match the Code Version Commits)
 * **Release Date:** 05/23/2021
 * **Copyright:** (c) 2021, Beaker Labs LLC
 * **Website:** www.BeakerLabsTech.com
