@@ -240,6 +240,7 @@ def specific_sql_statement(statement: str, database: str, error_log):
 def sqlite3_keyword_check(statement: str):
     keyword_list = open("Resources/sql_Keyword_list.pkl", "rb")
     sqlite3_keyword_masterlist = pickle.load(keyword_list)
+    keyword_list.close()
 
     if statement.upper() in sqlite3_keyword_masterlist:
         return True

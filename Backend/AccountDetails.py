@@ -14,9 +14,13 @@ Future Concepts
 import os
 import shutil
 
+from Backend.DataFrame import create_DF, update_df_ledger
 from Backend.Question import YNTypeQuestion
+
 from Frontend.AccountsUi import Ui_Accounts
+
 from PySide2.QtWidgets import QDialog, QMessageBox, QListWidgetItem
+
 from Toolbox.AF_Tools import fill_widget
 from Toolbox.Error_Tools import check_characters, find_character, first_character_check
 from Toolbox.Formatting_Tools import decimal_places, remove_space
@@ -29,7 +33,7 @@ from StyleSheets.ErrorCSS import generalError
 
 
 class AccountsDetails(QDialog):
-    def __init__(self, dbName, parentType, user, error_Log):
+    def __init__(self, dbName, parentType, user, ledgerContainer, error_Log):
         super().__init__()
         self.ui = Ui_Accounts()
         self.ui.setupUi(self)
@@ -37,6 +41,7 @@ class AccountsDetails(QDialog):
         self.refUserDB = dbName
         self.parentType = parentType
         self.refUser = user
+        self.ledgerContainer = ledgerContainer
 
         self.parentType_dict = {"Bank": "Bank_Account_Details",
                                 "Equity": "Equity_Account_Details",
@@ -154,6 +159,9 @@ class AccountsDetails(QDialog):
         statement_list = [accountDetails, accountLedger, accountSummary, accountWorth]
         execute_sql_statement_list(statement_list, self.refUserDB, self.error_Logger)
 
+        new_account_df = create_DF(accountName, self.refUserDB, self.error_Logger)
+        update_df_ledger(self.ledgerContainer, accountName, self.error_Logger, activeLedger=None, action="Update", new_account=new_account_df)
+
     def archive_account(self):
         if self.ui.listWidgetAccount.currentItem() is None:
             pass
@@ -238,9 +246,10 @@ class AccountsDetails(QDialog):
         question = f"Are you sure you want to delete {self.ui.listWidgetAccount.currentItem().text()}?"
         reply = QMessageBox.question(self, "Confirmation", question, QMessageBox.Yes, QMessageBox.No)
         if reply == QMessageBox.Yes:
-            self.delete_account_sql(self.ui.lEditAN.text())
+            target_account = self.ui.lEditAN.text()
+            self.delete_account_sql(target_account)
 
-            sqlCurrentLedgerName = remove_space(self.ui.lEditAN.text())
+            sqlCurrentLedgerName = remove_space(target_account)
             obsolete_dir_path = file_destination(['Receipts', self.refUser, self.parentType, sqlCurrentLedgerName])
             obsolete_dir_str = str(obsolete_dir_path)
             try:
@@ -248,6 +257,8 @@ class AccountsDetails(QDialog):
             except OSError:
                 error_string = f"Window's Denied Actions. Manual action required once program is closed.\n"
                 self.error_Logger.error(error_string, exc_info=True)
+
+            update_df_ledger(self.ledgerContainer, target_account, self.error_Logger, activeLedger=None, action="Delete")
 
             self.ui.listWidgetAccount.clear()
             fill_widget(self.ui.listWidgetAccount, self.listWidget_Statement, True, self.refUserDB, self.error_Logger)

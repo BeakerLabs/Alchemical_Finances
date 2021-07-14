@@ -3,7 +3,8 @@
 * **Version:** 0.8.0
 * **Release Date:** 05/23/2021
 * **Copyright:** (c) 2021, Beaker Labs LLC
-* **Website:** www.BeakerLabsTech.com _Under Construction_
+* **Website:** www.BeakerLabsTech.com
+* **Code Versions** Notes about the Git Commits can be found on the website.  
 * **contact:** contact@beakerlabstech.com
 
 License

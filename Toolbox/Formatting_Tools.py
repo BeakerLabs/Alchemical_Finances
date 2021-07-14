@@ -90,6 +90,12 @@ def cash_format(value: float, deciplace: int):
     :param deciplace: number of places after the decimal
     :return: list [wo comma, format]
     """
+    if type(value) is not float:
+        try:
+            value = float(value)
+        except ValueError:
+            value = 0
+
     if value < 0:
         moneyWComma = add_comma(value, deciplace)
         moneyWOComma = "-" + remove_comma(moneyWComma)
@@ -191,6 +197,16 @@ def remove_space(user_input: str):
         else:
             modifiedvalue += letter
     return modifiedvalue
+
+
+def convert_to_float(datapoint):
+    if type(datapoint) != float:
+        try:
+            datapoint = float(datapoint)
+        except ValueError:
+            datapoint = float(0)
+
+    return datapoint
 
 
 # --- Catchall --- #

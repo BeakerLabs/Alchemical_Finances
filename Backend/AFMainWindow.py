@@ -12,26 +12,30 @@ Future Concepts
 #  contact@beakerlabstech.com
 
 import os
+import pickle
 import shutil
 import sqlite3
+import threading
 
 from pathlib import Path
-from PySide2.QtWidgets import QMainWindow, QMessageBox
+from PySide2.QtWidgets import QMainWindow, QDialog, QMessageBox
 from PySide2 import QtCore, QtWidgets, QtGui
 from PySide2.QtCore import Slot
 from sqlite3 import Error
 
 from Frontend.AFui import Ui_MainWindow
 
+from Backend.About import AboutProgram
+from Backend.ArchiveLedger import Archive
+from Backend.DataFrame import create_DF_dict
 from Backend.Ledger1 import LedgerV1
 from Backend.Ledger2 import LedgerV2
-from Backend.Summary import Ledger_Summary
-from Backend.About import AboutProgram
-from Backend.Profile import Profile
-from Backend.ArchiveLedger import Archive
-from Backend.RequestReport import user_report_request
-# from Backend.Scrape import update_stock_price
 from Backend.OverTimeGraph import OverTimeGraph
+from Backend.Profile import Profile
+from Backend.RequestReport import user_report_request
+from Backend.SaveDataFrame import ProgressThread, SaveProgress
+# from Backend.Scrape import update_stock_price
+from Backend.Summary import Ledger_Summary
 
 from Toolbox.OS_Tools import file_destination
 from Toolbox.AF_Tools import set_networth
@@ -54,6 +58,7 @@ class AFBackbone(QMainWindow):
         self.dbPathway = Path.cwd() / self.dbPathway / "UAInformation.db"
         self.refUser = user
         self.switchCheck = int(messageCount)
+        self.error_Logger = error_log
 
         # This will hold the saved version of the database
         self.saveState = None
@@ -65,9 +70,6 @@ class AFBackbone(QMainWindow):
 
         # Dictionary used to determine what Tabs are open currently. Prevents duplicates
         self.tabdic = {}
-
-        # Program Error Logger
-        self.error_Logger = error_log
 
         # obtain e-mail if it exists
         email_Statement = f"SELECT Email FROM Users WHERE Profile='{self.refUser}'"
@@ -138,11 +140,18 @@ class AFBackbone(QMainWindow):
                                         ov_graph_statement,
                                         contribution_graph_statement], self.saveState, self.error_Logger)
 
+        # No else statement for the create new profile. Not necessary if database already exists
+
         # Swap over to temporary Database
         # This will hold the temporary/active version of the database
         temp_pathway = self.saveState[:-3] + "-temp.db"
         shutil.copyfile(self.saveState, temp_pathway)
         self.refUserDB = temp_pathway
+
+        # Create dataframe dictionary
+        account_dictionary = create_DF_dict(self.refUserDB, self.error_Logger)
+        self.ledger_container = self.create_dataframe_container(account_dictionary)  # Used with ledgers but created upon sign-in
+        del account_dictionary  # unnecessary usage of memory after creation of the container.
 
         if self.email is None:  # Intended to help prevent a case where the user can not reclaim their password
             profile = Profile(self.refUser, self.error_Logger)
@@ -192,11 +201,11 @@ class AFBackbone(QMainWindow):
 
     def create_profile_db(self):
         key = self.acquire_key()
-        databaseFN = "db" + key + "rf.dat"                                                  # database File Name
+        databaseFileName = "db" + key + "rf.dat"
         userDbPathway = file_destination(['data', 'account'])
-        databaseFN_Pathway = Path.cwd() / userDbPathway / databaseFN
-        databaseN = self.create_db_name()                                                   # database Name
-        databaseN_Pathway = Path.cwd() / userDbPathway / databaseN
+        databaseFN_Pathway = Path.cwd() / userDbPathway / databaseFileName
+        databaseName = self.create_db_name()
+        databaseName_Pathway = Path.cwd() / userDbPathway / databaseName
         try:
             with open(databaseFN_Pathway, mode="rb") as f:
                 codedDN = f.read()
@@ -208,13 +217,29 @@ class AFBackbone(QMainWindow):
                 return False
         except IOError:
             with open(databaseFN_Pathway, mode="wb") as nf:
-                databaseN_Pathway_string = str(databaseN_Pathway)
+                databaseN_Pathway_string = str(databaseName_Pathway)
                 nf.write(databaseN_Pathway_string.encode('utf-8'))
                 nf.close()
                 self.saveState = databaseN_Pathway_string
                 # DataCheck is legacy Variable not currently in use.
                 self.dataCheck = ("New File Made: " + str(self.saveState))
                 return True
+
+    def create_dataframe_container(self, dictionary):
+        key = self.acquire_key()
+        containerFN = "df" + key + "rf.pkl"
+        dfPathway = Path.cwd() / 'data' / 'account' / containerFN
+
+        if os.path.exists(dfPathway):
+            os.remove(dfPathway)
+            # dataframe container should not exist unless program didn't close properly.
+            # dataframe container is only used during active session. Long term storage is in database
+
+        with open(dfPathway, mode="wb") as nf:
+            pickle.dump(dictionary, nf)
+            nf.close()
+
+        return dfPathway
 
     def create_db_name(self):
         from random import shuffle
@@ -240,11 +265,14 @@ class AFBackbone(QMainWindow):
             save_mesg = "Do you wish to save your current information?"
             reply = QMessageBox.question(self, "Save Account", save_mesg, QMessageBox.Yes, QMessageBox.No)
             if reply == QMessageBox.Yes:
-                shutil.copyfile(self.refUserDB, self.saveState)
-                complete_mesg = "You work has been saved."
-                done = QMessageBox.information(self, "Save Complete", complete_mesg, QMessageBox.Close, QMessageBox.NoButton)
-                if done == QMessageBox.Close:
-                    self.saveToggle = True
+                progressDialog = SaveProgress(self.ledger_container, self.refUserDB, self.error_Logger)
+                if progressDialog.exec_() == QDialog.Accepted:
+                    shutil.copyfile(self.refUserDB, self.saveState)
+                    complete_mesg = "Your work has been saved."
+                    done = QMessageBox.information(self, "Save Complete", complete_mesg, QMessageBox.Close, QMessageBox.NoButton)
+                    if done == QMessageBox.Close:
+                        self.saveToggle = True
+
             else:
                 if close:
                     doubleCheck = "Are you sure?"
@@ -278,6 +306,7 @@ class AFBackbone(QMainWindow):
         else:
             self.save_database(close=True)
             os.remove(self.refUserDB)
+            os.remove(self.ledger_container)
             event.accept()
 
     def switch_tab(self, parentType):
@@ -299,14 +328,14 @@ class AFBackbone(QMainWindow):
                 profile.showMaximized()
                 self.tabdic.update({parentType: profile})
             elif parentType in type1:
-                ledger = LedgerV1(self.refUserDB, parentType, self.refUser, self.error_Logger)
+                ledger = LedgerV1(self.refUserDB, parentType, self.refUser, self.ledger_container, self.error_Logger)
                 self.ui.mdiArea.addSubWindow(ledger)
                 ledger.refresh_signal.connect(self.refresh_netWorth)
                 ledger.remove_tab.connect(self.remove_tab)
                 ledger.showMaximized()
                 self.tabdic.update({parentType: ledger})
             elif parentType in type2:
-                ledger2 = LedgerV2(self.refUserDB, parentType, self.refUser, self.error_Logger)
+                ledger2 = LedgerV2(self.refUserDB, parentType, self.refUser, self.ledger_container, self.error_Logger)
                 self.ui.mdiArea.addSubWindow(ledger2)
                 ledger2.refresh_signal_L2.connect(self.refresh_netWorth)
                 ledger2.remove_tab_L2.connect(self.remove_tab)
@@ -319,7 +348,7 @@ class AFBackbone(QMainWindow):
                 about.showMaximized()
                 self.tabdic.update({parentType: about})
             elif parentType == "Archive":
-                archive = Archive(self.refUserDB, self.refUser, self.error_Logger)
+                archive = Archive(self.refUserDB, self.refUser, self.ledger_container, self.error_Logger)
                 self.ui.mdiArea.addSubWindow(archive)
                 archive.remove_tab_archive.connect(self.remove_tab)
                 archive.showMaximized()

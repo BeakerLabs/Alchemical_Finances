@@ -11,7 +11,7 @@ Future Concepts
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-import operator
+
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
@@ -19,11 +19,11 @@ from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
 from Toolbox.Formatting_Tools import add_space, cash_format, decimal_places
 
 
-def category_spending_data(database, account, error_log):
+def category_spending_data(database, account, activeLedger, error_log):
     """ Obtains the Account Specific Spending based upon Category. """
 
-    statement = f"SELECT Transaction_Date, Category, Debit, Credit FROM {account} WHERE Status='Posted'"
-    raw_data = obtain_sql_list(statement, database, error_log)
+    select_data = activeLedger[['Transaction_Date', 'Category', 'Debit', 'Credit']][activeLedger['Status'] == 'Posted']
+    raw_data = select_data.values.tolist()
 
     years = []
     [years.append(tup[0][:4]) for tup in raw_data if tup[0][:4] not in years]
@@ -42,9 +42,9 @@ def category_spending_data(database, account, error_log):
     return years, categories, raw_data
 
 
-def category_spending_by_interval(database, account, interval_length, interval, error_log):
+def category_spending_by_interval(database, account, activeLedger, interval_length, interval, error_log):
     """ Returns a 'result list' of the category spending from highest to lowest percentage"""
-    _, categories, raw_data = category_spending_data(database, account, error_log)
+    _, categories, raw_data = category_spending_data(database, account, activeLedger, error_log)
 
     spending_dict = {}
     result_list = []

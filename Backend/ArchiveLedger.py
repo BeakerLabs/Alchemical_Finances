@@ -17,6 +17,7 @@ from PySide2.QtWidgets import QMessageBox, QDialog, QInputDialog
 from PySide2 import QtCore
 from pathlib import Path, PurePath
 from Frontend.ArchiveUi import Ui_Archive
+from Backend.DataFrame import load_df_ledger
 from Backend.ReceiptViewer import Receipt
 
 from Toolbox.OS_Tools import file_destination
@@ -30,7 +31,7 @@ from StyleSheets.StandardCSS import standardAppearance
 class Archive(QDialog):
     remove_tab_archive = QtCore.Signal(str)
 
-    def __init__(self, database, user, error_log):
+    def __init__(self, database, user, ledger_container, error_log):
         super().__init__()
         self.ui = Ui_Archive()
         self.ui.setupUi(self)
@@ -40,8 +41,7 @@ class Archive(QDialog):
 
         self.refUserDB = database
         self.refUser = user
-
-        # Program Error Logger
+        self.ledger_container = ledger_container
         self.error_Logger = error_log
 
         self.parentType_dict = {"Bank": "Bank_Account_Details",
@@ -57,6 +57,9 @@ class Archive(QDialog):
         self.fill_combobox(self.ui.comboBAccounts, "Account")
 
         if self.ui.comboBAccounts.currentText() != "":
+            self.active_account = self.ui.comboBAccounts.currentText()
+            self.activeLedger = load_df_ledger(self.ledger_container, self.active_account)
+
             self.fill_combobox(self.ui.comboBStatements, "Statement")
             self.toggle_entire_ledger(True)
             self.display_ledger()
@@ -77,6 +80,9 @@ class Archive(QDialog):
         event.accept()
 
     def change_account(self):
+        self.active_account = self.ui.comboBAccounts.currentText()
+        self.activeLedger = load_df_ledger(self.ledger_container, self.active_account)
+
         self.ui.comboBStatements.clear()
         self.fill_combobox(self.ui.comboBStatements, "Statement")
 
@@ -124,9 +130,9 @@ class Archive(QDialog):
             type1 = ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit"]
             type2 = ["Equity", "Retirement"]
             if parentType_value in type1:
-                disp_LedgerV1_Table(self.ui.comboBAccounts, self.ui.comboBStatements, parentType_value, self.ui.tWArchive, self.refUserDB, self.error_Logger)
+                disp_LedgerV1_Table(self.ui.comboBAccounts, self.ui.comboBStatements, parentType_value, self.ui.tWArchive, self.activeLedger)
             elif parentType_value in type2:
-                disp_LedgerV2_Table(self.ui.comboBAccounts, self.ui.comboBStatements, self.ui.tWArchive, self.refUserDB, self.error_Logger)
+                disp_LedgerV2_Table(self.ui.comboBAccounts, self.ui.comboBStatements, self.ui.tWArchive, self.activeLedger)
             else:
                 error = "Ledger Type Doesn't Exist"
                 self.input_error_msg(error)
@@ -180,7 +186,7 @@ class Archive(QDialog):
             if account is None or account == "" or account == " ":
                 pass
             else:
-                statement_period_list = generate_statement_months(account, "Archive", self.refUserDB, self.error_Logger)
+                statement_period_list = generate_statement_months(self.active_account, "Archive", self.refUserDB, self.activeLedger, self.error_Logger)
                 combobox.addItems(statement_period_list)
                 combobox.setCurrentIndex(0)
 

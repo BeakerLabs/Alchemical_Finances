@@ -15,6 +15,7 @@ to clarify function/purpose of any given object.
 #  contact@beakerlabstech.com
 
 import os
+import pandas as pd
 import time
 
 from PySide2.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog
@@ -26,6 +27,7 @@ from pathlib import Path, PurePath
 from shutil import copy
 
 from Backend.AccountDetails import AccountsDetails
+from Backend.DataFrame import load_df_ledger, update_df_ledger, update_df_balance
 from Backend.LedgerDataAnalysis import category_spending_data, category_spending_by_interval
 from Backend.SpendingCategories import SpendingCategories
 from Backend.ToggleCategories import Toggle_Categories
@@ -33,7 +35,7 @@ from Backend.ReceiptViewer import Receipt
 
 from Frontend.Ledger1Ui import Ui_Ledger1
 
-from Toolbox.AF_Tools import disp_LedgerV1_Table, fill_widget, find_mult_row, fill_statement_period, rename_image, set_font, update_ledger_balance
+from Toolbox.AF_Tools import disp_LedgerV1_Table, fill_widget, find_mult_row, fill_statement_period, rename_image, set_font
 from Toolbox.Error_Tools import check_characters, check_numerical_inputs
 from Toolbox.Formatting_Tools import add_comma, decimal_places, remove_comma, remove_space
 from Toolbox.SQL_Tools import obtain_sql_value, specific_sql_statement, sqlite3_keyword_check
@@ -47,7 +49,7 @@ class LedgerV1(QDialog):
     refresh_signal = QtCore.Signal(str)
     remove_tab = QtCore.Signal(str)
 
-    def __init__(self, database, parentType, user, error_log):
+    def __init__(self, database, parentType, user, ledger_container, error_log):
         super().__init__()
         self.ui = Ui_Ledger1(parentType)
         self.ui.setupUi(self)
@@ -58,6 +60,8 @@ class LedgerV1(QDialog):
         self.refUserDB = database
         self.parentType = parentType
         self.refUser = user
+        self.ledgerContainer = ledger_container
+        self.error_Logger = error_log
 
         self.parentType_dict = {
             "Bank": "Bank_Account_Details",
@@ -75,12 +79,14 @@ class LedgerV1(QDialog):
         self.year_label_dict = {}
         self.overall_label_dict = {}
 
-        # Program Error Logger
-        self.error_Logger = error_log
-
         # Prepare Widgets for initial Use
         self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
         fill_widget(self.ui.comboBLedger1, self.comboBoxAccountStatement, True, self.refUserDB, self.error_Logger)
+
+        self.active_account = self.ui.comboBLedger1.currentText()
+        self.activeLedger = load_df_ledger(self.ledgerContainer, self.active_account)
+        self.activeLedger = self.activeLedger.sort_values(by=['Transaction_Date', 'Update_Date'], ascending=True)
+
         self.comboBoxCategoriesStatement = f"SELECT Method FROM Categories WHERE ParentType= '{self.parentType}'"
         fill_widget(self.ui.comboBCategory, self.comboBoxCategoriesStatement, True, self.refUserDB, self.error_Logger)
 
@@ -91,12 +97,13 @@ class LedgerV1(QDialog):
 
         # Prepare Spending By Category Data Representation.
         if self.parentType != "Property" and self.ui.comboBLedger1.currentText() != "":
-            fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Active", self.refUserDB, self.error_Logger)
+            fill_statement_period(self.active_account, self.ui.comboBPeriod, "Active", self.refUserDB, self.activeLedger, self.error_Logger)
             sql_account = remove_space(self.ui.comboBLedger1.currentText())
-            years, *_ = category_spending_data(self.refUserDB, sql_account, self.error_Logger)
+            years, *_ = category_spending_data(self.refUserDB, sql_account, self.activeLedger, self.error_Logger)
             self.ui.comboBTab2Year.addItems(years)
             self.ui.comboBTab2Year.currentIndexChanged.connect(lambda: self.update_spending_tab("Year"))
 
+            self.update_spending_tab("Statement")
             self.update_spending_tab("Year")
             self.update_spending_tab("Overall")
 
@@ -161,12 +168,16 @@ class LedgerV1(QDialog):
 
             self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
             fill_widget(self.ui.comboBLedger1, self.comboBoxAccountStatement, True, self.refUserDB, self.error_Logger)
+
             if self.ui.comboBLedger1.currentText() != "" and self.parentType != "Property":
-                fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Active", self.refUserDB, self.error_Logger)
+                self.active_account = self.ui.comboBLedger1.currentText()
+                self.activeLedger = load_df_ledger(self.ledgerContainer, self.active_account)
+
+                fill_statement_period(self.active_account, self.ui.comboBPeriod, "Active", self.refUserDB, self.activeLedger, self.error_Logger)
                 self.toggle_entire_ledger(True)
 
             elif self.ui.comboBLedger1.currentText() == "":
-                self.toggle_entire_ledger(False)
+                  self.toggle_entire_ledger(False)
 
             self.ui.comboBLedger1.setCurrentIndex(0)
             self.set_variable1B()
@@ -287,39 +298,33 @@ class LedgerV1(QDialog):
         else:
             if self.check_transactions():
                 from datetime import datetime
-                ledgerName = self.ui.comboBLedger1.currentText()
-                modifiedLN = remove_space(ledgerName)
                 modDebit = decimal_places(self.ui.lEditDebit.text(), 2)
                 modCredit = decimal_places(self.ui.lEditCredit.text(), 2)
 
                 status = self.transaction_status(self.ui.rBPending, self.ui.rBPosted)
                 currentDate = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-                # 2- date -- 3- T Method -- 4- T Description -- 5- Category
-                # 6- Debit -- 7- Credit -- 8 - Balance -- 9- Notes -- 10- Status -- 11- UserDate -- 12- Receipt
-                addStatement = "INSERT INTO '" + modifiedLN + "' VALUES('"\
-                               + self.ui.DateEditTransDate.date().toString("yyyy/MM/dd") + "', '"\
-                               + self.ui.lEditTransMethod.text() + "', '"\
-                               + self.ui.lEditTransDesc.text() + "', '"\
-                               + self.ui.comboBCategory.currentText() + "', '"\
-                               + str(modDebit) + "', '"\
-                               + str(modCredit) + "', '"\
-                               + "0.00" + "', '"\
-                               + self.ui.textEditAddNotes.toPlainText() + "', '"\
-                               + status + "', '"\
-                               + self.ui.lEditReceipt.text() + "', '"\
-                               + currentDate + "', '"\
-                               + currentDate + "')"
-                specific_sql_statement(addStatement, self.refUserDB, self.error_Logger)
 
-                # It is easier to just update the ledger's balance column every time, versus attempt to calculate the value when adding the transaction.
-                # This will cover both the new transaction and its placement in the ledger.
-                update_ledger_balance(self.ui.comboBLedger1, self.refUserDB, self.error_Logger)
+                transaction_df = pd.DataFrame({'Transaction_Date': [self.ui.DateEditTransDate.date().toString("yyyy/MM/dd")],
+                                               'Transaction_Method': [self.ui.lEditTransMethod.text()],
+                                               'Transaction_Description': [self.ui.lEditTransDesc.text()],
+                                               'Category': [self.ui.comboBCategory.currentText()],
+                                               'Debit': [str(modDebit)],
+                                               'Credit': [str(modCredit)],
+                                               'Balance': ['0.00'],
+                                               'Note': [self.ui.textEditAddNotes.toPlainText()],
+                                               'Status': [status],
+                                               'Receipt': [self.ui.lEditReceipt.text()],
+                                               'Post_Date': [currentDate],
+                                               'Update_Date': [currentDate]})
+                self.activeLedger = self.activeLedger.append(transaction_df, ignore_index=True)
+                self.activeLedger = self.activeLedger.sort_values(by=['Transaction_Date', 'Update_Date'], ascending=True)
+                self.activeLedger = update_df_balance(self.activeLedger)
+
                 subtoc = time.perf_counter()
                 self.transaction_refresh()
                 toc = time.perf_counter()
-                # Keeping timer for future reference. I will want to revisit the method of handling the ledgers.
-                # print(f'Update ledger took {subtoc - tic:0.4f} seconds')
-                # print(f'Full Transaction took {toc - tic:0.4f} seconds')
+                print(f'Update ledger took {subtoc - tic:0.4f} seconds')
+                print(f'Full Transaction took {toc - tic:0.4f} seconds')
             else:
                 input_error = """
                     Transaction Input Instructions:
@@ -334,8 +339,6 @@ class LedgerV1(QDialog):
                 self.input_error_msg(input_error)
 
     def delete_transaction(self):
-        ledgerName = self.ui.comboBLedger1.currentText()
-        modifiedLN = remove_space(ledgerName)
         inputText1 = "Delete Transaction"
         inputText2 = "Enter Row #: "
         row = self.user_selection_input(self.ui.tableWLedger1, inputText1, inputText2) - 1
@@ -343,30 +346,43 @@ class LedgerV1(QDialog):
                         "\nrow #: " + str(row + 1) + " from the ledger"
         confirm = QMessageBox.warning(self, 'Confirm', deleteMessage, QMessageBox.Ok, QMessageBox.Cancel)
         if confirm == QMessageBox.Ok:
-            deleteStatement = "DELETE FROM " + modifiedLN + " WHERE " \
-                              + "Post_Date='" + self.ui.tableWLedger1.item(row, 9).text() + "'"
+            target_transaction = self.activeLedger[(self.activeLedger['Post_Date'] == self.ui.tableWLedger1.item(row, 9).text()) &
+                                                   (self.activeLedger['Transaction_Description'] == self.ui.tableWLedger1.item(row, 2).text())].index
+            self.activeLedger = self.activeLedger.drop(target_transaction, inplace=False)
+            self.activeLedger = self.activeLedger.reset_index(drop=True)
 
-            specific_sql_statement(deleteStatement, self.refUserDB, self.error_Logger)
+            update_df_balance(self.activeLedger)
             self.transaction_refresh()
         else:
             pass
 
     def change_ledger1_account(self):
+        update_df_ledger(self.ledgerContainer, self.active_account, self.error_Logger, self.activeLedger, action="Update")
+
         if self.ui.comboBLedger1.currentText() is None:
-            pass
+            self.toggle_entire_ledger(False)
+            self.active_account = None
+            self.activeLedger = None
         elif self.ui.comboBLedger1.currentText() == "":
-            pass
+            self.toggle_entire_ledger(False)
+            self.active_account = None
+            self.activeLedger = None
         else:
+            self.toggle_entire_ledger(True)
+            self.active_account = self.ui.comboBLedger1.currentText()
+            self.activeLedger = load_df_ledger(self.ledgerContainer, self.active_account)
+            self.activeLedger = self.activeLedger.sort_values(by=['Transaction_Date', 'Update_Date'], ascending=True)
+
             if self.parentType != "Property":
                 self.ui.comboBTab2Year.clear()
-                fill_statement_period(self.ui.comboBLedger1, self.ui.comboBPeriod, "Active", self.refUserDB, self.error_Logger)
-                sql_account = remove_space(self.ui.comboBLedger1.currentText())
-                years, *_ = category_spending_data(self.refUserDB, sql_account, self.error_Logger)
+                fill_statement_period(self.active_account, self.ui.comboBPeriod, "Active", self.refUserDB, self.activeLedger, self.error_Logger)
+                sql_account = remove_space(self.active_account)
+                years, *_ = category_spending_data(self.refUserDB, sql_account, self.activeLedger, self.error_Logger)
                 self.ui.comboBTab2Year.addItems(years)
                 self.set_variable1B()
                 self.set_variable2B()
-                # Spending_tab1 should auto update due to change in the combobox due to new account
-                # Spending_tab2 should auto update due to change in the combobox due to new account
+                # Spending_tabs should auto update due to change in the combobox due to new account
+                self.update_spending_tab("Statement")
                 self.update_spending_tab("Year")
                 self.update_spending_tab("Overall")
                 self.display_ledger_1()
@@ -376,9 +392,9 @@ class LedgerV1(QDialog):
                 self.display_ledger_1()
 
     def display_ledger_1(self):
-        ledger = self.ui.comboBLedger1.currentText()
+        ledger = self.active_account
         statement = self.ui.comboBPeriod.currentText()
-        if ledger == "" or statement == "":
+        if ledger is None or statement == "":
 
             self.ui.tableWLedger1.clearContents()
             self.ui.lAccountBalance.setText("$ 0.00")
@@ -392,7 +408,7 @@ class LedgerV1(QDialog):
 
         else:
             if self.parentType in ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit", "Property"]:
-                disp_LedgerV1_Table(self.ui.comboBLedger1, self.ui.comboBPeriod, self.parentType, self.ui.tableWLedger1, self.refUserDB, self.error_Logger)
+                disp_LedgerV1_Table(self.ui.comboBLedger1, self.ui.comboBPeriod, self.parentType, self.ui.tableWLedger1, self.activeLedger)
                 self.initialMoneyList = self.net_ledger_value()
                 self.ui.lAccountBalance.setText(self.initialMoneyList[1])
             else:
@@ -404,10 +420,6 @@ class LedgerV1(QDialog):
             self.update_spending_tab("Statement")
 
     def transaction_refresh(self):
-        # It is easier to just update the ledger's balance column every time, versus attempt to calculate the value when adding the transaction.
-        # This will cover both the new transaction and its placement in the ledger.
-        update_ledger_balance(self.ui.comboBLedger1, self.refUserDB, self.error_Logger)
-
         # Refreshes the tableWidget to display the most recent statement period. May be considered annoying if working on an old statement.
         self.change_ledger1_account()
 
@@ -438,7 +450,7 @@ class LedgerV1(QDialog):
                 dataPoint = self.ui.tableWLedger1.item(row, col).text()
                 if widget == 2:
                     # col 0 = TDate
-                    self.ui.DateEditTransDate.setDate(QDate.fromString(dataPoint, "yyyy/MM/dd"))
+                    self.ui.DateEditTransDate.setDate(QtCore.QDate.fromString(dataPoint, "MM/dd/yyyy"))
                 elif widget == 3:
                     # col 1 = TM
                     self.ui.lEditTransMethod.setText(dataPoint)
@@ -493,36 +505,45 @@ class LedgerV1(QDialog):
                     self.ui.textEditAddNotes.setPlainText(dataPoint)
         return row
 
-    def update_sql(self, row):
+    def update_dataFrame(self, row):
         from datetime import datetime
         tic = time.perf_counter()
         status = self.transaction_status(self.ui.rBPending, self.ui.rBPosted)
-        ledgerName = self.ui.comboBLedger1.currentText()
-        modifiedLN = remove_space(ledgerName)
         modDebit = str(decimal_places(self.ui.lEditDebit.text(), 2))
         modCredit = str(decimal_places(self.ui.lEditCredit.text(), 2))
         currentDate = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-        updateStatement = "Update '" + modifiedLN + "'" \
-                          + " SET Transaction_Date='" + self.ui.DateEditTransDate.date().toString("yyyy/MM/dd") \
-                          + "', Transaction_Method='" + self.ui.lEditTransMethod.text() \
-                          + "', Transaction_Description='" + self.ui.lEditTransDesc.text() \
-                          + "', Category='" + self.ui.comboBCategory.currentText() \
-                          + "', Debit='" + modDebit \
-                          + "', Credit='" + modCredit \
-                          + "', Note='" + self.ui.textEditAddNotes.toPlainText() \
-                          + "', Status='" + status \
-                          + "', Receipt='" + self.ui.lEditReceipt.text() \
-                          + "', Update_Date='" + currentDate \
-                          + "' WHERE Post_Date='" + self.ui.tableWLedger1.item(row, 9).text() + "'"
-        specific_sql_statement(updateStatement, self.refUserDB, self.error_Logger)
 
-        # It is easier to just update the ledger's balance column every time, versus attempt to calculate the value when adding the transaction.
-        # This will cover both the new transaction and its placement in the ledger.
+        column_headers = ["Transaction_Date",
+                          'Transaction_Method',
+                          'Transaction_Description',
+                          'Category',
+                          'Debit',
+                          'Credit',
+                          'Note',
+                          'Status',
+                          'Receipt',
+                          'Update_Date']
+
+        new_transaction = [self.ui.DateEditTransDate.date().toString("yyyy/MM/dd"),
+                           self.ui.lEditTransMethod.text(),
+                           self.ui.lEditTransDesc.text(),
+                           self.ui.comboBCategory.currentText(),
+                           modDebit,
+                           modCredit,
+                           self.ui.textEditAddNotes.toPlainText(),
+                           status,
+                           self.ui.lEditReceipt.text(),
+                           currentDate]
+
+        target_transaction = self.activeLedger[self.activeLedger['Post_Date'] == self.ui.tableWLedger1.item(row, 9).text()].index
+        self.activeLedger.at[target_transaction, column_headers] = new_transaction
+
         subtoc = time.perf_counter()
-        update_ledger_balance(self.ui.comboBLedger1, self.refUserDB, self.error_Logger)
+        # update_ledger_balance(self.ui.comboBLedger1, self.refUserDB, self.error_Logger)
+        update_df_balance(self.activeLedger)
         toc = time.perf_counter()
-        # print(f'Update ledger took {subtoc - tic:0.4f} seconds')
-        # print(f'Full Transaction took {subtoc - toc:0.4f} seconds')
+        print(f'Update ledger took {subtoc - tic:0.4f} seconds')
+        print(f'Full Transaction took {subtoc - toc:0.4f} seconds')
 
     def update_transaction(self):
         inputText1 = "Update Transaction"
@@ -536,7 +557,7 @@ class LedgerV1(QDialog):
                                 "\nto the current input values designated"
                 reply = QMessageBox.warning(self, 'Verify', updateMessage, QMessageBox.Ok, QMessageBox.Cancel)
                 if reply == QMessageBox.Ok:
-                    self.update_sql(row)
+                    self.update_dataFrame(row)
                     self.transaction_refresh()
 
                 else:
@@ -557,27 +578,30 @@ class LedgerV1(QDialog):
     # Functions Associated with the Ledger Display Frames and the variable values/displays
     def net_ledger_value(self):
         ledgerName = self.ui.comboBLedger1.currentText()
-        modifiedLN = remove_space(ledgerName)
+
         if ledgerName == "":
             netValue = ["0.00", "0.00"]
             return netValue
         else:
-            netValueStatement = f"SELECT SUM(Credit - Debit) FROM '{modifiedLN}' WHERE Status='Posted'"
-            qtyMoney = obtain_sql_value(netValueStatement, self.refUserDB, self.error_Logger)
-            if qtyMoney[0] is None:
+            posted_df = self.activeLedger[['Credit', 'Debit']][self.activeLedger['Status'] == 'Posted'].copy()
+            total_credit = pd.to_numeric(posted_df['Credit'], errors='coerce').sum()
+            total_debit = pd.to_numeric(posted_df['Debit'], errors='coerce').sum()
+            qtyMoney = total_credit - total_debit
+
+            if qtyMoney is None:
                 moneyWOComma = "0.00"
                 formatString = "$ 0.00"
                 moneylist = [moneyWOComma, formatString]
                 return moneylist
-            elif qtyMoney[0] < 0:
-                rounded_qtyMoney = round(qtyMoney[0], 2)
+            elif qtyMoney < 0:
+                rounded_qtyMoney = round(qtyMoney, 2)
                 moneyWComma = add_comma(rounded_qtyMoney, 2)
                 moneyWOComma = "-" + remove_comma(moneyWComma)
                 formatString = "($ " + moneyWComma + ")"
                 moneylist = [moneyWOComma, formatString]
                 return moneylist
             else:
-                rounded_qtyMoney = round(qtyMoney[0], 2)
+                rounded_qtyMoney = round(qtyMoney, 2)
                 moneyWComnma = add_comma(rounded_qtyMoney, 2)
                 moneyWOComma = remove_comma(moneyWComnma)
                 formatString = "$ " + moneyWComnma
@@ -643,7 +667,7 @@ class LedgerV1(QDialog):
             pass
         else:
             account = remove_space(self.ui.comboBLedger1.currentText())
-            spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, target_tab, self.ui.comboBPeriod.currentText(), self.error_Logger)
+            spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, self.activeLedger, target_tab, self.ui.comboBPeriod.currentText(), self.error_Logger)
 
             if target_tab == "Statement":
                 label_dict = self.statement_label_dict
@@ -700,11 +724,11 @@ class LedgerV1(QDialog):
             pass
         else:
             if target_tab == 'Year' and self.ui.comboBTab2Year.currentText() != "":
-                spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, target_tab, self.ui.comboBTab2Year.currentText(), self.error_Logger)
+                spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, self.activeLedger, target_tab, self.ui.comboBTab2Year.currentText(), self.error_Logger)
             elif target_tab == "Statement" and self.ui.comboBPeriod.currentText() != "":
-                spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, target_tab, self.ui.comboBPeriod.currentText(), self.error_Logger)
+                spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, self.activeLedger, target_tab, self.ui.comboBPeriod.currentText(), self.error_Logger)
             else:  # Overall
-                spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, target_tab, self.ui.comboBTab2Year.currentText(), self.error_Logger)
+                spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, self.activeLedger, target_tab, self.ui.comboBTab2Year.currentText(), self.error_Logger)
 
             for count, value in enumerate(spending_statement_data, start=1):
                 try:
@@ -735,9 +759,9 @@ class LedgerV1(QDialog):
         else:
             oRName = self.ui.lEditReceipt.text()
             self.ui.lEditReceipt.setText("")
-            rowList = find_mult_row(self.ui.tableWLedger1, 7, oRName)
+            rowList = self.activeLedger.loc[self.activeLedger['Receipt'] == oRName]
             # if no rows are found with the file. The image is just deleted
-            if len(rowList) == 0:
+            if rowList.shape[0] == 0:
                 self.ui.lEditReceipt.setText("")
                 modifiedLN = remove_space(self.ui.comboBLedger1.currentText())
                 oRName_path = file_destination(['Receipts', self.refUser, self.parentType, modifiedLN])
@@ -757,7 +781,7 @@ class LedgerV1(QDialog):
             elif len(row) >= 1:
                 target_row = self.select_transaction()
                 self.clear_receipt_action()
-                self.update_sql(target_row)
+                self.update_dataFrame(target_row)
             else:
                 self.clear_receipt_action()
 
