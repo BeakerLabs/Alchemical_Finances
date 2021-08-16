@@ -3,15 +3,18 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-import time
+import sqlite3
 
 from PySide2 import QtGui, QtCore, QtWidgets
 from PySide2.QtCore import QObject, QThread, Signal, Slot
-from PySide2.QtWidgets import QDialog, QApplication
+from PySide2.QtWidgets import QDialog
+from sqlite3 import Error
 
 from Frontend.SaveDFlUi import Ui_SaveDF
 
-from Backend.DataFrame import empty_container, df_saveto_sql
+from Backend.DataFrame import empty_container
+
+from Toolbox.Formatting_Tools import remove_space
 
 
 class SaveProgress(QDialog):
@@ -19,7 +22,7 @@ class SaveProgress(QDialog):
         super().__init__()
         self.ui = Ui_SaveDF()
         self.ui.setupUi(self)
-        self.setModal(True)
+        # self.setModal(True)
         self.show()
 
         self.ledgerContainer = ledgerContainer
@@ -33,13 +36,16 @@ class SaveProgress(QDialog):
         self.accept()
 
     def EstablishThread(self):
-        self.Processor = ProgressThread(self.ui.labelActionInProgress, self.ui.saveProgressBar, self.ledgerContainer, self.refuserDB, self.errorLog)
-        self.ThreadHolder = QThread()
-        self.Processor.moveToThread(self.ThreadHolder)
-        self.ThreadHolder.started.connect(self.Processor.ProcessRunner)
-        self.ThreadHolder.start()
+        self.processor = ProgressThread(self.ledgerContainer, self.refuserDB, self.errorLog)
+        self.threadHolder = QThread()
+        self.processor.moveToThread(self.threadHolder)
+        self.threadHolder.started.connect(self.processor.ProcessRunner)
+        self.threadHolder.start()
 
-        self.Processor.saveFinishedSignal.connect(self.FilesSaved)
+        self.processor.saveFinishedSignal.connect(self.FilesSaved)
+        self.processor.labelSignal.connect(self.updateLabel)
+        self.processor.valueSignal.connect(self.updateProgress)
+
 
     @Slot(str)
     def FilesSaved(self, status):
@@ -48,47 +54,65 @@ class SaveProgress(QDialog):
         else:
             pass
 
+    @Slot(int)
+    def updateProgress(self, value):
+        self.ui.saveProgressBar.setValue(value)
+
+    @Slot(str)
+    def updateLabel(self, account):
+        self.ui.labelActionInProgress.setText(f"In Progress of Saving:  {account}")
+
 
 class ProgressThread(QObject):
     saveFinishedSignal = Signal(str)
+    labelSignal = Signal(str)
+    valueSignal = Signal(int)
 
-    def __init__(self, accountlabel, progressBar, ledgerContainer, database, error_log):
+    def __init__(self, ledgerContainer, database, error_log):
         super().__init__()
         self.connected = True
 
-        self.actionLabel = accountlabel
-        self.progressBar = progressBar
         self.ledgerContainer = ledgerContainer
         self.refuserDB = database
         self.errorLog = error_log
         self.ledger_dictionary = empty_container(self.ledgerContainer)
         self.ledger_count = len(self.ledger_dictionary)
-        print(f"Total Ledger Count: {self.ledger_count}")
         self.savePercentage = 0
         self.count = 0
 
     def ProcessRunner(self):
         while self.connected:
-            for account in self.ledger_dictionary:
-                self.actionLabel.setText(f"In Progress of Saving:  {account}")
-                saveSuccess = df_saveto_sql(account, self.ledger_dictionary[account], self.refuserDB, self.errorLog)
-                if saveSuccess:
-                    self.savePercentage += (1 / self.ledger_count) * 100
-                    self.count += 1
-                    self.progressBar.setValue(self.savePercentage)
-                    print(f"Saved: {self.count}/{self.ledger_count}")
-                    time.sleep(0.3)
-                else:
-                    print(f"Failed: {self.count}/{self.ledger_count} -- {account}")
-                    time.sleep(0.3)
-                    self.connected = False
+            try:
+                conn = sqlite3.connect(self.refuserDB)
+                with conn:
+                    for account in self.ledger_dictionary:
+                        self.labelSignal.emit(account)
+                        self.count += 1
+                        print(f"Saved: {self.count}/{self.ledger_count} -- [{account}]")
+                        sql_tableName = remove_space(account)
+                        target_DF = self.ledger_dictionary[account]
+
+                        target_DF.to_sql(sql_tableName,
+                                         conn,
+                                         if_exists="replace",
+                                         index=False,
+                                         index_label=None)
+                        self.savePercentage += (1 / self.ledger_count) * 100
+                        self.valueSignal.emit(self.savePercentage)
+
+
+            except Error:
+                conn.close()
+                error_string = f"""DataFrame_Func: df_saveto_sql \n account: "{account} \n database: {self.refuserDB}"""
+                self.error_log.error(error_string, exc_info=True)
+            finally:
+                conn.close()
 
             if round(self.savePercentage) == 100 and self.count == self.ledger_count:
                 self.connected = False
             else:
                 self.savePercentage = 100
-                self.progressBar.setValue(self.savePercentage)
-                time.sleep(0.3)
+                self.valueSignal.emit(self.savePercentage)
                 self.connected = False
 
         self.saveFinishedSignal.emit("Saved")

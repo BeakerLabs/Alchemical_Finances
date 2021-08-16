@@ -28,11 +28,14 @@ from StyleSheets.SummaryCSS import summarySTD, parentFormat, columnHeader, accou
 class Ledger_Summary(QDialog):
     remove_tab_LS = QtCore.Signal(str)
 
-    def __init__(self, parent, database, error_Log):
+    def __init__(self, parent, database, ledgerContainer, error_Log):
         super().__init__(parent)
         self.ui = Ui_Summary()
         self.ui.setupUi(self)
+
         self.refUserDB = database
+        self.ledgerContainer = ledgerContainer
+
         self.summaryTuple = None
         self.summaryFrame_width = self.ui.frameSummary.geometry().width()
         self.progress_width = self.summaryFrame_width * (2/3)
@@ -493,76 +496,76 @@ class Ledger_Summary(QDialog):
                         self.progBardic[account[3]] = debtprogressBar
                         self.progressHBoxLayout.addWidget(debtprogressBar)
 
-            for account in self.balancelabeldic:
-                balanceStatement = f"SELECT Balance, ItemType, ParentType FROM Account_Summary WHERE ID='{account}'"
-                accountInfo = obtain_sql_value(balanceStatement, self.refUserDB, self.error_Logger)
+        for account in self.balancelabeldic:
+            balanceStatement = f"SELECT Balance, ItemType, ParentType FROM Account_Summary WHERE ID='{account}'"
+            accountInfo = obtain_sql_value(balanceStatement, self.refUserDB, self.error_Logger)
 
-                if accountInfo is None:
-                    accountInfo = (0.00, "Deleted", "Deleted")
+            if accountInfo is None:
+                accountInfo = (0.00, "Deleted", "Deleted")
 
-                modBalance = add_comma(accountInfo[0],  2)
-                targetlabel = self.balancelabeldic[account]
+            modBalance = add_comma(accountInfo[0],  2)
+            targetlabel = self.balancelabeldic[account]
 
-                if accountInfo[1] == "Liability":
-                    if accountInfo[0] >= 0:
-                        targetlabel.setText(f"(${modBalance})")
-                    else:
-                        targetlabel.setText(f"${modBalance}")
-                elif accountInfo[1] == "Deleted":
-                    targetlabel.setText("$ 0.00")
+            if accountInfo[1] == "Liability":
+                if accountInfo[0] >= 0:
+                    targetlabel.setText(f"(${modBalance})")
                 else:
-                    if accountInfo[0] >= 0:
-                        targetlabel.setText(f"${modBalance}")
-                    else:
-                        targetlabel.setText(f"(${modBalance})")
-
-                if account in self.progBardic:
-                    if accountInfo[2] == "Debt":
-                        start = self.obtain_liability_start("Starting_Balance", "Debt_Account_Details", account)
-                        progress = (decimal_places(accountInfo[0], 2) / decimal_places(start, 2)) * 100
-                        progress = int(progress)
-                        targetbar = self.progBardic[account]
-                        targetbar.setProperty("value", progress)
-                    elif accountInfo[2] == "Deleted":
-                        progress = 100
-                        targetbar = self.progBardic[account]
-                        targetbar.setProperty("value", progress)
-                    else:
-                        start = self.obtain_liability_start("Credit_Limit", "Credit_Account_Details", account)
-                        progress = 100 - ((decimal_places(accountInfo[0], 2) / decimal_places(start, 2)) * 100)
-                        progress = int(progress)
-                        targetbar = self.progBardic[account]
-                        targetbar.setProperty("value", progress)
-
-            for parentType in self.subtotaldic:
-                if parentType == "Certificate of Deposit":
-                    sqlparentType = "CD"
-                elif parentType == "Treasury Bonds":
-                    sqlparentType = "Treasury"
+                    targetlabel.setText(f"${modBalance}")
+            elif accountInfo[1] == "Deleted":
+                targetlabel.setText("$ 0.00")
+            else:
+                if accountInfo[0] >= 0:
+                    targetlabel.setText(f"${modBalance}")
                 else:
-                    sqlparentType = parentType
-                subTotalStatement = f"SELECT SUM(Balance), ItemType FROM Account_Summary WHERE ParentType='{sqlparentType}'"
-                subTotalInfo = obtain_sql_value(subTotalStatement, self.refUserDB, self.error_Logger)
-                preModSubTotal = subTotalInfo[0]
+                    targetlabel.setText(f"(${modBalance})")
 
-                if preModSubTotal is None:
-                    preModSubTotal = 0.0
-
-                if subTotalInfo[1] == "Liability":
-                    raw_Balance = - preModSubTotal
+            if account in self.progBardic:
+                if accountInfo[2] == "Debt":
+                    start = self.obtain_liability_start("Starting_Balance", "Debt_Account_Details", account)
+                    progress = (decimal_places(accountInfo[0], 2) / decimal_places(start, 2)) * 100
+                    progress = int(progress)
+                    targetbar = self.progBardic[account]
+                    targetbar.setProperty("value", progress)
+                elif accountInfo[2] == "Deleted":
+                    progress = 100
+                    targetbar = self.progBardic[account]
+                    targetbar.setProperty("value", progress)
                 else:
-                    raw_Balance = preModSubTotal
+                    start = self.obtain_liability_start("Credit_Limit", "Credit_Account_Details", account)
+                    progress = 100 - ((decimal_places(accountInfo[0], 2) / decimal_places(start, 2)) * 100)
+                    progress = int(progress)
+                    targetbar = self.progBardic[account]
+                    targetbar.setProperty("value", progress)
 
-                modBalance = decimal_places(raw_Balance, 2)
-                modSubTotal = add_comma(modBalance, 2)
-                targetlabel = self.subtotaldic[parentType]
+        for parentType in self.subtotaldic:
+            if parentType == "Certificate of Deposit":
+                sqlparentType = "CD"
+            elif parentType == "Treasury Bonds":
+                sqlparentType = "Treasury"
+            else:
+                sqlparentType = parentType
+            subTotalStatement = f"SELECT SUM(Balance), ItemType FROM Account_Summary WHERE ParentType='{sqlparentType}'"
+            subTotalInfo = obtain_sql_value(subTotalStatement, self.refUserDB, self.error_Logger)
+            preModSubTotal = subTotalInfo[0]
 
-                if modBalance > 0:
-                    targetlabel.setText("  $  " + modSubTotal + "    ")
-                elif modBalance == 0:
-                    targetlabel.setText("$  0.00     ")
-                else:
-                    targetlabel.setText("  ($  " + modSubTotal + ")    ")
+            if preModSubTotal is None:
+                preModSubTotal = 0.0
+
+            if subTotalInfo[1] == "Liability":
+                raw_Balance = - preModSubTotal
+            else:
+                raw_Balance = preModSubTotal
+
+            modBalance = decimal_places(raw_Balance, 2)
+            modSubTotal = add_comma(modBalance, 2)
+            targetlabel = self.subtotaldic[parentType]
+
+            if modBalance > 0:
+                targetlabel.setText("  $  " + modSubTotal + "    ")
+            elif modBalance == 0:
+                targetlabel.setText("$  0.00     ")
+            else:
+                targetlabel.setText("  ($  " + modSubTotal + ")    ")
 
     def obtain_liability_start(self, col, tableName, accountName):
         startStatement = f"SELECT {col} FROM {tableName} WHERE Account_Name='{accountName}'"

@@ -134,7 +134,7 @@ class LedgerV2(QDialog):
 
     # Opens Modal Dialogs for ledger Modification
     def accounts_dialog(self):
-        alf = AccountsDetails(self.refUserDB, self.parentType, self.refUser, self.error_Logger)
+        alf = AccountsDetails(self.refUserDB, self.parentType, self.refUser, self.ledgerContainer, self.error_Logger)
         if alf.exec_() == QDialog.Accepted:
             self.ui.comboBLedger2.clear()
             self.ui.comboBPeriod.clear()
@@ -290,8 +290,6 @@ class LedgerV2(QDialog):
                 self.input_error_msg(input_error)
 
     def change_ledger2_account(self):
-        update_df_ledger(self.ledgerContainer, self.active_account, self.error_Logger, self.activeLedger, action="Update")
-
         if self.ui.comboBLedger2.currentText() is None:
             self.toggle_entire_ledger(False)
             self.active_account = None
@@ -301,6 +299,7 @@ class LedgerV2(QDialog):
             self.active_account = None
             self.activeLedger = None
         else:
+            update_df_ledger(self.ledgerContainer, self.active_account, self.error_Logger, self.activeLedger, action="Update")
             self.toggle_entire_ledger(True)
             self.active_account = self.ui.comboBLedger2.currentText()
 

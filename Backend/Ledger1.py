@@ -84,8 +84,11 @@ class LedgerV1(QDialog):
         fill_widget(self.ui.comboBLedger1, self.comboBoxAccountStatement, True, self.refUserDB, self.error_Logger)
 
         self.active_account = self.ui.comboBLedger1.currentText()
-        self.activeLedger = load_df_ledger(self.ledgerContainer, self.active_account)
-        self.activeLedger = self.activeLedger.sort_values(by=['Transaction_Date', 'Update_Date'], ascending=True)
+        if self.active_account == "" or self.active_account is None:
+            pass
+        else:
+            self.activeLedger = load_df_ledger(self.ledgerContainer, self.active_account)
+            self.activeLedger = self.activeLedger.sort_values(by=['Transaction_Date', 'Update_Date'], ascending=True)
 
         self.comboBoxCategoriesStatement = f"SELECT Method FROM Categories WHERE ParentType= '{self.parentType}'"
         fill_widget(self.ui.comboBCategory, self.comboBoxCategoriesStatement, True, self.refUserDB, self.error_Logger)
@@ -159,7 +162,7 @@ class LedgerV1(QDialog):
 
     # Opens Modal Dialogs for ledger Modification
     def accounts_dialog(self):
-        alf = AccountsDetails(self.refUserDB, self.parentType, self.refUser, self.error_Logger)
+        alf = AccountsDetails(self.refUserDB, self.parentType, self.refUser, self.ledgerContainer, self.error_Logger)
         if alf.exec_() == QDialog.Accepted:
             self.ui.comboBLedger1.clear()
             self.ui.comboBPeriod.clear()

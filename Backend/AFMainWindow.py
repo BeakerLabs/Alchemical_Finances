@@ -15,7 +15,6 @@ import os
 import pickle
 import shutil
 import sqlite3
-import threading
 
 from pathlib import Path
 from PySide2.QtWidgets import QMainWindow, QDialog, QMessageBox
@@ -33,7 +32,7 @@ from Backend.Ledger2 import LedgerV2
 from Backend.OverTimeGraph import OverTimeGraph
 from Backend.Profile import Profile
 from Backend.RequestReport import user_report_request
-from Backend.SaveDataFrame import ProgressThread, SaveProgress
+from Backend.SaveDataFrame import SaveProgress
 # from Backend.Scrape import update_stock_price
 from Backend.Summary import Ledger_Summary
 
@@ -161,7 +160,7 @@ class AFBackbone(QMainWindow):
             self.tabdic.update({"Profile": profile})
 
         else:
-            summary = Ledger_Summary(self, self.refUserDB, self.error_Logger)
+            summary = Ledger_Summary(self, self.refUserDB, self.ledger_container, self.error_Logger)
             self.ui.mdiArea.addSubWindow(summary)
             summary.remove_tab_LS.connect(self.remove_tab)
             summary.showMaximized()
@@ -316,7 +315,7 @@ class AFBackbone(QMainWindow):
             self.tabdic[parentType].setFocus()
         except KeyError:
             if parentType == "Summary":
-                summary = Ledger_Summary(self, self.refUserDB, self.error_Logger)
+                summary = Ledger_Summary(self, self.refUserDB, self.ledger_container, self.error_Logger)
                 self.ui.mdiArea.addSubWindow(summary)
                 summary.remove_tab_LS.connect(self.remove_tab)
                 summary.showMaximized()

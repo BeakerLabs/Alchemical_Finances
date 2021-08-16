@@ -7,7 +7,7 @@ Future Concepts
 """
 
 #  Copyright (c) 2021 Beaker Labs LLC.
-#  This software the GNU LGPLv3.0 License
+#  This software the GNU LGPLv30 License
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
@@ -34,9 +34,8 @@ class OverTimeGraph(QDialog):
         super().__init__(parent)
         self.ui = Ui_OverTimeGraph()
         self.ui.setupUi(self)
-        self.refUserDB = database
 
-        # Program Error Logger
+        self.refUserDB = database
         self.error_Logger = error_log
 
         self.lgraphCanvas = AF_Canvas(self, width=5, height=4, dpi=400)
@@ -111,7 +110,6 @@ class OverTimeGraph(QDialog):
             self.ui.lLLWorth.setHidden(True)
 
         else:
-            print("test")
             pass
 
     def update_lg_plot(self, canvas, account):

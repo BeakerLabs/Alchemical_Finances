@@ -14,7 +14,7 @@ Future Concepts
 import os
 import shutil
 
-from Backend.DataFrame import create_DF, update_df_ledger
+from Backend.DataFrame import create_DF, load_df_ledger, update_df_ledger
 from Backend.Question import YNTypeQuestion
 
 from Frontend.AccountsUi import Ui_Accounts
@@ -559,6 +559,13 @@ class AccountsDetails(QDialog):
 
                 os.rmdir(new_receipt_dir)
                 os.rename(old_receipt_dir, new_receipt_dir)
+
+                current_ledger = load_df_ledger(self.ledgerContainer, currentLedgerName)
+
+                update_df_ledger(self.ledgerContainer, currentLedgerName, self.error_Logger, activeLedger=current_ledger, action="Rename", new_account=accountName)
+
+
+
             else:
                 ledgerUpdate = f"SELECT Subtype FROM AccountSubType WHERE ParentType='{self.parentType}'"
                 accountWorth = f"ALTER TABLE AccountWorth RENAME COLUMN '{sqlCurrentLedgerName}' TO '{sqlNewLedgerName}'"

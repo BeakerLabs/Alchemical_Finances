@@ -60,43 +60,24 @@ def load_df_ledger(ledgerContainer, account):
     try:
         activeLedger = ledger_dictionary[account]
     except KeyError:
-        activeLedger = pd.DataFrame({'Transaction_Date': ['null'],
-                                     'Transaction_Method': ['null'],
-                                     'Transaction_Description': ['null'],
-                                     'Category': ['null'],
-                                     'Debit': ['null'],
-                                     'Credit': ['null'],
-                                     'Balance': ['null'],
-                                     'Note': ['null'],
-                                     'Status': ['null'],
-                                     'Receipt': ['null'],
-                                     'Post_Date': ['null'],
-                                     'Update_Date': ['null']})
+        if account == "" or account is None:
+            pass
+        else:
+            activeLedger = pd.DataFrame({'Transaction_Date': ['null'],
+                                         'Transaction_Method': ['null'],
+                                         'Transaction_Description': ['null'],
+                                         'Category': ['null'],
+                                         'Debit': ['null'],
+                                         'Credit': ['null'],
+                                         'Balance': ['null'],
+                                         'Note': ['null'],
+                                         'Status': ['null'],
+                                         'Receipt': ['null'],
+                                         'Post_Date': ['null'],
+                                         'Update_Date': ['null']})
     finally:
         del ledger_dictionary
         return activeLedger
-
-
-def df_saveto_sql(account, ledger, database, error_log):
-    target_DF = ledger
-    sql_tableName = remove_space(account)
-
-    try:
-        conn = sqlite3.connect(database)
-        with conn:
-            target_DF.to_sql(sql_tableName,
-                             conn,
-                             if_exists="replace",
-                             index=False,
-                             index_label=None)
-    except Error:
-        conn.close()
-        error_string = f"""DataFrame_Func: df_saveto_sql \n account: "{account} \n database: {database}"""
-        error_log.error(error_string, exc_info=True)
-        return False
-    finally:
-        conn.close()
-        return True
 
 
 def empty_container(ledgerContainer):
@@ -109,7 +90,9 @@ def empty_container(ledgerContainer):
 def update_df_ledger(ledgerContainer, account, error_log, activeLedger, action="Update", new_account=None):
     ledger_dictionary = empty_container(ledgerContainer)
 
-    if action == "Update":
+    if account is None:
+        pass
+    elif action == "Update":
         ledger_dictionary[account] = activeLedger
     elif action == "Delete":
         try:
