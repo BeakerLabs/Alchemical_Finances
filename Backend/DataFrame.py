@@ -87,12 +87,19 @@ def empty_container(ledgerContainer):
     return ledger_dictionary
 
 
+def refill_container(ledgerContainer, ledgerDictionary):
+    container = open(ledgerContainer, "wb+")
+    pickle.dump(ledgerDictionary, container)
+    container.close()
+    return
+
+
 def update_df_ledger(ledgerContainer, account, error_log, activeLedger, action="Update", new_account=None):
     ledger_dictionary = empty_container(ledgerContainer)
 
     if account is None:
         pass
-    elif action == "Update":
+    elif action == "Update" or action == "New":
         ledger_dictionary[account] = activeLedger
     elif action == "Delete":
         try:
@@ -107,9 +114,7 @@ def update_df_ledger(ledgerContainer, account, error_log, activeLedger, action="
             error_String = f"""DataFrame_Func: update_df_ledger \n action: {action} Failed to execute \n account: {account} and new_account: {new_account}"""
             error_log.error(error_String, exc_info=True)
 
-    refill_container = open(ledgerContainer, "wb+")
-    pickle.dump(ledger_dictionary, refill_container)
-    refill_container.close()
+    refill_container(ledgerContainer, ledger_dictionary)
     del ledger_dictionary
 
 

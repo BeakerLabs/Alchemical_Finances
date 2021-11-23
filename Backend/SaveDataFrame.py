@@ -12,7 +12,7 @@ from sqlite3 import Error
 
 from Frontend.SaveDFlUi import Ui_SaveDF
 
-from Backend.DataFrame import empty_container
+from Backend.DataFrame import empty_container, refill_container
 
 from Toolbox.Formatting_Tools import remove_space
 
@@ -46,12 +46,13 @@ class SaveProgress(QDialog):
         self.processor.labelSignal.connect(self.updateLabel)
         self.processor.valueSignal.connect(self.updateProgress)
 
-
     @Slot(str)
     def FilesSaved(self, status):
         if status == "Saved":
+            print("Saved")
             self.close()
         else:
+            print("Failed")
             pass
 
     @Slot(int)
@@ -100,7 +101,6 @@ class ProgressThread(QObject):
                         self.savePercentage += (1 / self.ledger_count) * 100
                         self.valueSignal.emit(self.savePercentage)
 
-
             except Error:
                 conn.close()
                 error_string = f"""DataFrame_Func: df_saveto_sql \n account: "{account} \n database: {self.refuserDB}"""
@@ -115,6 +115,7 @@ class ProgressThread(QObject):
                 self.valueSignal.emit(self.savePercentage)
                 self.connected = False
 
+        del self.ledger_dictionary
         self.saveFinishedSignal.emit("Saved")
 
 

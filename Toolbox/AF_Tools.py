@@ -30,7 +30,7 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, parentType, tablew
     pending = 0
 
     tablewidget.setColumnCount(11)
-    tablewidget.clear()
+    tablewidget.clearContents()
 
     if ledgerName == "":
         pass
@@ -44,8 +44,6 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, parentType, tablew
 
         else:
             target_transactions = activeLedger
-
-        tablewidget.setColumnCount(11)
 
         for data_point in target_transactions:
             data_point[0] = datetime.strptime(data_point[0], "%Y/%m/%d")
@@ -128,22 +126,17 @@ def disp_LedgerV2_Table(account_combobox, statement_combobox, tablewidget, activ
     statement_day = statement_combobox.currentText()
 
     pending = 0
+    tablewidget.setColumnCount(11)
+    tablewidget.clearContents()
+
     if ledgerName == "":
         pass
     else:
-        # modifiedLN = remove_space(ledgerName)
-        # sortTable = "SELECT Transaction_Date, Transaction_Description, Category, (Credit - Debit), (Purchased - Sold), Price, Status, Receipt, Note," \
-        #             " Post_Date, Update_Date FROM '{0}' ORDER BY Transaction_Date ASC LIMIT 0, 49999".format(modifiedLN)
-
-        # 0 - TDate 1 - TDes 2 - Cat 3 - Amount 4 - Shares 5 - Price 6 - Status - 7 - Receipt - 8 Notes - 9 Date
-        # complete_ledger = obtain_sql_list(sortTable, database, error_log)
         target_transactions = statement_range(activeLedger, statement_day)
 
         if len(target_transactions) == 0:
             statement_index = statement_combobox.currentIndex()
             statement_combobox.removeItem(statement_index)
-
-        tablewidget.setColumnCount(11)
 
         for data_point in target_transactions:
             data_point[0] = datetime.strptime(data_point[0], "%Y/%m/%d")
@@ -160,7 +153,6 @@ def disp_LedgerV2_Table(account_combobox, statement_combobox, tablewidget, activ
                           data_point[8],   # Note
                           data_point[11],  # Post_Date
                           ]
-
 
             current_row = tablewidget.rowCount()
             tablewidget.insertRow(current_row)

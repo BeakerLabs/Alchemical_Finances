@@ -11,6 +11,8 @@ Future Concepts
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
+import pandas as pd
+
 from PySide2 import QtGui, QtCore, QtWidgets
 from PySide2.QtWidgets import QDialog, QFrame, QVBoxLayout, QLabel, QSizePolicy, QSpacerItem, QProgressBar
 from PySide2.QtCore import Slot
@@ -21,6 +23,7 @@ from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
 from Toolbox.Formatting_Tools import add_comma, cash_format, decimal_places, remove_space
 from Toolbox.AF_Tools import set_font
 
+from Backend.DataFrame import empty_container
 from Backend.BuildGraphs import snapshot_chart, AF_Canvas
 from StyleSheets.SummaryCSS import summarySTD, parentFormat, columnHeader, accountDetails, messageFormat, subtotalBalanceFormat
 
@@ -43,6 +46,8 @@ class Ledger_Summary(QDialog):
         self.row = 0
         # label dictionary[AccountName] = label for Account Balances
         self.balancelabeldic = {}
+        # label dictionary[AccountName] = label for Share Balances
+        self.shareBalancelabeldic = {}
         # label dictionary[ParentType] = label for SubType Balances
         self.subtotaldic = {}
         # label dictionary[AccountName] = label for ProgressBar
@@ -248,6 +253,7 @@ class Ledger_Summary(QDialog):
                         lShareBalance.setStyleSheet(accountDetails)
                         lShareBalance.setFixedHeight(self.labelHeight)
                         self.accountHBoxLayout.addWidget(lShareBalance)
+                        self.shareBalancelabeldic[account[3]] = lShareBalance
 
                     lBalance = QLabel(self)
                     lBalance.setObjectName("labelBal" + accountID)
@@ -366,14 +372,16 @@ class Ledger_Summary(QDialog):
     def refresh_balance_labels(self):
         current_accounts_statement = f"SELECT ItemType, ParentType, SubType, ID, Balance FROM Account_Summary"
         current_accounts_raw = obtain_sql_list(current_accounts_statement, self.refUserDB, self.error_Logger)
-        current_accounts = []
+        new_accounts = []
+
+        ledger_dictionary = empty_container(self.ledgerContainer)
 
         for account in current_accounts_raw:
             if account[3] not in self.balancelabeldic:
-                current_accounts.append(account)
+                new_accounts.append(account)
 
-        if len(current_accounts) > 0:
-            for account in current_accounts:
+        if len(new_accounts) > 0:
+            for account in new_accounts:
                 try:
                     target_layout = self.accountLayoutdic[account[1]]
                 except KeyError:
@@ -430,6 +438,7 @@ class Ledger_Summary(QDialog):
                         lShareBalance.setStyleSheet(accountDetails)
                         lShareBalance.setFixedHeight(self.labelHeight)
                         self.accountHBoxLayout.addWidget(lShareBalance)
+                        self.shareBalancelabeldic[account[3]] = lShareBalance
 
                     lBalance = QLabel(self)
                     lBalance.setObjectName("labelBal" + accountID)
@@ -536,6 +545,19 @@ class Ledger_Summary(QDialog):
                     progress = int(progress)
                     targetbar = self.progBardic[account]
                     targetbar.setProperty("value", progress)
+
+        for account in self.shareBalancelabeldic:
+            ledgerDF = ledger_dictionary[account]
+            ledgerDF['Sold'] = pd.to_numeric(ledgerDF['Sold'], errors='coerce')
+            ledgerDF['Purchased'] = pd.to_numeric(ledgerDF['Purchased'], errors='coerce')
+            sharesSold = ledgerDF['Sold'].sum()
+            sharesPurchased = ledgerDF['Purchased'].sum()
+            shareBalance = decimal_places(str(sharesPurchased), 4) - decimal_places(str(sharesSold), 4)
+            shareBalance = str(shareBalance)
+
+            shareBalLabel = self.shareBalancelabeldic[account]
+
+            shareBalLabel.setText(shareBalance)
 
         for parentType in self.subtotaldic:
             if parentType == "Certificate of Deposit":

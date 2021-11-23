@@ -434,6 +434,10 @@ class LedgerV1(QDialog):
 
         # Clears Inputs to allow for a new transaction
         self.clear_inputs()
+        update_df_ledger(self.ledgerContainer,
+                         self.active_account,
+                         self.error_Logger,
+                         self.activeLedger)
 
         # Triggers to refresh the other variables on the QMainWindow and subsequently the Summary window (if open)
         self.trigger_refresh()
@@ -781,8 +785,13 @@ class LedgerV1(QDialog):
                 self.clear_receipt_action()
             elif len(row) >= 1:
                 target_row = self.select_transaction()
-                self.clear_receipt_action()
-                self.update_dataFrame(target_row)
+                if target_row >= 0:
+                    self.clear_receipt_action()
+                    self.update_dataFrame(target_row)
+                    self.transaction_refresh()
+                else:
+                    # Canceling the selection returns a -1 value
+                    pass
             else:
                 self.clear_receipt_action()
 

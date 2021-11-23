@@ -122,7 +122,7 @@ def decimal_places(value: str, number: int):
     """
     turns the string (of float) into a DECIMAL with a set number of decimal places
 
-    :param value: float
+    :param value: string
     :param number: int
     :return: DECIMAL
     """

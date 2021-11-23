@@ -302,10 +302,8 @@ class LedgerV2(QDialog):
             update_df_ledger(self.ledgerContainer, self.active_account, self.error_Logger, self.activeLedger, action="Update")
             self.toggle_entire_ledger(True)
             self.active_account = self.ui.comboBLedger2.currentText()
-
             self.activeLedger = load_df_ledger(self.ledgerContainer, self.active_account)
             self.activeLedger = self.activeLedger.sort_values(by=['Transaction_Date', 'Update_Date'], ascending=True)
-
 
             self.ui.comboBPeriod.clear()
             fill_statement_period(self.active_account, self.ui.comboBPeriod, "Active", self.refUserDB, self.activeLedger, self.error_Logger)
@@ -336,10 +334,10 @@ class LedgerV2(QDialog):
     def display_ledger_2(self):
         ledger = self.ui.comboBLedger2.currentText()
         statement = self.ui.comboBPeriod.currentText()
-        if ledger == "":
+        if ledger is None or ledger == "":
             pass
         elif statement == "":
-            pass
+            self.ui.tableWLedger2.clearContents()
         else:
             parentType_statement = f"SELECT ParentType FROM Account_Summary WHERE ID='{ledger}'"
             parentType_value = obtain_sql_value(parentType_statement, self.refUserDB, self.error_Logger)
@@ -375,6 +373,7 @@ class LedgerV2(QDialog):
             total_purchased = pd.to_numeric(netValue_df['Purchased'], errors='coerce').sum()
             total_sold = pd.to_numeric(netValue_df['Sold'], errors='coerce').sum()
             qtyShares = total_purchased - total_sold
+            qtyShares = qtyShares.item()
 
             self.tickerPrice = self.obtain_ticker_price()
 
@@ -414,6 +413,7 @@ class LedgerV2(QDialog):
                 shareBalance = "ERROR <0"
                 return shareBalance
             else:
+                shareBalance = shareBalance.item()
                 formatedShares = decimal_places(shareBalance, 4)
                 formatedStrShares = str(formatedShares)
                 return formatedStrShares
@@ -541,10 +541,16 @@ class LedgerV2(QDialog):
         # Clears Inputs to allow for a new transaction
         self.clear_inputs()
 
+        # Update the
+        update_df_ledger(self.ledgerContainer,
+                         self.active_account,
+                         self.error_Logger,
+                         self.activeLedger)
+
         # Triggers to refresh the other variables on the QMainWindow and subsequently the Summary window (if open)
         self.trigger_refresh()
 
-    def update_sql(self, row):
+    def update_df(self, row):
         from datetime import datetime
         modDebit = str(decimal_places(self.ui.lEditDebit.text(), 2))
         modCredit = str(decimal_places(self.ui.lEditCredit.text(), 2))
@@ -595,7 +601,7 @@ class LedgerV2(QDialog):
                                 "\nto the current input values designated"
                 reply = QMessageBox.warning(self, 'Verify', updateMessage, QMessageBox.Ok, QMessageBox.Cancel)
                 if reply == QMessageBox.Ok:
-                    self.update_sql(row)
+                    self.update_df(row)
                     self.transaction_refresh()
                 else:
                     pass
@@ -657,8 +663,13 @@ class LedgerV2(QDialog):
                 self.clear_receipt_action()
             elif len(row) >= 1:
                 target_row = self.select_transaction()
-                self.clear_receipt_action()
-                self.update_sql(target_row)
+                if target_row >= 0:
+                    self.clear_receipt_action()
+                    self.update_df(target_row)
+                    self.transaction_refresh()
+                else:
+                    # Canceling the selection returns a -1 value
+                    pass
             else:
                 self.clear_receipt_action()
 

@@ -67,8 +67,8 @@ def main():
         user = porcelainoffering.refUser
         messageCount = porcelainoffering.count
         error_Log = porcelainoffering.error_Logger
-        PorcelainSupplement = Message(messageCount, user, error_Log)
-        if PorcelainSupplement.exec_() == QDialog.Accepted:
+        porcelainSupplement = Message(messageCount, user, error_Log)
+        if porcelainSupplement.exec_() == QDialog.Accepted:
             porcelaingod = AFBackbone(user, messageCount, error_Log)
             porcelaingod.show()
             sys.exit(app.exec_())

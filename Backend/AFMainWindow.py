@@ -18,7 +18,7 @@ import sqlite3
 
 from pathlib import Path
 from PySide2.QtWidgets import QMainWindow, QDialog, QMessageBox
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2 import QtCore
 from PySide2.QtCore import Slot
 from sqlite3 import Error
 
@@ -608,7 +608,7 @@ class AFBackbone(QMainWindow):
             self.ui.labelTAssests.setText(netWorth[2])
             self.ui.labelTLiabilities.setText(netWorth[3])
             self.saveToggle = False
-            self.trigger_refresh_summer()
+            self.trigger_refresh_summary()
         else:
             pass
 
@@ -621,7 +621,7 @@ class AFBackbone(QMainWindow):
         except KeyError:
             self.statusBar().showMessage(f"""ERROR: AFMainWindow: remove_tab \n message: {message} \n tabledic contents: {self.tabdic}""")
 
-    def trigger_refresh_summer(self):
+    def trigger_refresh_summary(self):
         """ Signal to trigger the Summary QDialog to refresh Account Balances """
         self.refresh_signal_summary.emit("2")
 

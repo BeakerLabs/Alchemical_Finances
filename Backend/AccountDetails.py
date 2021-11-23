@@ -160,7 +160,7 @@ class AccountsDetails(QDialog):
         execute_sql_statement_list(statement_list, self.refUserDB, self.error_Logger)
 
         new_account_df = create_DF(accountName, self.refUserDB, self.error_Logger)
-        update_df_ledger(self.ledgerContainer, accountName, self.error_Logger, activeLedger=None, action="Update", new_account=new_account_df)
+        update_df_ledger(self.ledgerContainer, accountName, self.error_Logger, activeLedger=new_account_df, action="New")
 
     def archive_account(self):
         if self.ui.listWidgetAccount.currentItem() is None:
