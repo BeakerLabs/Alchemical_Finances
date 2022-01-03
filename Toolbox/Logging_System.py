@@ -9,6 +9,7 @@ Future Concepts
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
+import os
 import logging
 import sys
 
@@ -51,3 +52,9 @@ def get_logger(logger_name, log_file):
     logger.addHandler(get_file_handler(log_file))
     logger.propagate = False
     return logger
+
+
+if __name__ == "__main__":
+
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

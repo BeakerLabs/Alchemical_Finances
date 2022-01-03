@@ -11,6 +11,7 @@ Future Concepts
 #  contact@beakerlabstech.com
 
 import os
+import sys
 
 from PySide2.QtWidgets import QDialog, QFileDialog
 from PySide2 import QtCore, QtWidgets
@@ -45,6 +46,7 @@ class user_report_request(QDialog):
             self.ui.cBCD,
             self.ui.cBCC,
             self.ui.cBEquity,
+            self.ui.cBProperty,
             self.ui.cBRetirement,
             self.ui.cBTreasury,
             self.ui.cBDebt,
@@ -55,6 +57,7 @@ class user_report_request(QDialog):
             self.ui.cBCash: "Cash",
             self.ui.cBCD: "CD",
             self.ui.cBEquity: "Equity",
+            self.ui.cBProperty: "Property",
             self.ui.cBRetirement: "Retirement",
             self.ui.cBTreasury: "Treasury",
             self.ui.cBDebt: "Debt",
@@ -104,4 +107,5 @@ class user_report_request(QDialog):
 
 
 if __name__ == "__main__":
-    print("error")
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

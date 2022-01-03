@@ -3,8 +3,10 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
+import os
 import pickle
 import sqlite3
+import sys
 
 from sqlite3 import Error
 
@@ -248,6 +250,8 @@ def sqlite3_keyword_check(statement: str):
         return False
 
 
-# --- Catchall --- #
-if __name__ == '__main__':
-    print("Error - Check your executable")
+if __name__ == "__main__":
+    import os
+    import sys
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

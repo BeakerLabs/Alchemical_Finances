@@ -12,7 +12,10 @@ Future Feature
 1) Add Check box to "Disable the welcome message"
 
 """
+
+import os
 import pickle
+import sys
 
 from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtGui import QPixmap
@@ -205,4 +208,5 @@ class Ui_WelcomeMessage(object):
 
 
 if __name__ == "__main__":
-    print("error")
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

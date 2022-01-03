@@ -4,7 +4,9 @@
 #  contact@beakerlabstech.com
 
 # Dialog screen for use to determine what categories are used to calculate spending habits
+
 import sys
+import os
 
 from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtWidgets import QMainWindow, QDialog, QApplication, QLayout
@@ -152,5 +154,5 @@ class Ui_ToggleCategories(object):
 
 
 if __name__ == "__main__":
-    print("error")
-
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

@@ -7,7 +7,9 @@
 # Archived Accounts are accounts that have been closed.
 # Archiving keeps the account history without it being apart of the summary report
 
+import os
 import pickle
+import sys
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
@@ -177,7 +179,7 @@ class Ui_Archive(object):
         self.hBLayout2.addWidget(self.comboBStatements)
 
 
-
-
 if __name__ == "__main__":
-    print("error")
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")
+

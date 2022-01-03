@@ -12,6 +12,7 @@ Future Concepts
 
 import os
 import shutil
+import sys
 
 from PySide2.QtWidgets import QMessageBox, QDialog, QInputDialog
 from PySide2 import QtCore
@@ -228,6 +229,6 @@ class Archive(QDialog):
             return row
 
 
-# --- Catchall --- #
-if __name__ == '__main__':
-    print("Error - Check your executable")
+if __name__ == "__main__":
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

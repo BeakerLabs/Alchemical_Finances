@@ -16,6 +16,7 @@ to clarify function/purpose of any given object.
 
 import os
 import pandas as pd
+import sys
 import time
 
 from PySide2.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog
@@ -67,6 +68,7 @@ class LedgerV1(QDialog):
             "Bank": "Bank_Account_Details",
             "Cash": "Cash_Account_Details",
             "CD": "CD_Account_Details",
+            "CD": "CD_Account_Details",
             "Treasury": "Treasury_Account_Details",
             "Credit": "Credit_Account_Details",
             "Debt": "Debt_Account_Details",
@@ -85,7 +87,7 @@ class LedgerV1(QDialog):
 
         self.active_account = self.ui.comboBLedger1.currentText()
         if self.active_account == "" or self.active_account is None:
-            pass
+            self.activeLedger = None
         else:
             self.activeLedger = load_df_ledger(self.ledgerContainer, self.active_account)
             self.activeLedger = self.activeLedger.sort_values(by=['Transaction_Date', 'Update_Date'], ascending=True)
@@ -189,11 +191,12 @@ class LedgerV1(QDialog):
 
     # Opens Modal Dialog for Spending Category Modifications
     def categories_dialog(self):
-        molly = SpendingCategories(self.refUserDB, self.parentType, self.error_Logger)
+        molly = SpendingCategories(self.refUserDB, self.parentType, self.ledgerContainer, self.error_Logger)
         if molly.exec_() == QDialog.Accepted:
             self.ui.comboBCategory.clear()
             self.comboBoxCategoriesStatement = f"SELECT Method FROM Categories WHERE ParentType= '{self.parentType}'"
             fill_widget(self.ui.comboBCategory, self.comboBoxCategoriesStatement, True, self.refUserDB, self.error_Logger)
+            self.trigger_refresh()
 
     # Opens Modal Dialog for Modifying which Spending Categories are used in the Graphical Calculations
     def toggle_dialog(self):
@@ -272,14 +275,14 @@ class LedgerV1(QDialog):
             self.ui.lStaticVariable1.setHidden(True)
             self.ui.lVariable1.hide()
         elif self.parentType == "CD" or self.parentType == "Treasury":
-            pass
+            self.ui.lStaticVariable1.setText("Maturity Date:")
         elif self.parentType == "Credit":
             self.ui.rightDisplayFrame.setHidden(True)
             self.ui.lStaticVariable1.setHidden(True)
             self.ui.lVariable1.setHidden(True)
             self.ui.lStaticInterestRate.setText("Credit Limit:")
         elif self.parentType == "Debt":
-            self.ui.lStaticVariable1.setText(" Starting Balance:")
+            self.ui.lStaticVariable1.setText("Starting Balance:")
         else:  # Cash and Property
             self.ui.centerDisplayFrame.setHidden(True)
             self.ui.rightDisplayFrame.setHidden(True)
@@ -358,7 +361,10 @@ class LedgerV1(QDialog):
             pass
 
     def change_ledger1_account(self):
-        update_df_ledger(self.ledgerContainer, self.active_account, self.error_Logger, self.activeLedger, action="Update")
+        if self.activeLedger is None:
+            pass
+        else:
+            update_df_ledger(self.ledgerContainer, self.active_account, self.error_Logger, self.activeLedger, action="Update")
 
         if self.ui.comboBLedger1.currentText() is None:
             self.toggle_entire_ledger(False)
@@ -394,7 +400,12 @@ class LedgerV1(QDialog):
 
     def display_ledger_1(self):
         ledger = self.active_account
-        statement = self.ui.comboBPeriod.currentText()
+
+        if self.parentType != "Property":
+            statement = self.ui.comboBPeriod.currentText()
+        else:
+            statement = "filler"
+
         if ledger is None or statement == "":
 
             self.ui.tableWLedger1.clearContents()
@@ -489,7 +500,7 @@ class LedgerV1(QDialog):
                         displayValue = remove_comma(dataPoint)
                         self.ui.lEditDebit.setText(displayValue)
                     elif dataPoint[len(dataPoint) - 1:] == " ":
-                        dataPoint = dataPoint[:len(dataPoint) - 1]
+                        dataPoint = dataPoint[1:len(dataPoint) - 1]
                         displayValue = remove_comma(dataPoint)
                         self.ui.lEditCredit.setText(displayValue)
                 elif widget == 7:
@@ -758,23 +769,26 @@ class LedgerV1(QDialog):
                     target_label.setText("")
 
     # Functions focused around the Receipt/Invoice inputs
-    def clear_receipt_action(self):
-        if self.ui.lEditReceipt.text() == "":
-            pass
-        else:
-            oRName = self.ui.lEditReceipt.text()
-            self.ui.lEditReceipt.setText("")
-            rowList = self.activeLedger.loc[self.activeLedger['Receipt'] == oRName]
-            # if no rows are found with the file. The image is just deleted
-            if rowList.shape[0] == 0:
-                self.ui.lEditReceipt.setText("")
-                modifiedLN = remove_space(self.ui.comboBLedger1.currentText())
-                oRName_path = file_destination(['Receipts', self.refUser, self.parentType, modifiedLN])
-                oRName_path = Path.cwd() / oRName_path / oRName
-                os.remove(oRName_path)
-            # If >= 1 row is found with the file name. Then the lineEdit is just cleared
+    def clear_receipt_action(self, delete=False):
+        if delete:
+            if self.ui.lEditReceipt.text() == "":
+                pass
             else:
+                oRName = self.ui.lEditReceipt.text()
                 self.ui.lEditReceipt.setText("")
+                rowList = self.activeLedger.loc[self.activeLedger['Receipt'] == oRName]
+                # if no rows are found with the file. The image is just deleted
+                if rowList.shape[0] == 1:
+                    self.ui.lEditReceipt.setText("")
+                    modifiedLN = remove_space(self.ui.comboBLedger1.currentText())
+                    oRName_path = file_destination(['Receipts', self.refUser, self.parentType, modifiedLN])
+                    oRName_path = Path.cwd() / oRName_path / oRName
+                    os.remove(oRName_path)
+                # If >= 2 row is found with the file name. Then the lineEdit is just cleared
+                else:
+                    self.ui.lEditReceipt.setText("")
+        else:
+            self.ui.lEditReceipt.setText("")
 
     def delete_receipt_action(self):
         if self.ui.lEditReceipt.text() == "":
@@ -786,7 +800,7 @@ class LedgerV1(QDialog):
             elif len(row) >= 1:
                 target_row = self.select_transaction()
                 if target_row >= 0:
-                    self.clear_receipt_action()
+                    self.clear_receipt_action(delete=True)
                     self.update_dataFrame(target_row)
                     self.transaction_refresh()
                 else:
@@ -959,6 +973,7 @@ class LedgerV1(QDialog):
         self.ui.pBUpdate.setEnabled(toggle)
         self.ui.pBDelete.setEnabled(toggle)
         self.ui.pBClearInputs.setEnabled(toggle)
+        self.ui.tableWLedger1.setEnabled(toggle)
 
         if self.parentType == "Property":
             self.ui.pBUploadHouse.setEnabled(toggle)
@@ -982,4 +997,5 @@ class LedgerV1(QDialog):
 
 
 if __name__ == "__main__":
-    print("error")
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

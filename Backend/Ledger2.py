@@ -16,6 +16,7 @@ to clarify function/purpose of any given object.
 
 import os
 import pandas as pd
+import sys
 
 from PySide2.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog
 from PySide2.QtCore import QDate
@@ -154,7 +155,7 @@ class LedgerV2(QDialog):
             self.trigger_refresh()
 
     def categories_dialog(self):
-        molly = SpendingCategories(self.refUserDB, self.parentType, self.error_Logger)
+        molly = SpendingCategories(self.refUserDB, self.parentType, self.ledgerContainer, self.error_Logger)
         if molly.exec_() == QDialog.Accepted:
             self.ui.comboBCategory.clear()
             self.comboBoxCategoriesStatement = f"SELECT Method FROM Categories WHERE ParentType= '{self.parentType}'"
@@ -481,7 +482,7 @@ class LedgerV2(QDialog):
                         displayValue = remove_comma(dataPoint)
                         self.ui.lEditDebit.setText(displayValue)
                     elif dataPoint[len(dataPoint) - 1:] == " ":
-                        dataPoint = dataPoint[:len(dataPoint) - 1]
+                        dataPoint = dataPoint[1:len(dataPoint) - 1]
                         displayValue = remove_comma(dataPoint)
                         self.ui.lEditCredit.setText(displayValue)
                 elif widget == 6:
@@ -636,23 +637,26 @@ class LedgerV2(QDialog):
         self.trigger_refresh()
 
     # Functions Associated with Receipts/Invoices
-    def clear_receipt_action(self):
-        if self.ui.lEditReceipt.text() == "":
-            pass
-        else:
-            oRName = self.ui.lEditReceipt.text()
-            self.ui.lEditReceipt.setText("")
-            rowList = self.activeLedger.loc[self.activeLedger['Receipt'] == oRName]
-            # if no rows are found with the file. The image is just deleted
-            if rowList.shape[0] == 0:
-                self.ui.lEditReceipt.setText("")
-                modifiedLN = remove_space(self.ui.comboBLedger2.currentText())
-                oRName_path = file_destination(['Receipts', self.refUser, self.parentType, modifiedLN])
-                oRName_path = Path.cwd() / oRName_path / oRName
-                os.remove(oRName_path)
-            # If >= 1 row is found with the file name. Then the lineEdit is just cleared
+    def clear_receipt_action(self, delete=False):
+        if delete:
+            if self.ui.lEditReceipt.text() == "":
+                pass
             else:
+                oRName = self.ui.lEditReceipt.text()
                 self.ui.lEditReceipt.setText("")
+                rowList = self.activeLedger.loc[self.activeLedger['Receipt'] == oRName]
+                # if no rows are found with the file. The image is just deleted
+                if rowList.shape[0] == 1:
+                    self.ui.lEditReceipt.setText("")
+                    modifiedLN = remove_space(self.ui.comboBLedger2.currentText())
+                    oRName_path = file_destination(['Receipts', self.refUser, self.parentType, modifiedLN])
+                    oRName_path = Path.cwd() / oRName_path / oRName
+                    os.remove(oRName_path)
+                # If >= 2 row is found with the file name. Then the lineEdit is just cleared
+                else:
+                    self.ui.lEditReceipt.setText("")
+        else:
+            self.ui.lEditReceipt.setText("")
 
     def delete_receipt_action(self):
         if self.ui.lEditReceipt.text() == "":
@@ -859,4 +863,5 @@ class LedgerV2(QDialog):
 
 
 if __name__ == "__main__":
-    print("error")
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

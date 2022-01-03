@@ -3,9 +3,11 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-import sqlite3
+import os
 import pandas as pd
 import pickle
+import sqlite3
+import sys
 
 from sqlite3 import Error
 
@@ -138,6 +140,5 @@ def update_df_balance(activeLedger):
 
 
 if __name__ == "__main__":
-    print("Error - Check your executable")
-
-
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

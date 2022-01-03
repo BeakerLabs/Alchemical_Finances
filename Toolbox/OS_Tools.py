@@ -2,8 +2,10 @@
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
+
 import os
 from pathlib import Path
+import sys
 
 
 # --- OS Functions --- #
@@ -33,6 +35,7 @@ def file_destination(dir_name_lst=None):
     return file_path
 
 
-# --- Catchall --- #
-if __name__ == '__main__':
-    print("Error - Check your executable")
+if __name__ == "__main__":
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")
+

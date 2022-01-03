@@ -46,3 +46,9 @@ QLabel#lLowPoints{
     background-color: #FAFAFA;
 }
 """
+
+if __name__ == "__main__":
+    import os
+    import sys
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

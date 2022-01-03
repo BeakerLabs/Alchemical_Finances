@@ -6,7 +6,9 @@
 # This file will be used to generate the About Alchemical Finances SubWindow
 
 import codecs
+import os
 import pickle
+import sys
 
 from PySide2 import QtCore, QtGui, QtWidgets
 from PySide2.QtGui import QPixmap
@@ -283,4 +285,5 @@ class Ui_AboutScreen(object):
 
 
 if __name__ == "__main__":
-    print("error")
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

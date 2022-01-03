@@ -10,7 +10,9 @@ Future Concepts
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
+import os
 import pickle
+import sys
 
 from pathlib import Path
 from Frontend.WelcomeMessageUi import Ui_WelcomeMessage
@@ -100,4 +102,5 @@ class Message(QDialog):
 
 
 if __name__ == "__main__":
-    print("error")
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

@@ -3,7 +3,9 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
+import os
 import sqlite3
+import sys
 
 from PySide2 import QtGui, QtCore, QtWidgets
 from PySide2.QtCore import QObject, QThread, Signal, Slot
@@ -120,6 +122,5 @@ class ProgressThread(QObject):
 
 
 if __name__ == "__main__":
-    print("Check Executable")
-
-
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

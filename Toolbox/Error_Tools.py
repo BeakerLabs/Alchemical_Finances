@@ -3,6 +3,9 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
+import os
+import sys
+
 def alpha_numeric_check(userValue: str):
     """
     Function used to ensure the input only has desired alphanumeric values.
@@ -138,6 +141,8 @@ def spacing_check(user_value: str):
     return True
 
 
-# --- Catchall --- #
-if __name__ == '__main__':
-    print("Error - Check your executable")
+if __name__ == "__main__":
+    import os
+    import sys
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

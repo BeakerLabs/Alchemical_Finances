@@ -3,6 +3,9 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
+import os
+import sys
+
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
@@ -26,7 +29,6 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, parentType, tablew
     centered = [0, 3]
     ledgerName = account_combobox.currentText()
     statement_day = statement_combobox.currentText()
-
     pending = 0
 
     tablewidget.setColumnCount(11)
@@ -36,14 +38,14 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, parentType, tablew
         pass
     else:
         if parentType != "Property":
-            target_transactions = statement_range(activeLedger, statement_day)
+            target_transactions = statement_range(activeLedger, statement_day, parentType)
 
             if len(target_transactions) == 0:
                 statement_index = statement_combobox.currentIndex()
                 statement_combobox.removeItem(statement_index)
 
         else:
-            target_transactions = activeLedger
+            target_transactions = statement_range(activeLedger, "January 01, 2018", parentType)
 
         for data_point in target_transactions:
             data_point[0] = datetime.strptime(data_point[0], "%Y/%m/%d")
@@ -132,7 +134,7 @@ def disp_LedgerV2_Table(account_combobox, statement_combobox, tablewidget, activ
     if ledgerName == "":
         pass
     else:
-        target_transactions = statement_range(activeLedger, statement_day)
+        target_transactions = statement_range(activeLedger, statement_day, parentType="Equity")  # Actual parentType doesn't matter
 
         if len(target_transactions) == 0:
             statement_index = statement_combobox.currentIndex()
@@ -354,19 +356,27 @@ def rename_image(accountComboBox, categoryComboBox):
     return newImageName
 
 
-def statement_range(activeLedger: object, statement_day: str):
+def statement_range(activeLedger: object, statement_day: str, parentType: str):
     """
     Function used to filter out the transactions associated with the active statement period. This avoid a 500 transaction table.
     :param activeLedger: object
-    :param month: str(datetime.strftime('%B %d %Y'))
+    :param statement_day: str-- (datetime.strftime('%B %d %Y'))
+    :param parentType: str -- Ledger Type
     :return: list
     """
     from datetime import datetime
     convert_to_datetime = datetime.strptime(statement_day, '%B %d, %Y')
     format_datetime = convert_to_datetime.strftime("%Y/%m/%d")
     return_to_datetime = datetime.strptime(format_datetime, "%Y/%m/%d")
-    start_datetime = return_to_datetime + relativedelta(months=-1)
-    end_datetime = return_to_datetime + relativedelta(days=-1)
+
+    if parentType == "Property":
+        start_datetime = datetime.strptime("2010/01/01", "%Y/%m/%d")
+        today = datetime.today() + relativedelta(days=1)
+        today_str = today.strftime("%Y/%m/%d")
+        end_datetime = datetime.strptime(today_str, "%Y/%m/%d")
+    else:
+        start_datetime = return_to_datetime + relativedelta(months=-1)
+        end_datetime = return_to_datetime + relativedelta(days=-1)
 
     target_transactions = []
 
@@ -482,6 +492,6 @@ def set_networth(database: str, error_log, tablename="Account_Summary",  togglef
 #         running_balance = float(trans_balance_calc)
 
 
-# --- Catchall --- #
-if __name__ == '__main__':
-    print("Error - Check your executable")
+if __name__ == "__main__":
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

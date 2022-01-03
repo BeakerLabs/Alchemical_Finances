@@ -172,6 +172,8 @@ def remove_comma(value: str):
     """
     displayValue = ""
     for digit in value:
+        if digit == " ":
+            pass
         if digit == ",":
             pass
         elif digit == "-":
@@ -209,6 +211,9 @@ def convert_to_float(datapoint):
     return datapoint
 
 
-# --- Catchall --- #
-if __name__ == '__main__':
-    print("Error - Check your executable")
+if __name__ == "__main__":
+    import os
+    import sys
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")
+

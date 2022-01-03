@@ -13,6 +13,7 @@ Future Concepts
 
 import os
 import shutil
+import sys
 
 from Backend.DataFrame import create_DF, load_df_ledger, update_df_ledger
 from Backend.Question import YNTypeQuestion
@@ -190,9 +191,10 @@ class AccountsDetails(QDialog):
 
     def disp_current_selection(self):
         variant1 = ["Bank", "Credit"]
-        variant2 = ["CD", "Treasury", "Debt", "Equity", "Retirement"]
-        variant3 = "Property"
-        variant4 = "Cash"
+        variant2 = ["CD", "Treasury", "Debt", "Retirement"]
+        variant3 = "Equity"
+        variant4 = "Property"
+        variant5 = "Cash"
 
         if self.ui.listWidgetAccount.currentItem() is None:
             account = None
@@ -229,10 +231,16 @@ class AccountsDetails(QDialog):
                 self.ui.spinBStatement.setValue(spinBox)
                 self.ui.lEditV1.setText(str(account[5]))
                 self.ui.lEditV2.setText(str(account[6]))
+
+            elif self.parentType in variant3:
+                spinBox = int(account[4])
+                self.ui.spinBStatement.setValue(spinBox)
+                self.ui.lEditV1.setText(str(account[5]))
+                self.ui.lEditV2.setText(str(account[6]))
                 sectorItem = account[7]
                 self.find_combobox_text(self.ui.comboboxSector, sectorItem)
 
-            elif self.parentType in variant3:
+            elif self.parentType in variant4:
                 self.ui.lEditV1.setText(str(account[4]))
                 self.ui.lEditV2.setText(str(account[5]))
                 comboState = account[6]
@@ -618,7 +626,9 @@ class AccountsDetails(QDialog):
 
 
 if __name__ == "__main__":
-    print("error")
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")
+
 
 
 

@@ -10,7 +10,14 @@ Future Concepts
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
+import os
+import pandas as pd
+import sys
+
 from PySide2.QtWidgets import QDialog, QMessageBox
+
+from Backend.DataFrame import load_df_ledger, update_df_ledger
+
 from Frontend.CategoriesUi import Ui_Categories
 
 from Toolbox.AF_Tools import fill_widget
@@ -20,12 +27,13 @@ from Toolbox.SQL_Tools import attempt_sql_statement, obtain_sql_list, specific_s
 
 
 class SpendingCategories(QDialog):
-    def __init__(self, database, parentType, error_log):
+    def __init__(self, database, parentType, ledger_container, error_log):
         super().__init__()
         self.ui = Ui_Categories()
         self.ui.setupUi(self)
         self.refUserDB = database
         self.parentType = parentType
+        self.ledgerContainer = ledger_container
         self.dialogState = None
         self.initialCategory = None
 
@@ -146,6 +154,10 @@ class SpendingCategories(QDialog):
                 reply = QMessageBox.question(self, "Confirmation", question, QMessageBox.Yes, QMessageBox.No)
                 if reply == QMessageBox.Yes:
                     self.replace_category(self.initialCategory)
+                    reminder_statement = "Remember to save to keep changes"
+                    reminder = QMessageBox.information(self, "Reminder", reminder_statement, QMessageBox.Close, QMessageBox.NoButton)
+                    if reminder == QMessageBox.Close:
+                        pass
                 else:
                     pass
 
@@ -213,31 +225,29 @@ class SpendingCategories(QDialog):
         for category in raw_category_list:
             category_list.append(category[0])
 
-        if replacement_value in category_list:
+        # To avoid creating a duplicate value
+        if category_list.count(replacement_value) > 1:
             delete_statement = f"DELETE FROM Categories WHERE Method ='{initial}' AND ParentType ='{self.parentType}'"
             specific_sql_statement(delete_statement, self.refUserDB, self.error_Logger)
-        else:
-            update_statement = f"UPDATE Categories SET Method='{replacement_value}' WHERE Method='{initial}'"
-            specific_sql_statement(update_statement, self.refUserDB, self.error_Logger)
+
+        # Replaces the initial value with the replacement value
+        update_statement = f"UPDATE Categories SET Method='{replacement_value}' WHERE Method='{initial}'"
+        specific_sql_statement(update_statement, self.refUserDB, self.error_Logger)
 
         # Replace the value in all accounts associated with that parentType
         accounts_list_statement = f"SELECT Account_Name FROM {parentType_dict[self.parentType]}"
         raw_accounts_list = obtain_sql_list(accounts_list_statement, self.refUserDB, self.error_Logger)
-        sql_accounts_list = []
 
         for account in raw_accounts_list:
-            sql_account = remove_space(account[0])
-            sql_accounts_list.append(sql_account)
+            target_ledger = load_df_ledger(self.ledgerContainer, account[0])
+            target_ledger.loc[(target_ledger.Category == initial), 'Category'] = replacement_value
+            update_df_ledger(self.ledgerContainer,
+                             account[0],
+                             self.error_Logger,
+                             target_ledger)
 
-        for account in sql_accounts_list:
-            target_transaction_Statement = f"SELECT ROWID FROM {account} WHERE Category='{initial}'"
-            raw_transaction_list = obtain_sql_list(target_transaction_Statement, self.refUserDB, self.error_Logger)
-
-            for rowID in raw_transaction_list:
-                row = rowID[0]
-                replace_category_statement = f"UPDATE {account} SET Category='{replacement_value}' WHERE ROWID='{row}'"
-                specific_sql_statement(replace_category_statement, self.refUserDB, self.error_Logger)
 
 
 if __name__ == "__main__":
-    print("Error")
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

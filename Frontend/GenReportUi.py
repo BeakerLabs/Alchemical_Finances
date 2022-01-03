@@ -5,6 +5,9 @@
 
 # Dialog screen for user to set parameters to generate a .pdf snapshot report
 
+import os
+import sys
+
 from PySide2 import QtCore, QtGui, QtWidgets
 
 
@@ -191,4 +194,5 @@ class Ui_GenReport(object):
 
 
 if __name__ == "__main__":
-    print("Error")
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

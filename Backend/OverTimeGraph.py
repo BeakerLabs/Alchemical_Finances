@@ -12,6 +12,8 @@ Future Concepts
 #  contact@beakerlabstech.com
 
 import numpy as np
+import os
+import sys
 
 from PySide2 import QtGui, QtCore, QtWidgets
 from PySide2.QtWidgets import QDialog, QVBoxLayout
@@ -213,11 +215,11 @@ class OverTimeGraph(QDialog):
     def obtainPeakValues(self, account):
         from datetime import datetime
         if account == "Net_Worth_Graph":
-            statement = "SELECT * FROM NetWorth"
+            statement = "SELECT Date, ROUND(Gross, 2), ROUND(Liabilities, 2), ROUND(Net, 2) FROM NetWorth"
             # Date, Gross, Liabilities, Net
             row = obtain_sql_list(statement, self.refUserDB, self.error_Logger)
         else:
-            statement = f"""SELECT Date, "{account}" FROM AccountWorth ORDER BY DATE Limit 0, 49999"""
+            statement = f"""SELECT Date, ROUND(IFNULL("{account}", 0),2) FROM AccountWorth ORDER BY DATE Limit 0, 49999"""
             row = obtain_sql_list(statement, self.refUserDB, self.error_Logger)
 
         # Gross peak format will be used as the Account Value from Account Worth
@@ -275,4 +277,6 @@ class OverTimeGraph(QDialog):
 
 
 if __name__ == "__main__":
-    print("error")
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")
+

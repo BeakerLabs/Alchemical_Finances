@@ -6,7 +6,9 @@
 # This Front End Code is used to Generate the GUI for the MainWindow of the Alchemical Finances Program
 # Many of the UI will be placed into the MdiArea as sub windows. Some will be dialog boxes
 
+import os
 import pickle
+import sys
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
@@ -290,3 +292,8 @@ class Ui_MainWindow(object):
         self.actionGenerate.setText(_translate("MainWindow", "Generate Report", None))
         self.actionNWG.setText(_translate("MainWindow", "Over Time Graph", None))
         self.actionProfile.setText(_translate("MainWindow", "User Profile", None))
+
+
+if __name__ == "__main__":
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

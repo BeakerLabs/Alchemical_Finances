@@ -10,6 +10,9 @@ Future Concepts
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
+import os
+import sys
+
 from PySide2.QtWidgets import QDialog, QInputDialog
 
 from Frontend.SubTypeQuestionUi import Ui_YNCInput
@@ -66,4 +69,5 @@ class YNTypeQuestion(QDialog):
 
 
 if __name__ == "__main__":
-    print("error")
+    sys.tracebacklimit = 0
+    raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")
