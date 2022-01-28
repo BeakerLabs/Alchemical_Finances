@@ -18,7 +18,7 @@ import os
 import pandas as pd
 import sys
 
-from PySide2.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog
+from PySide2.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog, QVBoxLayout
 from PySide2.QtCore import QDate
 from PySide2 import QtGui, QtCore, QtWidgets
 
@@ -26,6 +26,7 @@ from pathlib import Path, PurePath
 from shutil import copy
 
 from Backend.AccountDetails import AccountsDetails
+from Backend.BuildGraphs import AF_Canvas, spending_chart
 from Backend.DataFrame import load_df_ledger, update_df_ledger, update_df_balance
 from Backend.LedgerDataAnalysis import equity_subtype_data
 from Backend.SpendingCategories import SpendingCategories
@@ -76,6 +77,21 @@ class LedgerV2(QDialog):
         self.subType_label_dict = {}
         self.investment_label_dict = {}
         self.sector_label_dict = {}
+
+        # Canvas -- Type
+        self.typeCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
+        self.tCanvasLayout = QVBoxLayout(self.ui.typeFrame)
+        self.tCanvasLayout.addWidget(self.typeCanvas)
+
+        # Canvas -- Investment
+        self.investmentCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
+        self.iCanvasLayout = QVBoxLayout(self.ui.investmentFrame)
+        self.iCanvasLayout.addWidget(self.investmentCanvas)
+
+        # Canvas -- Sector
+        self.sectorCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
+        self.sCanvasLayout = QVBoxLayout(self.ui.SectorFrame)
+        self.sCanvasLayout.addWidget(self.sectorCanvas)
 
         # Prepare Widgets for initial Use
         self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
@@ -415,9 +431,9 @@ class LedgerV2(QDialog):
                 return shareBalance
             else:
                 shareBalance = shareBalance.item()
-                formatedShares = decimal_places(shareBalance, 4)
-                formatedStrShares = str(formatedShares)
-                return formatedStrShares
+                formattedShares = decimal_places(shareBalance, 4)
+                formattedStrShares = str(formattedShares)
+                return formattedStrShares
 
     def obtain_ticker_price(self):
         tickerPriceStatement = f"SELECT Stock_Price FROM {self.parentType_dict[self.parentType]} WHERE Account_Name ='{self.ui.comboBLedger2.currentText()}'"
@@ -427,18 +443,6 @@ class LedgerV2(QDialog):
         else:
             tickerPrice = str(decimal_places(tickerPrice[0], 4))
         return tickerPrice
-
-    def refresh_ticker_price(self):
-        tickerUpdate = f"SELECT Stock_Price FROM {self.parentType_dict[self.parentType]} WHERE Account_Name ='{self.ui.comboBLedger2.currentText()}'"
-        tickerPrice = obtain_sql_value(tickerUpdate, self.refUserDB, self.error_Logger)
-        updateLedgerValue = decimal_places(tickerPrice[0], 4) * decimal_places(self.ui.lShareBalance.text(), 4)
-        updateLedgerValue = decimal_places(updateLedgerValue, 2)
-        balanceUpdate = f"UPDATE Account_Summary SET Balance='{str(updateLedgerValue)}' WHERE ID='{self.ui.comboBLedger2.currentText()}'"
-        specific_sql_statement(balanceUpdate, self.refUserDB, self.error_Logger)
-        newledgerValue = self.net_ledger_value()
-        self.ui.lAccountBalance.setText(newledgerValue[1])
-        self.ui.lVariable1.setText("$ " + str(decimal_places(tickerPrice[0], 4)))
-        self.trigger_refresh()
 
     def select_transaction(self):
         self.clear_inputs()
@@ -711,7 +715,7 @@ class LedgerV2(QDialog):
     def upload_receipt_action(self):
         suffixlist = ['.jpg', '.jpeg', 'JPEG', '.gif', '.pdf', '.png']
         rname, _ = QFileDialog.getOpenFileName(self, 'Target Receipt', '/home',
-                                               'Images (*.png *.jpg  *.jpeg *.gif);; PDF (*.pdf *.PDF)')
+                                               'Combined ( * );; Images ( *.png *.jpg *.jpeg *.gif );; PDF ( *.pdf *.PDF )')
         if rname:
             rname_path = Path(rname)
             suffix = PurePath(rname_path).suffix
@@ -757,14 +761,17 @@ class LedgerV2(QDialog):
             string_dictionary = subType_string_dict
             label_dictionary = self.subType_label_dict
             layout = self.ui.typeScrollLayout
+            spending_chart(subType_data, self.typeCanvas)
         elif target_tab == "Investment":
             string_dictionary = investment_string_dict
             label_dictionary = self.investment_label_dict
             layout = self.ui.investmentScrollLayout
+            spending_chart(investment_data, self.investmentCanvas)
         elif target_tab == "Sector":
             string_dictionary = sector_string_dict
             label_dictionary = self.sector_label_dict
             layout = self.ui.sectorScrollLayout
+            spending_chart(sector_data, self.sectorCanvas)
         else:
             raise Exception("Ledger Type 2 Doesn't Contain that Tab Widget")
 
@@ -791,14 +798,17 @@ class LedgerV2(QDialog):
             label_dict = self.subType_label_dict
             string_data = subType_string_dict
             scroll_layout = self.ui.typeScrollLayout
+            spending_chart(subType_data, self.typeCanvas)
         elif target_tab == "Investment":
             label_dict = self.investment_label_dict
             string_data = investment_string_dict
             scroll_layout = self.ui.investmentScrollLayout
+            spending_chart(investment_data, self.investmentCanvas)
         else:  # target_tab == "Sector":
             label_dict = self.sector_label_dict
             string_data = sector_string_dict
             scroll_layout = self.ui.sectorScrollLayout
+            spending_chart(sector_data, self.sectorCanvas)
 
         for count, assetType in enumerate(string_data, start=1):
             try:

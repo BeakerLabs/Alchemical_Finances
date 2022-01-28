@@ -58,9 +58,23 @@ class Profile(QDialog):
         email = email_raw[0]
         self.ui.lEditEmail.setText(email)
 
+        equity_Statement = f"SELECT StockAPI, StockToken FROM Users WHERE Profile='{self.refUser}'"
+        equity_raw = obtain_sql_list(equity_Statement, self.dbPathway, self.error_Logger)
+        stockAPI = equity_raw[0]
+        self.ui.comboBEquityAPI.setCurrentText(stockAPI[0])
+        self.ui.lEditEquityToken.setText(stockAPI[1])
+
+        crypto_Statement = f"SELECT CryptoAPI, CryptoToken FROM Users WHERE Profile='{self.refUser}'"
+        crypto_raw = obtain_sql_list(crypto_Statement, self.dbPathway, self.error_Logger)
+        cryptoAPI = crypto_raw[0]
+        self.ui.comboBCryptoAPI.setCurrentText(cryptoAPI[0])
+        self.ui.lEditCryptoToken.setText(cryptoAPI[1])
+
         self.ui.pBSaveName.clicked.connect(self.update_name)
         self.ui.pBConfirmEmail.clicked.connect(self.change_email)
         self.ui.pBConfirmPass.clicked.connect(self.change_password)
+        self.ui.pBSubmitEquityToken.clicked.connect(self.submit_equity)
+        self.ui.pBSubmitCryptoToken.clicked.connect(self.submit_crypto)
 
         self.ui.lEditFirstName.textChanged.connect(lambda: self.toggle_button("Name", True))
         self.ui.lEditLastName.textEdited.connect(lambda: self.toggle_button("Name", True))
@@ -68,6 +82,10 @@ class Profile(QDialog):
         self.ui.lEditConfirmNewPassword.textChanged.connect(lambda: self.toggle_button("Password", True))
         self.ui.lEditNewEmail.textChanged.connect(lambda: self.toggle_button("Email", True))
         self.ui.lEditConNewEmail.textChanged.connect(lambda: self.toggle_button("Email", True))
+        self.ui.comboBEquityAPI.activated.connect(lambda: self.toggle_button("Equity", True))
+        self.ui.lEditEquityToken.textChanged.connect(lambda: self.toggle_button("Equity", True))
+        self.ui.comboBCryptoAPI.activated.connect(lambda: self.toggle_button("Crypto", True))
+        self.ui.lEditCryptoToken.textChanged.connect(lambda: self.toggle_button("Crypto", True))
 
         # Place style sheet here
         self.show()
@@ -218,6 +236,22 @@ class Profile(QDialog):
             self.ui.lmessage.setStyleSheet(generalError)
             self.toggle_button("Email", False)
 
+    def submit_equity(self):
+        broker = self.ui.comboBEquityAPI.currentText()
+        token = self.ui.lEditEquityToken.text()
+
+        update_statement = f"UPDATE Users Set StockApi='{broker}', StockToken='{token}' WHERE Profile='{self.refUser}'"
+        specific_sql_statement(update_statement, self.dbPathway, self.error_Logger)
+        self.toggle_button("Equity", False)
+
+    def submit_crypto(self):
+        broker = self.ui.comboBCryptoAPI.currentText()
+        token = self.ui.lEditCryptoToken.text()
+
+        update_statement = f"UPDATE Users Set CryptoApi='{broker}', CryptoToken='{token}' WHERE Profile='{self.refUser}'"
+        specific_sql_statement(update_statement, self.dbPathway, self.error_Logger)
+        self.toggle_button("Crypto", False)
+
     def toggle_button(self, button, toggle: bool):
         if button == "Name":
             self.ui.pBSaveName.setEnabled(toggle)
@@ -227,6 +261,12 @@ class Profile(QDialog):
 
         if button == "Password":
             self.ui.pBConfirmPass.setEnabled(toggle)
+
+        if button == "Equity":
+            self.ui.pBSubmitEquityToken.setEnabled(toggle)
+
+        if button == "Crypto":
+            self.ui.pBSubmitCryptoToken.setEnabled(toggle)
 
     def trigger_del_tab(self):
         self.remove_tab_profile.emit("Profile")

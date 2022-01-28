@@ -19,7 +19,7 @@ import pandas as pd
 import sys
 import time
 
-from PySide2.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog
+from PySide2.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog, QVBoxLayout
 from PySide2.QtCore import QDate
 from PySide2.QtGui import QPixmap
 from PySide2 import QtCore, QtWidgets, QtGui
@@ -28,6 +28,7 @@ from pathlib import Path, PurePath
 from shutil import copy
 
 from Backend.AccountDetails import AccountsDetails
+from Backend.BuildGraphs import AF_Canvas, spending_chart
 from Backend.DataFrame import load_df_ledger, update_df_ledger, update_df_balance
 from Backend.LedgerDataAnalysis import category_spending_data, category_spending_by_interval
 from Backend.SpendingCategories import SpendingCategories
@@ -80,6 +81,21 @@ class LedgerV1(QDialog):
         self.statement_label_dict = {}
         self.year_label_dict = {}
         self.overall_label_dict = {}
+
+        # Canvas -- Statement
+        self.statementCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
+        self.sCanvasLayout = QVBoxLayout(self.ui.statementFrame)
+        self.sCanvasLayout.addWidget(self.statementCanvas)
+
+        # Canvas -- Years
+        self.yearsCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
+        self.yCanvasLayout = QVBoxLayout(self.ui.yearFrame)
+        self.yCanvasLayout.addWidget(self.yearsCanvas)
+
+        # Canvas -- Overall
+        self.OverallCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
+        self.oCanvasLayout = QVBoxLayout(self.ui.overAllFrame)
+        self.oCanvasLayout.addWidget(self.OverallCanvas)
 
         # Prepare Widgets for initial Use
         self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
@@ -741,10 +757,13 @@ class LedgerV1(QDialog):
         else:
             if target_tab == 'Year' and self.ui.comboBTab2Year.currentText() != "":
                 spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, self.activeLedger, target_tab, self.ui.comboBTab2Year.currentText(), self.error_Logger)
+                spending_chart(spending_statement_data, self.yearsCanvas)
             elif target_tab == "Statement" and self.ui.comboBPeriod.currentText() != "":
                 spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, self.activeLedger, target_tab, self.ui.comboBPeriod.currentText(), self.error_Logger)
+                spending_chart(spending_statement_data, self.statementCanvas)
             else:  # Overall
                 spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, self.activeLedger, target_tab, self.ui.comboBTab2Year.currentText(), self.error_Logger)
+                spending_chart(spending_statement_data, self.OverallCanvas)
 
             for count, value in enumerate(spending_statement_data, start=1):
                 try:
@@ -844,7 +863,7 @@ class LedgerV1(QDialog):
         suffixlist = ['.jpg', '.jpeg', 'JPEG', '.gif', '.pdf', '.png']
         # rname = Receipt [File] Name
         rname, _ = QFileDialog.getOpenFileName(self, 'Target Receipt', '/home',
-                                               'Images (*.png *.jpg  *.jpeg *.gif);; PDF (*.pdf *.PDF)')
+                                               'Combined ( * );; Images ( *.png *.jpg *.jpeg *.gif );; PDF ( *.pdf *.PDF )')
         if rname:
             rname_path = Path(rname)
             suffix = PurePath(rname_path).suffix

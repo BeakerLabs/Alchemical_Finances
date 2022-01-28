@@ -41,7 +41,7 @@ class Ui_Profile(object):
         sizePolicy.setVerticalStretch(0)
 
         general_font = QtGui.QFont()
-        general_font.setPixelSize(16)
+        general_font.setPixelSize(14)
         general_font.setBold(True)
 
         alignHorizontal = QtCore.Qt.AlignLeft
@@ -134,12 +134,12 @@ class Ui_Profile(object):
         self.pBSaveName.setText("Save Name")
         self.pBSaveName.setSizePolicy(sizePolicy)
         self.pBSaveName.setEnabled(True)
-        self.pBSaveName.setFixedHeight(40)
+        self.pBSaveName.setFixedHeight(30)
         self.pBSaveName.setEnabled(False)
         self.gridlayout.addWidget(self.pBSaveName, 4, 2, 1, 1)
 
         # Row 5 -- Spacer
-        self.lhSpacer1 = QtWidgets.QSpacerItem(columnTwoWidth, 40, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.lhSpacer1 = QtWidgets.QSpacerItem(columnTwoWidth, 30, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.gridlayout.addItem(self.lhSpacer1, 5, 2, 1, 1)
 
         # Row 6 -- E-mail Address
@@ -193,12 +193,12 @@ class Ui_Profile(object):
         self.pBConfirmEmail.setText("Change Email")
         self.pBConfirmEmail.setSizePolicy(sizePolicy)
         self.pBConfirmEmail.setEnabled(True)
-        self.pBConfirmEmail.setFixedHeight(40)
+        self.pBConfirmEmail.setFixedHeight(30)
         self.pBConfirmEmail.setEnabled(False)
         self.gridlayout.addWidget(self.pBConfirmEmail, 9, 2, 1, 1)
 
         # Row 10 -- Spacer
-        self.lhSpacer2 = QtWidgets.QSpacerItem(columnTwoWidth, 40, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.lhSpacer2 = QtWidgets.QSpacerItem(columnTwoWidth, 30, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.gridlayout.addItem(self.lhSpacer2, 10, 2, 1, 1)
 
         # Row 11 -- Password
@@ -255,25 +255,118 @@ class Ui_Profile(object):
         self.pBConfirmPass.setText("Change Password")
         self.pBConfirmPass.setSizePolicy(sizePolicy)
         self.pBConfirmPass.setEnabled(True)
-        self.pBConfirmPass.setFixedHeight(40)
+        self.pBConfirmPass.setFixedHeight(30)
         self.pBConfirmPass.setEnabled(False)
         self.gridlayout.addWidget(self.pBConfirmPass, 14, 2, 1, 1)
 
-        # Row 15 -- Label
+        # Row 15 -- Spacer
+        self.lhSpacer2 = QtWidgets.QSpacerItem(columnTwoWidth, 30, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.gridlayout.addItem(self.lhSpacer2, 15, 2, 1, 1)
+
+        # Row 16 -- Equity API
+        self.lEquityAPI = QtWidgets.QLabel()
+        self.lEquityAPI.setObjectName("lEquityAPI")
+        self.lEquityAPI.setText("Equity API")
+        self.lEquityAPI.setSizePolicy(sizePolicy)
+        self.lEquityAPI.setAlignment(alignHorizontal | alignVertical)
+        self.lEquityAPI.setFont(general_font)
+        self.gridlayout.addWidget(self.lEquityAPI, 16, 1, 1, 1)
+
+        self.comboBEquityAPI = QtWidgets.QComboBox()
+        self.comboBEquityAPI.setObjectName("comboBEquityAPI")
+        self.comboBEquityAPI.setSizePolicy(sizePolicy)
+        self.comboBEquityAPI.setFont(general_font)
+        api_lst = [" ", "Tiingo"]
+        self.comboBEquityAPI.addItems(api_lst)
+        self.gridlayout.addWidget(self.comboBEquityAPI, 16, 2, 1, 1)
+
+        # Row 17 -- Equity Token
+        self.lEquityToken = QtWidgets.QLabel()
+        self.lEquityToken.setObjectName("lEquityToken")
+        self.lEquityToken.setText("API Token")
+        self.lEquityToken.setSizePolicy(sizePolicy)
+        self.lEquityToken.setAlignment(alignHorizontal | alignVertical)
+        self.lEquityToken.setFont(general_font)
+        self.gridlayout.addWidget(self.lEquityToken, 17, 1, 1, 1)
+
+        self.lEditEquityToken = QtWidgets.QLineEdit()
+        self.lEditEquityToken.setObjectName("lEditEquityToken")
+        self.lEditEquityToken.setSizePolicy(sizePolicy)
+        self.lEditEquityToken.setFont(general_font)
+        self.gridlayout.addWidget(self.lEditEquityToken, 17, 2, 1, 1)
+
+        # Row 18 -- Submit Equity Token
+        self.pBSubmitEquityToken = QtWidgets.QPushButton()
+        self.pBSubmitEquityToken.setObjectName("pBSubmitEquityToken")
+        self.pBSubmitEquityToken.setText("Submit Token")
+        self.pBSubmitEquityToken.setSizePolicy(sizePolicy)
+        self.pBSubmitEquityToken.setEnabled(True)
+        self.pBSubmitEquityToken.setFixedHeight(30)
+        self.pBSubmitEquityToken.setEnabled(False)
+        self.gridlayout.addWidget(self.pBSubmitEquityToken, 18, 2, 1, 1)
+
+        # Row 19 -- Spacer
+        self.lhSpacer2 = QtWidgets.QSpacerItem(columnTwoWidth, 30, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.gridlayout.addItem(self.lhSpacer2, 19, 2, 1, 1)
+
+        # Row 20 -- Crypto API
+        self.lCryptoAPI = QtWidgets.QLabel()
+        self.lCryptoAPI.setObjectName("lCryptoAPI")
+        self.lCryptoAPI.setText("Crypto API")
+        self.lCryptoAPI.setSizePolicy(sizePolicy)
+        self.lCryptoAPI.setAlignment(alignHorizontal | alignVertical)
+        self.lCryptoAPI.setFont(general_font)
+        self.gridlayout.addWidget(self.lCryptoAPI, 20, 1, 1, 1)
+
+        self.comboBCryptoAPI = QtWidgets.QComboBox()
+        self.comboBCryptoAPI.setObjectName("comboBCryptoAPI")
+        self.comboBCryptoAPI.setSizePolicy(sizePolicy)
+        self.comboBCryptoAPI.setFont(general_font)
+        api_lst = [" ", "Tiingo"]
+        self.comboBCryptoAPI.addItems(api_lst)
+        self.gridlayout.addWidget(self.comboBCryptoAPI, 20, 2, 1, 1)
+
+        # Row 21 -- Crypto API
+        self.lCryptoToken = QtWidgets.QLabel()
+        self.lCryptoToken.setObjectName("lCryptoToken")
+        self.lCryptoToken.setText("Crypto Token")
+        self.lCryptoToken.setSizePolicy(sizePolicy)
+        self.lCryptoToken.setAlignment(alignHorizontal | alignVertical)
+        self.lCryptoToken.setFont(general_font)
+        self.gridlayout.addWidget(self.lCryptoToken, 21, 1, 1, 1)
+
+        self.lEditCryptoToken = QtWidgets.QLineEdit()
+        self.lEditCryptoToken.setObjectName("lEditCryptoToken")
+        self.lEditCryptoToken.setSizePolicy(sizePolicy)
+        self.lEditCryptoToken.setFont(general_font)
+        self.gridlayout.addWidget(self.lEditCryptoToken, 21, 2, 1, 1)
+
+        # Row 22 -- Submit Token
+        self.pBSubmitCryptoToken = QtWidgets.QPushButton()
+        self.pBSubmitCryptoToken.setObjectName("pBConfirmPass")
+        self.pBSubmitCryptoToken.setText("Submit Token")
+        self.pBSubmitCryptoToken.setSizePolicy(sizePolicy)
+        self.pBSubmitCryptoToken.setEnabled(True)
+        self.pBSubmitCryptoToken.setFixedHeight(30)
+        self.pBSubmitCryptoToken.setEnabled(False)
+        self.gridlayout.addWidget(self.pBSubmitCryptoToken, 22, 2, 1, 1)
+
+        # Row 23 -- Label
         self.lmessage = QtWidgets.QLabel()
         self.lmessage.setObjectName("lmessage")
         self.lmessage.setText("")
         self.lmessage.setSizePolicy(sizePolicy)
         self.lmessage.setAlignment(alignHorizontal | alignVertical)
         self.lmessage.setFont(general_font)
-        self.gridlayout.addWidget(self.lmessage, 15, 1, 1, 2)
+        self.gridlayout.addWidget(self.lmessage, 23, 1, 1, 2)
 
-        # Row 15 -- Spacer
-        self.vSpacer1 = QtWidgets.QSpacerItem(columnOneWidth, 40, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
-        self.gridlayout.addItem(self.vSpacer1, 16, 1, 1, 1)
+        # Row 24 -- Spacer
+        self.vSpacer1 = QtWidgets.QSpacerItem(columnOneWidth, 30, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.gridlayout.addItem(self.vSpacer1, 24, 1, 1, 1)
 
-        self.vSpacer2 = QtWidgets.QSpacerItem(columnTwoWidth, 40, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
-        self.gridlayout.addItem(self.vSpacer2, 16, 2, 1, 1)
+        self.vSpacer2 = QtWidgets.QSpacerItem(columnTwoWidth, 30, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Expanding)
+        self.gridlayout.addItem(self.vSpacer2, 24, 2, 1, 1)
+
 
 
 if __name__ == "__main__":

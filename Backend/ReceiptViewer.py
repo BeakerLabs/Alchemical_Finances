@@ -81,7 +81,7 @@ class Receipt(QDialog):
             self.input_error_msg(errorMSG)
 
     def input_error_msg(self, message):
-        reply = QMessageBox.information(self, 'Input Error', message, QMessageBox.Ok, QMessageBox.NoButton)
+        reply = QMessageBox.information(self, 'Receipt Downloader', message, QMessageBox.Ok, QMessageBox.NoButton)
         if reply == QMessageBox.Ok:
             pass
         else:

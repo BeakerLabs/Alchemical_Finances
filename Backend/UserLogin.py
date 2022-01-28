@@ -190,7 +190,19 @@ class LoginForm(QDialog):
         self.ui.labelResponse.setText("")
 
     def table_check(self):
-        creationStatement = "CREATE TABLE IF NOT EXISTS Users(Profile TEXT, Password TEXT, UserKey TEXT, Message INTEGER, Creation TEXT, Last_Visit TEXT, FirstName TEXT, LastName TEXT, Email TEXT)"
+        creationStatement = "CREATE TABLE IF NOT EXISTS Users(Profile TEXT," \
+                            " Password TEXT," \
+                            " UserKey TEXT," \
+                            " Message INTEGER," \
+                            " Creation TEXT," \
+                            " Last_Visit TEXT," \
+                            " FirstName TEXT," \
+                            " LastName TEXT," \
+                            " Email TEXT," \
+                            " StockApi TEXT,"\
+                            " StockToken TEXT,"\
+                            " CryptoApi TEXT,"\
+                            " CryptoToken TEXT)"
         specific_sql_statement(creationStatement, self.dbPathway, self.error_Logger)
 
     def profile_check(self):

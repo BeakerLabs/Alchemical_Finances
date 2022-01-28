@@ -11,7 +11,6 @@ Future Concepts
 #  contact@beakerlabstech.com
 
 import os
-import pandas as pd
 import sys
 
 from PySide2.QtWidgets import QDialog, QMessageBox
@@ -22,7 +21,6 @@ from Frontend.CategoriesUi import Ui_Categories
 
 from Toolbox.AF_Tools import fill_widget
 from Toolbox.Error_Tools import check_characters, first_character_check
-from Toolbox.Formatting_Tools import remove_space
 from Toolbox.SQL_Tools import attempt_sql_statement, obtain_sql_list, specific_sql_statement
 
 
@@ -172,32 +170,27 @@ class SpendingCategories(QDialog):
         if error_status is False:
             if check_characters(question, "general") is False:
                 error_status = True
-                print("fail1")
                 return error_status
 
         if error_status is False:
             if question == "" or question == " ":
                 error_status = True
-                print("fail2")
                 return error_status
 
         if error_status is False:
             if first_character_check(question) is False:
                 error_status = True
-                print("fail3")
                 return error_status
 
         if error_status is False:
             duplicate_statement = f"SELECT Method, ParentType FROM Categories WHERE Method ='{self.ui.lEditSelection.text()}' AND ParentType ='{self.parentType}'"
             if attempt_sql_statement(duplicate_statement, self.refUserDB, self.error_Logger) is False:
                 error_status = True
-                print("fail4")
                 return error_status
 
         if error_status is False:
             if isinstance(question, str) is False:
                 error_status = True
-                print("fail5")
                 return error_status
 
         if error_status is False:
@@ -245,7 +238,6 @@ class SpendingCategories(QDialog):
                              account[0],
                              self.error_Logger,
                              target_ledger)
-
 
 
 if __name__ == "__main__":

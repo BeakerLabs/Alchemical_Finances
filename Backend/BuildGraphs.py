@@ -21,6 +21,8 @@ from math import ceil
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
+from Backend.LedgerDataAnalysis import category_spending_data, equity_subtype_data
+
 from Toolbox.Formatting_Tools import add_space, cash_format, decimal_places
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
 
@@ -65,13 +67,19 @@ def overTimeLineGraph(database, account, error_log):
     elif account != "Net_Worth_Graph" and parentType in ["Equity", "Retirement"]:
         value_data_statement = f"""SELECT Date, "{account}" FROM AccountWorth WHERE "{account}" IS NOT NULL ORDER BY Date ASC Limit 0, 49999"""
         value_data_tuple = obtain_sql_list(value_data_statement, database, error_log)
-        contribution_data_statement = f"""SELECT Date, "{account}" FROM ContributionTotals WHERE "{account}" IS NOT NULL ORDER BY Date ASC Limit 0, 49999"""
+        contribution_data_statement = f"""SELECT Date, "{account}", 0 FROM ContributionTotals WHERE "{account}" IS NOT NULL ORDER BY Date ASC Limit 0, 49999"""
         contribution_tuple = obtain_sql_list(contribution_data_statement, database, error_log)
 
         combined_data_tuple = []
+
+        last_cont_value = 0
         x = 0
         for value in value_data_tuple:
-            contribution = contribution_tuple[x][1]
+            try:
+                contribution = contribution_tuple[x][1]
+                last_cont_value = contribution
+            except IndexError:
+                contribution = last_cont_value
             tuple = (value[0], value[1], contribution)
             combined_data_tuple.append(tuple)
             x += 1
@@ -261,6 +269,35 @@ def snapshot_chart(database, graph_focus, error_log):
             segment_colors = [*cmap(np.linspace(0.8, .33, 2))]
 
     return segment_balances, segment_data, segment_colors
+
+
+def spending_chart(spendingData: list, canvas):
+    # Will piggyback off of the spending tabs data. This way the calculations were already determined and I am using the same
+    # data for the charts as the graphs.
+    pie_slices = []
+
+    for segment in spendingData:
+        if segment[1] > 0:
+            pie_slices.append(segment[2])
+
+    if len(pie_slices) < 1:
+        cmap = plt.cm.Greys
+        pie_slices.append(100)
+        segment_colors = [*cmap(np.linspace(0.8, .33, 1))]
+    else:
+        cmap = plt.cm.terrain
+        segment_colors = [*cmap(np.linspace(0, 1.7, len(pie_slices)))]
+
+    canvas.axes.clear()
+    canvas.axes.pie(pie_slices,
+                    radius=1.25,
+                    colors=segment_colors,
+                    counterclock=True,
+                    startangle=90,
+                    wedgeprops={'linewidth': 0.2, 'edgecolor': 'grey', 'width': 0.4},
+                    normalize=True)
+
+    canvas.draw()
 
 
 if __name__ == "__main__":

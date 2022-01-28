@@ -211,6 +211,49 @@ def convert_to_float(datapoint):
     return datapoint
 
 
+def weekend_check(date: str):
+    """
+    Not actively used
+    Function designed to change the date to avoid Saturdays and Sundays. Designed for non-crypto Equity Markets.
+    """
+    from datetime import datetime, timedelta
+
+    target_date = datetime.strptime(date, '%Y/%m/%d')
+    day_of_Week = datetime.strftime(target_date, '%A')
+
+    if day_of_Week == 'Saturday':
+        target_date = target_date - timedelta(days=1)
+    elif day_of_Week == 'Sunday':
+        target_date = target_date - timedelta(days=2)
+    else:
+        pass
+
+    target_date = datetime.strftime(target_date, '%Y/%m/%d')
+    return target_date
+
+
+def change_day(date: str, date_format: str):
+    """
+    Currently, changes the date by rolling back the calendar by 7 days. Could be upgraded to make that adjustable
+
+    :param date: should work for any datetime compatible string format
+    :param date_format: datetime comptaible formatting like '%Y/%m/%d'
+    :return: new date str.
+    """
+    from datetime import datetime, timedelta
+
+    target_date = datetime.strptime(date, date_format)
+    target_date = target_date - timedelta(days=7)
+
+    target_date = datetime.strftime(target_date, '%Y/%m/%d')
+    target_date = weekend_check(target_date)
+    target_date = datetime.strptime(target_date, '%Y/%m/%d')
+
+    target_date = datetime.strftime(target_date, date_format)
+
+    return target_date
+
+
 if __name__ == "__main__":
     import os
     import sys

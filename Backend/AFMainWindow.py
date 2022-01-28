@@ -12,10 +12,12 @@ Future Concepts
 #  contact@beakerlabstech.com
 
 import os
+import pandas as pd
 import pickle
 import shutil
 import sqlite3
 
+from datetime import date
 from pathlib import Path
 from PySide2.QtWidgets import QMainWindow, QDialog, QMessageBox
 from PySide2 import QtCore
@@ -26,7 +28,8 @@ from Frontend.AFui import Ui_MainWindow
 
 from Backend.About import AboutProgram
 from Backend.ArchiveLedger import Archive
-from Backend.DataFrame import create_DF_dict
+from Backend.DataFrame import create_DF_dict, load_df_ledger
+from Backend.EquityUpdate import obtain_equity_prices
 from Backend.Ledger1 import LedgerV1
 from Backend.Ledger2 import LedgerV2
 from Backend.OverTimeGraph import OverTimeGraph
@@ -39,7 +42,7 @@ from Backend.Summary import Ledger_Summary
 from Toolbox.OS_Tools import file_destination
 from Toolbox.AF_Tools import set_networth
 from Toolbox.SQL_Tools import check_for_data, create_table, execute_sql_statement_list, specific_sql_statement, obtain_sql_list, obtain_sql_value
-from Toolbox.Formatting_Tools import decimal_places, remove_space
+from Toolbox.Formatting_Tools import decimal_places, remove_space, weekend_check
 
 from StyleSheets.MainWindowCSS import mainWindow
 
@@ -58,6 +61,9 @@ class AFBackbone(QMainWindow):
         self.refUser = user
         self.switchCheck = int(messageCount)
         self.error_Logger = error_log
+
+        self.today = date.today()
+        self.today = self.today.strftime("%m/%d/%Y")
 
         # This will hold the saved version of the database
         self.saveState = None
@@ -152,6 +158,9 @@ class AFBackbone(QMainWindow):
         self.ledger_container = self.create_dataframe_container(account_dictionary)  # Used with ledgers but created upon sign-in
         del account_dictionary  # unnecessary usage of memory after creation of the container.
 
+        # Update Equity values [Today/Yesterday] and Record for start of session.
+        self.log_netWorth("Login")
+
         if self.email is None:  # Intended to help prevent a case where the user can not reclaim their password
             profile = Profile(self.refUser, self.error_Logger)
             self.ui.mdiArea.addSubWindow(profile)
@@ -171,13 +180,11 @@ class AFBackbone(QMainWindow):
         self.setStyleSheet(mainWindow)
         self.statusBar().showMessage("Stock Prices Updated")
 
+        # Display Net Worth now with updated Equity Values
         netWorth = set_networth(self.refUserDB, "Account_Summary", toggleformatting=True)
         self.ui.labelNW.setText(netWorth[1])
         self.ui.labelTAssests.setText(netWorth[2])
         self.ui.labelTLiabilities.setText(netWorth[3])
-
-        snapshot = set_networth(self.refUserDB, "Account_Summary", toggleformatting=False)
-        self.log_netWorth(snapshot, "Login")
 
     def acquire_key(self):
         keyStatement = f"SELECT UserKey FROM Users WHERE Profile ='{self.refUser}'"
@@ -297,8 +304,7 @@ class AFBackbone(QMainWindow):
 
     def closeEvent(self, event):
         event.ignore()
-        snapshot = set_networth(self.refUserDB, "Account_Summary", toggleformatting=False)
-        self.log_netWorth(snapshot, "Logout")
+        self.log_netWorth("Logout")
 
         if self.saveToggle:
             event.accept()
@@ -499,7 +505,7 @@ class AFBackbone(QMainWindow):
             insert_contribution = f"UPDATE ContributionTotals SET '{sql_account}'={contribution_sum} WHERE Date='{date}'"
             specific_sql_statement(insert_contribution, self.refUserDB, self.error_Logger)
 
-    def log_netWorth(self, data, entryPoint):
+    def log_netWorth(self, entryPoint):
         """ Adds Finance Data points [Gross, Liabilities, Net] to NetWorth Table
             Expanded to input data into AccountWorth and ContributionsTotals
 
@@ -516,83 +522,126 @@ class AFBackbone(QMainWindow):
 
         # Data = [Assets, Liabilities, Net] -- NetWorth = [Gross, Liabilities, Net]
         # NetWorth Table Structure (Date TEXT, Gross TEXT, Liabilities TEXT, Net TEXT)
-        insert_today_statement = f"INSERT INTO NetWorth Values('{today}', '{data[0]}', '{data[1]}', '{data[2]}')"
-        insert_yesterday_statement = f"INSERT INTO NetWorth Values('{yesterday}', '{data[0]}', '{data[1]}', '{data[2]}')"
-        update_statement = f"UPDATE NetWorth SET Gross='{data[0]}', Liabilities='{data[1]}', Net='{data[2]}' WHERE Date='{today}'"
-
         last_data_point_Statement = f"SELECT Date FROM Networth ORDER BY Date DESC LIMIT 1"
         last_data_point = obtain_sql_value(last_data_point_Statement, self.refUserDB, self.error_Logger)
 
         account_balances_statement = "SELECT ID, Balance FROM Account_Summary"
-        account_balances_raw = obtain_sql_list(account_balances_statement, self.refUserDB, self.error_Logger)
 
         if last_data_point is None:
             last_data_point = "1978/01/01"  # Just an unlikely date
 
         if updated is False:
-            if entryPoint == "Login" and today == last_data_point[0]:
-                for account in account_balances_raw:
-                    update_account_statement = f"UPDATE AccountWorth SET '{remove_space(account[0])}'='{account[1]}' WHERE Date='{today}'"
-                    specific_sql_statement(update_account_statement, self.refUserDB, self.error_Logger)
-
-                specific_sql_statement(update_statement, self.refUserDB, self.error_Logger)
-                updated = True
-
-                self.log_contributions("Update", today)
-
-                print(f"Finances inserted for {today}")
-
-        if updated is False:
             if entryPoint == "Login" and today != last_data_point[0] and yesterday != last_data_point[0]:
-                # Insert current values for yesterday
+                target = ["Yesterday", "Today", "Insert"]
+            elif entryPoint == "Login" and today == last_data_point[0] and yesterday != last_data_point[0]:
+                target = [None, "Today", "Update"]
+            elif entryPoint == "Login" and today != last_data_point[0] and yesterday == last_data_point[0]:
+                target = [None, "Today", "Insert"]
+            elif entryPoint == "Logout":
+                target = [None, "Today", "Update"]
+            else:
+                target = [None, None, None]
+
+            if target[0] is None:
+                pass
+            else:  # "Yesterday"
+                self.update_equity(yesterday)
+                account_balances_raw = obtain_sql_list(account_balances_statement, self.refUserDB, self.error_Logger)
+
                 insertDate_accountWorth_table = f"INSERT INTO AccountWorth(Date) VALUES('{yesterday}')"
                 specific_sql_statement(insertDate_accountWorth_table, self.refUserDB, self.error_Logger)
                 for account in account_balances_raw:
                     update_account_statement = f"UPDATE AccountWorth SET '{remove_space(account[0])}'='{account[1]}' WHERE Date='{yesterday}'"
                     specific_sql_statement(update_account_statement, self.refUserDB, self.error_Logger)
 
+                data = set_networth(self.refUserDB, self.error_Logger, toggleformatting=False)
+                insert_yesterday_statement = f"INSERT INTO NetWorth Values('{yesterday}', '{data[0]}', '{data[1]}', '{data[2]}')"
                 specific_sql_statement(insert_yesterday_statement, self.refUserDB, self.error_Logger)
                 self.log_contributions("Insert", yesterday)
+                print(f"Finances inserted for yesterday: {yesterday}")
 
-                print(f"Finances inserted for {yesterday}")
+            if target[1] is None:
+                pass
+            else:  # "Today"
+                if entryPoint != "Logout":
+                    self.update_equity(today)
 
-                # Follow by insert today
-                insertDate_accountWorth_table = f"INSERT INTO AccountWorth(Date) VALUES('{today}')"
-                specific_sql_statement(insertDate_accountWorth_table, self.refUserDB, self.error_Logger)
+                if target[2] == "Update":
+                    data = set_networth(self.refUserDB, self.error_Logger, toggleformatting=False)
+                    update_statement = f"UPDATE NetWorth SET Gross='{data[0]}', Liabilities='{data[1]}', Net='{data[2]}' WHERE Date='{today}'"
+                    specific_sql_statement(update_statement, self.refUserDB, self.error_Logger)
+
+                else:  # "Insert"
+                    data = set_networth(self.refUserDB, self.error_Logger, toggleformatting=False)
+                    insert_today_statement = f"INSERT INTO NetWorth Values('{today}', '{data[0]}', '{data[1]}', '{data[2]}')"
+                    specific_sql_statement(insert_today_statement, self.refUserDB, self.error_Logger)
+                    insertDate_accountWorth_table = f"INSERT INTO AccountWorth(Date) VALUES('{today}')"
+                    specific_sql_statement(insertDate_accountWorth_table, self.refUserDB, self.error_Logger)
+
+                account_balances_raw = obtain_sql_list(account_balances_statement, self.refUserDB, self.error_Logger)
                 for account in account_balances_raw:
                     update_account_statement = f"UPDATE AccountWorth SET '{remove_space(account[0])}'='{account[1]}' WHERE Date='{today}'"
                     specific_sql_statement(update_account_statement, self.refUserDB, self.error_Logger)
 
-                specific_sql_statement(insert_today_statement, self.refUserDB, self.error_Logger)
-                self.log_contributions("Insert", today)
-                updated = True
-
-                print(f"Finances inserted for {today}")
-
-        if updated is False:
-            if entryPoint == "Login" and today != last_data_point[0] and yesterday == last_data_point[0]:
-                insertDate_accountWorth_table = f"INSERT INTO AccountWorth(Date) VALUES('{today}')"
-                specific_sql_statement(insertDate_accountWorth_table, self.refUserDB, self.error_Logger)
-                for account in account_balances_raw:
-                    update_account_statement = f"UPDATE AccountWorth SET '{remove_space(account[0])}'='{account[1]}' WHERE Date='{today}'"
-                    specific_sql_statement(update_account_statement, self.refUserDB, self.error_Logger)
-
-                specific_sql_statement(insert_today_statement, self.refUserDB, self.error_Logger)
-                self.log_contributions("Insert", today)
-                updated = True
-
-                print(f"Finances inserted for {today}")
-
-        if updated is False:
-            if entryPoint == "Logout":
-                for account in account_balances_raw:
-                    update_account_statement = f"UPDATE AccountWorth SET '{remove_space(account[0])}'='{account[1]}' WHERE Date='{today}'"
-                    specific_sql_statement(update_account_statement, self.refUserDB, self.error_Logger)
-
-                specific_sql_statement(update_statement, self.refUserDB, self.error_Logger)
                 self.log_contributions("Update", today)
-                updated = True
-                print(f"Finances updated for {today}")
+                print(f"Finances {target[2]} for today: {today}")
+
+    def update_equity(self, targetDate: str):
+        apiStatement = f"SELECT StockApi, StockToken, CryptoApi, CryptoToken FROM Users WHERE Profile = '{self.refUser}'"
+        apiCredentials = obtain_sql_list(apiStatement, self.dbPathway, self.error_Logger)
+        apiCredentials = apiCredentials[0]
+
+        symbolsStatement = f"SELECT Ticker_Symbol, ParentType, ID, Balance FROM Account_Summary WHERE ParentType = 'Equity' OR ParentType = 'Retirement'"
+        symbols = obtain_sql_list(symbolsStatement, self.refUserDB, self.error_Logger)
+        # equity_dict = {ticker symbol: [0, ParentType]}
+        equity_dict = {x[0]: 0 for x in symbols}
+        parentType_dict = {x[0]: x[1] for x in symbols}
+        # account_dict = {account name: ticker symbol}
+        account_dict = {x[2]: x[0] for x in symbols}
+
+        if apiCredentials[0] is None:
+            pass
+        else:
+            equity_dict = obtain_equity_prices("Equity", apiCredentials, targetDate, equity_dict)
+
+        if apiCredentials[2] is None:
+            pass
+        else:
+            equity_dict = obtain_equity_prices("Crypto", apiCredentials, targetDate, equity_dict)
+
+        for key in equity_dict:
+            if equity_dict[key] == 0:
+                pass
+            else:
+                if parentType_dict[key] == "Equity":
+                    updateStatement = f"UPDATE Equity_Account_Details SET Stock_Price='{equity_dict[key]}' WHERE Ticker_Symbol='{key}'"
+                else:
+                    updateStatement = f"UPDATE Retirement_Account_Details SET Stock_Price='{equity_dict[key]}' WHERE Ticker_Symbol='{key}'"
+                specific_sql_statement(updateStatement, self.refUserDB, self.error_Logger)
+
+        for account in account_dict:
+            # calculated shares
+            assoc_ledger = load_df_ledger(self.ledger_container, account)
+            netSBalance = assoc_ledger[['Purchased', 'Sold']][assoc_ledger['Status'] == 'Posted'].copy()
+            total_purchased = pd.to_numeric(netSBalance['Purchased'], errors='coerce').sum()
+            total_sold = pd.to_numeric(netSBalance['Sold'], errors='coerce').sum()
+            shareBalance = total_purchased - total_sold
+
+            if shareBalance is None or shareBalance < 0:
+                formattedShares = float(0)
+            else:
+                shareBalance = shareBalance.item()
+                formattedShares = decimal_places(shareBalance, 4)
+                formattedShares = float(formattedShares)
+
+            ticker_symbol = account_dict[account]
+            market_price = equity_dict[ticker_symbol]
+            if market_price <= 0:
+                pass
+            else:
+                new_balance = formattedShares * float(equity_dict[ticker_symbol])
+                update_balance_statement = f"UPDATE Account_Summary SET Balance='{new_balance}' WHERE ID='{account}'"
+                specific_sql_statement(update_balance_statement, self.refUserDB, self.error_Logger)
 
     def user_manual(self):
         user_manual_path = Path.cwd() / "Resources" / "USER_MANUAL.pdf"
