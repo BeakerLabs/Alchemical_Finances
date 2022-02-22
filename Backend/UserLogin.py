@@ -16,12 +16,12 @@ import sys
 
 from Frontend.UserLoginUi import Ui_LoginScreen
 from pathlib import Path
-from PySide2.QtWidgets import QDialog
-from PySide2 import QtCore, QtWidgets
+from PySide6.QtWidgets import QDialog
+from PySide6 import QtCore, QtWidgets
 from Toolbox.Error_Tools import check_characters, check_numerical_inputs, spacing_check
 from Toolbox.Formatting_Tools import gen_rand_str
 from Toolbox.SQL_Tools import attempt_sql_statement, obtain_sql_value, specific_sql_statement, sqlite3_keyword_check
-from Toolbox.OS_Tools import file_destination
+from Toolbox.OS_Tools import file_destination, obtain_storage_dir
 
 from StyleSheets.StandardCSS import standardAppearance
 from StyleSheets.LoginCSS import loginTitleFrame
@@ -43,8 +43,9 @@ class LoginForm(QDialog):
         self.ui.pushButtonSubmitProfile.clicked.connect(self.submit_profile)
 
         # User Login Global Variables
-        self.dbPathway = file_destination(['data', 'account'])
-        self.dbPathway = Path.cwd() / self.dbPathway / "UAInformation.db"
+        self.storage_dir = obtain_storage_dir()
+        self.dbPathway = file_destination(['Alchemical Finances', 'data', 'account'], starting_point=self.storage_dir)
+        self.dbPathway = Path(self.dbPathway) / "UAInformation.db"
         self.refUser = None
         self.count = None
 

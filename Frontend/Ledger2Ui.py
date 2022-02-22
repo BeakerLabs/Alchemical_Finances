@@ -10,7 +10,7 @@ import os
 import pickle
 import sys
 
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 
 
 class Ui_Ledger2(object):
@@ -850,13 +850,13 @@ class Ui_Ledger2(object):
         self.lSectorBreakdown.setSizePolicy(altSizePolicy)
         self.lTab3vBLayout.addWidget(self.lSectorBreakdown)
 
-        self.SectorFrame = QtWidgets.QFrame()
-        self.SectorFrame.setObjectName("SectorFrame")
-        self.SectorFrame.setSizePolicy(altSizePolicy)
-        self.SectorFrame.setFixedHeight(300)
+        self.sectorFrame = QtWidgets.QFrame()
+        self.sectorFrame.setObjectName("SectorFrame")
+        self.sectorFrame.setSizePolicy(altSizePolicy)
+        self.sectorFrame.setFixedHeight(300)
         # self.SectorFrame.setFrameShape(QtWidgets.QFrame.Panel)
         # self.SectorFrame.setLineWidth(1)
-        self.lTab3vBLayout.addWidget(self.SectorFrame)
+        self.lTab3vBLayout.addWidget(self.sectorFrame)
 
         self.tab3HBLayout1 = QtWidgets.QHBoxLayout()
         self.tab3HBLayout1.setObjectName("tab3HBLayout1")

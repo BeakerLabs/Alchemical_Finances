@@ -17,9 +17,9 @@ import sys
 from pathlib import Path
 from Frontend.WelcomeMessageUi import Ui_WelcomeMessage
 
-from PySide2.QtWidgets import QDialog
+from PySide6.QtWidgets import QDialog
 
-from Toolbox.OS_Tools import file_destination
+from Toolbox.OS_Tools import file_destination, obtain_storage_dir
 from Toolbox.SQL_Tools import obtain_sql_value, specific_sql_statement
 
 from StyleSheets.StandardCSS import standardAppearance
@@ -33,11 +33,12 @@ class Message(QDialog):
         self.ui.setupUi(self)
 
         # Global Variable for this Dialog
+        self.storage_dir = obtain_storage_dir()
         self.userCount = messageCount
         self.refuser = user
         self.userName = None
-        self.dbPathway = file_destination(['data', 'account'])
-        self.dbPathway = Path.cwd() / self.dbPathway / "UAInformation.db"
+        self.dbPathway = file_destination(['Alchemical Finances', 'data', 'account'], starting_point=self.storage_dir)
+        self.dbPathway = Path(self.dbPathway) / "UAInformation.db"
 
         self.dictionaryFile = open("Resources/welcomedictionary.pkl", "rb")
         self.messageDict = pickle.load(self.dictionaryFile)

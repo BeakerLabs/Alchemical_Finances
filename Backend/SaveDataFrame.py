@@ -7,9 +7,8 @@ import os
 import sqlite3
 import sys
 
-from PySide2 import QtGui, QtCore, QtWidgets
-from PySide2.QtCore import QObject, QThread, Signal, Slot
-from PySide2.QtWidgets import QDialog
+from PySide6.QtCore import QObject, QThread, Signal, Slot
+from PySide6.QtWidgets import QDialog
 from sqlite3 import Error
 
 from Frontend.SaveDFlUi import Ui_SaveDF

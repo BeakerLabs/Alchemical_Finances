@@ -15,9 +15,9 @@ import shutil
 import sys
 
 from pathlib import PurePath
-from PySide2 import QtCore, QtWidgets
-from PySide2.QtWidgets import QDialog, QMessageBox
-from PySide2.QtGui import QPixmap, QTransform
+from PySide6 import QtCore, QtWidgets
+from PySide6.QtWidgets import QDialog, QMessageBox
+from PySide6.QtGui import QPixmap, QTransform
 from Frontend.ReceiptUi import Ui_Receipt
 from StyleSheets.StandardCSS import standardAppearance
 

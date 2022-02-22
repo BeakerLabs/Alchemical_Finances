@@ -14,8 +14,8 @@ import sys
 
 from pathlib import Path
 
-from PySide2 import QtGui, QtCore, QtWidgets
-from PySide2.QtWidgets import QDialog, QMessageBox
+from PySide6 import QtGui, QtCore, QtWidgets
+from PySide6.QtWidgets import QDialog, QMessageBox
 
 from Frontend.ProfileUi import Ui_Profile
 
@@ -23,7 +23,7 @@ from StyleSheets.StandardCSS import standardAppearance
 from StyleSheets.ProfileCSS import profileFrame
 from StyleSheets.ErrorCSS import generalError
 
-from Toolbox.OS_Tools import file_destination
+from Toolbox.OS_Tools import file_destination, obtain_storage_dir
 from Toolbox.Error_Tools import find_specific_character, check_characters, check_numerical_inputs, spacing_check
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value, specific_sql_statement
 
@@ -37,9 +37,10 @@ class Profile(QDialog):
         self.ui.setupUi(self)
         self.setWindowTitle("User Profile")
 
+        self.storage_dir = obtain_storage_dir()
         self.refUser = user
-        self.dbPathway = file_destination(['data', 'account'])
-        self.dbPathway = Path.cwd() / self.dbPathway / "UAInformation.db"
+        self.dbPathway = file_destination(['Alchemical Finances', 'data', 'account'], starting_point=self.storage_dir)
+        self.dbPathway = Path(self.dbPathway) / "UAInformation.db"
         self.error_Logger = error_Log
 
         self.setStyleSheet(standardAppearance)

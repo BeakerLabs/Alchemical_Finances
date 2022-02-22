@@ -16,10 +16,12 @@ import sys
 
 from Frontend.ToggleCategoriesUi import Ui_ToggleCategories
 
-from PySide2.QtWidgets import QDialog, QApplication
+from PySide6.QtWidgets import QDialog, QApplication
 
 from Toolbox.AF_Tools import fill_widget
 from Toolbox.SQL_Tools import specific_sql_statement
+
+from StyleSheets.StandardCSS import standardAppearance
 
 
 class Toggle_Categories(QDialog):
@@ -28,6 +30,7 @@ class Toggle_Categories(QDialog):
         self.ui = Ui_ToggleCategories()
         self.ui.setupUi(self)
         self.setModal(True)
+        self.setStyleSheet(standardAppearance)
 
         self.refuserDB = dbName
         self.parentType = parentType

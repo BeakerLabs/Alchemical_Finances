@@ -17,10 +17,11 @@ to clarify function/purpose of any given object.
 import os
 import pandas as pd
 import sys
+import time
 
-from PySide2.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog, QVBoxLayout
-from PySide2.QtCore import QDate
-from PySide2 import QtGui, QtCore, QtWidgets
+from PySide6.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog, QVBoxLayout
+from PySide6.QtCore import QDate
+from PySide6 import QtGui, QtCore, QtWidgets
 
 from pathlib import Path, PurePath
 from shutil import copy
@@ -38,7 +39,7 @@ from Toolbox.AF_Tools import disp_LedgerV2_Table, fill_widget, find_mult_row, fi
 from Toolbox.Error_Tools import check_characters, check_numerical_inputs
 from Toolbox.Formatting_Tools import add_comma, decimal_places, remove_comma, remove_space
 from Toolbox.SQL_Tools import execute_sql_statement_list, obtain_sql_value, specific_sql_statement, sqlite3_keyword_check
-from Toolbox.OS_Tools import file_destination
+from Toolbox.OS_Tools import file_destination, obtain_storage_dir
 
 from StyleSheets.StandardCSS import standardAppearance
 from StyleSheets.LedgerCSS import transFrame, spendingLabel
@@ -56,6 +57,7 @@ class LedgerV2(QDialog):
         self.show()
 
         # Class Global Variables
+        self.storage_dir = obtain_storage_dir()
         self.refUserDB = database
         self.parentType = parentType
         self.refUser = user
@@ -90,7 +92,7 @@ class LedgerV2(QDialog):
 
         # Canvas -- Sector
         self.sectorCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
-        self.sCanvasLayout = QVBoxLayout(self.ui.SectorFrame)
+        self.sCanvasLayout = QVBoxLayout(self.ui.sectorFrame)
         self.sCanvasLayout.addWidget(self.sectorCanvas)
 
         # Prepare Widgets for initial Use
@@ -132,7 +134,7 @@ class LedgerV2(QDialog):
         self.ui.pBUpload.clicked.connect(self.upload_receipt_button)
         self.ui.pBDisplay.clicked.connect(self.display_receipt)
         self.ui.pBClear.clicked.connect(self.clear_receipt_action)
-        self.ui.pBDelete.clicked.connect(self.delete_receipt_action)
+        self.ui.pBDeleteReceipt.clicked.connect(self.delete_receipt_action)
 
         self.change_ledger2_account()
 
@@ -152,7 +154,7 @@ class LedgerV2(QDialog):
     # Opens Modal Dialogs for ledger Modification
     def accounts_dialog(self):
         alf = AccountsDetails(self.refUserDB, self.parentType, self.refUser, self.ledgerContainer, self.error_Logger)
-        if alf.exec_() == QDialog.Accepted:
+        if alf.exec() == QDialog.Accepted:
             self.ui.comboBLedger2.clear()
             self.ui.comboBPeriod.clear()
 
@@ -172,7 +174,7 @@ class LedgerV2(QDialog):
 
     def categories_dialog(self):
         molly = SpendingCategories(self.refUserDB, self.parentType, self.ledgerContainer, self.error_Logger)
-        if molly.exec_() == QDialog.Accepted:
+        if molly.exec() == QDialog.Accepted:
             self.ui.comboBCategory.clear()
             self.comboBoxCategoriesStatement = f"SELECT Method FROM Categories WHERE ParentType= '{self.parentType}'"
             fill_widget(self.ui.comboBCategory, self.comboBoxCategoriesStatement, True, self.refUserDB, self.error_Logger)
@@ -331,7 +333,6 @@ class LedgerV2(QDialog):
             self.ui.lVariable1.setText("$ " + self.tickerPrice)
 
     def delete_transaction(self):
-        ledgerName = self.ui.comboBLedger2.currentText()
         inputText1 = "Delete Transaction"
         inputText2 = "Enter Row #: "
         row = self.user_selection_input(self.ui.tableWLedger2, inputText1, inputText2) - 1
@@ -344,6 +345,7 @@ class LedgerV2(QDialog):
             self.activeLedger = self.activeLedger.drop(target_transaction, inplace=False)
             self.activeLedger = self.activeLedger.reset_index(drop=True)
 
+            update_df_balance(self.activeLedger)
             self.transaction_refresh()
         else:
             pass
@@ -557,6 +559,7 @@ class LedgerV2(QDialog):
 
     def update_df(self, row):
         from datetime import datetime
+        tic = time.perf_counter()
         modDebit = str(decimal_places(self.ui.lEditDebit.text(), 2))
         modCredit = str(decimal_places(self.ui.lEditCredit.text(), 2))
         modPurchased = str(decimal_places(self.ui.lEditSharePurch.text(), 4))
@@ -593,6 +596,8 @@ class LedgerV2(QDialog):
 
         target_transaction = self.activeLedger[self.activeLedger['Post_Date'] == self.ui.tableWLedger2.item(row, 9).text()].index
         self.activeLedger.at[target_transaction, column_headers] = new_transaction
+        toc = time.perf_counter()
+        print(f'Full Transaction took {tic - toc:0.4f} seconds')
 
     def update_transaction(self):
         inputText1 = "Update Transaction"
@@ -653,8 +658,8 @@ class LedgerV2(QDialog):
                 if rowList.shape[0] == 1:
                     self.ui.lEditReceipt.setText("")
                     modifiedLN = remove_space(self.ui.comboBLedger2.currentText())
-                    oRName_path = file_destination(['Receipts', self.refUser, self.parentType, modifiedLN])
-                    oRName_path = Path.cwd() / oRName_path / oRName
+                    oRName_path = file_destination(['Alchemical Finances', 'Receipts', self.refUser, self.parentType, modifiedLN], starting_point=self.storage_dir)
+                    oRName_path = Path(oRName_path) / oRName
                     os.remove(oRName_path)
                 # If >= 2 row is found with the file name. Then the lineEdit is just cleared
                 else:
@@ -663,7 +668,9 @@ class LedgerV2(QDialog):
             self.ui.lEditReceipt.setText("")
 
     def delete_receipt_action(self):
+        print("testing")
         if self.ui.lEditReceipt.text() == "":
+            print("fail")
             pass
         else:
             row = find_mult_row(self.ui.tableWLedger2, 6, self.ui.lEditReceipt.text())
@@ -687,8 +694,8 @@ class LedgerV2(QDialog):
         fileName = self.ui.lEditReceipt.text()
         suffix = PurePath(fileName).suffix
 
-        receipt_path = file_destination(['Receipts', self.refUser, self.parentType, modifiedLN])
-        receipt_path = Path.cwd() / receipt_path / fileName
+        receipt_path = file_destination(['Alchemical Finances', 'Receipts', self.refUser, self.parentType, modifiedLN], starting_point=self.storage_dir)
+        receipt_path = Path(receipt_path) / fileName
 
         if fileName == "":
             noReceipt = "Sorry, No Receipt Uploaded"
@@ -702,7 +709,7 @@ class LedgerV2(QDialog):
         else:
             if os.path.isfile(receipt_path):
                 ion = Receipt(str(receipt_path), fileName)
-                if ion.exec_() == QDialog.Accepted:
+                if ion.exec() == QDialog.Accepted:
                     pass
             else:
                 noFileMessage = f"{fileName} was not located.\n\nDelete Receipt and Re-Upload if necessary."
@@ -725,8 +732,8 @@ class LedgerV2(QDialog):
             else:
                 nRName = rename_image(self.ui.comboBLedger2, self.ui.comboBCategory) + str(suffix)
                 modifiedLN = remove_space(self.ui.comboBLedger2.currentText())
-                nRName_path = file_destination(['Receipts', self.refUser, self.parentType, modifiedLN])
-                nRName_path = Path.cwd() / nRName_path / nRName
+                nRName_path = file_destination(['Alchemical Finances', 'Receipts', self.refUser, self.parentType, modifiedLN], starting_point=self.storage_dir)
+                nRName_path = Path(nRName_path) / nRName
                 copy(rname_path, nRName_path)
                 self.ui.lEditReceipt.setText(nRName)
         else:
@@ -858,6 +865,15 @@ class LedgerV2(QDialog):
         self.ui.pBClearInputs.setEnabled(toggle)
         self.ui.pBUStockPrice.setEnabled(toggle)
         self.ui.tabWidgetLedger2.setEnabled(toggle)
+
+        if toggle is False:
+            self.ui.typeFrame.hide()
+            self.ui.investmentFrame.hide()
+            self.ui.sectorFrame.hide()
+        else:
+            self.ui.typeFrame.show()
+            self.ui.investmentFrame.show()
+            self.ui.sectorFrame.show()
 
     # Pyside6 signals to refresh the QMainWindow Labels for NetWorth
     def trigger_refresh(self):

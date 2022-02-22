@@ -20,12 +20,12 @@ from Backend.Question import YNTypeQuestion
 
 from Frontend.AccountsUi import Ui_Accounts
 
-from PySide2.QtWidgets import QDialog, QMessageBox, QListWidgetItem
+from PySide6.QtWidgets import QDialog, QMessageBox, QListWidgetItem
 
 from Toolbox.AF_Tools import fill_widget
 from Toolbox.Error_Tools import check_characters, find_character, first_character_check
 from Toolbox.Formatting_Tools import decimal_places, remove_space
-from Toolbox.OS_Tools import file_destination
+from Toolbox.OS_Tools import file_destination, obtain_storage_dir
 from Toolbox.SQL_Tools import move_sql_tables, check_for_data, delete_column, obtain_sql_value, execute_sql_statement_list, specific_sql_statement,\
     sqlite3_keyword_check
 
@@ -39,6 +39,7 @@ class AccountsDetails(QDialog):
         self.ui = Ui_Accounts()
         self.ui.setupUi(self)
 
+        self.storage_dir = obtain_storage_dir()
         self.refUserDB = dbName
         self.parentType = parentType
         self.refUser = user
@@ -258,7 +259,7 @@ class AccountsDetails(QDialog):
             self.delete_account_sql(target_account)
 
             sqlCurrentLedgerName = remove_space(target_account)
-            obsolete_dir_path = file_destination(['Receipts', self.refUser, self.parentType, sqlCurrentLedgerName])
+            obsolete_dir_path = file_destination(['Alchemical Finances', 'Receipts', self.refUser, self.parentType, sqlCurrentLedgerName], starting_point=self.storage_dir)
             obsolete_dir_str = str(obsolete_dir_path)
             try:
                 shutil.rmtree(obsolete_dir_str)
@@ -299,12 +300,6 @@ class AccountsDetails(QDialog):
         self.ui.pBEditSubmit.setEnabled(True)
         self.ui.pBEditSubmit.setHidden(False)
         self.ui.pBModify.setEnabled(True)
-
-    def edit_combo_item(self, text):
-        row = self.ui.listWidgetAccount.currentRow()
-        newText = text.title()
-        self.ui.listWidgetAccount.takeItem(row)
-        self.ui.listWidgetAccount.insertItem(row, QListWidgetItem(newText))
 
     def error_checking(self, purpose):
         accountName = self.ui.lEditAN.text()
@@ -477,7 +472,7 @@ class AccountsDetails(QDialog):
         if self.error_checking("New") is False:
             self.add_account_information()
             self.ui.listWidgetAccount.addItem(accountName)
-            file_destination(['Receipts', self.refUser, self.parentType, sqlAccountName])
+            file_destination(['Alchemical Finances', 'Receipts', self.refUser, self.parentType, sqlAccountName], starting_point=self.storage_dir)
             # change stylesheet here
             self.toggle_widgets(False)
             self.ui.listWidgetAccount.setCurrentRow(0)
@@ -505,7 +500,7 @@ class AccountsDetails(QDialog):
             sqlCurrentLedgerName = remove_space(self.ui.listWidgetAccount.currentItem().text())
             sqlNewLedgerName = remove_space(accountName)
 
-            if self.parentType != ["Equity", "Retirement"]:
+            if self.parentType not in ["Equity", "Retirement"]:
                 summaryUpdate = f"UPDATE Account_Summary SET ID='{accountName}', SubType='{accountSubType}' WHERE ID='{currentLedgerName}'"
             else:
                 summaryUpdate = f"UPDATE Account_Summary SET ID='{accountName}', SubType='{accountSubType}', Ticker_Symbol='{accountVariable1}' WHERE ID='{currentLedgerName}'"
@@ -559,8 +554,8 @@ class AccountsDetails(QDialog):
                 ledgerUpdate = f"ALTER TABLE {sqlCurrentLedgerName} RENAME TO '{sqlNewLedgerName}'"
                 accountWorth = f"ALTER TABLE AccountWorth RENAME COLUMN '{sqlCurrentLedgerName}' TO '{sqlNewLedgerName}'"
 
-                old_dir_path = file_destination(['Receipts', self.refUser, self.parentType, sqlCurrentLedgerName])
-                new_dir_path = file_destination(['Receipts', self.refUser, self.parentType, sqlNewLedgerName])
+                old_dir_path = file_destination(['Alchemical Finances', 'Receipts', self.refUser, self.parentType, sqlCurrentLedgerName], starting_point=self.storage_dir)
+                new_dir_path = file_destination(['Alchemical Finances', 'Receipts', self.refUser, self.parentType, sqlNewLedgerName], starting_point=self.storage_dir)
 
                 old_receipt_dir = str(old_dir_path)
                 new_receipt_dir = str(new_dir_path)
@@ -571,8 +566,6 @@ class AccountsDetails(QDialog):
                 current_ledger = load_df_ledger(self.ledgerContainer, currentLedgerName)
 
                 update_df_ledger(self.ledgerContainer, currentLedgerName, self.error_Logger, activeLedger=current_ledger, action="Rename", new_account=accountName)
-
-
 
             else:
                 ledgerUpdate = f"SELECT Subtype FROM AccountSubType WHERE ParentType='{self.parentType}'"
@@ -585,7 +578,10 @@ class AccountsDetails(QDialog):
                 contribution = f"ALTER TABLE ContributionTotals RENAME COLUMN '{sqlCurrentLedgerName}' TO '{sqlNewLedgerName}'"
                 specific_sql_statement(contribution, self.refUserDB, self.error_Logger)
 
-            self.edit_combo_item(self.ui.lEditAN.text())
+            row = self.ui.listWidgetAccount.currentRow()
+            self.ui.listWidgetAccount.takeItem(row)
+            self.ui.listWidgetAccount.insertItem(row, QListWidgetItem(accountName))
+
             self.ui.listWidgetAccount.setCurrentRow(0)
             self.disp_current_selection()
             self.toggle_widgets(False)
@@ -620,7 +616,7 @@ class AccountsDetails(QDialog):
 
     def type_modifier(self):
         molly = YNTypeQuestion(self.refUserDB, self.parentType, self.error_Logger)
-        if molly.exec_() == QDialog.Accepted:
+        if molly.exec() == QDialog.Accepted:
             self.ui.comboboxAT.clear()
             fill_widget(self.ui.comboboxAT, self.comboboxT_Statement, True, self.refUserDB, self.error_Logger)
 

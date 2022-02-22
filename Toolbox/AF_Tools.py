@@ -10,9 +10,9 @@ from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
 
-from PySide2.QtWidgets import QTableWidgetItem
-from PySide2.QtGui import QColor
-from PySide2 import QtCore, QtGui
+from PySide6.QtWidgets import QTableWidgetItem
+from PySide6.QtGui import QColor
+from PySide6 import QtCore, QtGui
 
 from Backend.DataFrame import update_df_balance
 
@@ -399,7 +399,7 @@ def statement_range(activeLedger: object, statement_day: str, parentType: str):
 
 def set_font(target, size: int, bold: bool, underline: bool):
     """
-    function to reduce repitition and clean up the backend code.
+    function to reduce repetition and clean up the backend code.
 
     :param target: Pysde6 Widget
     :param size: int
@@ -461,35 +461,6 @@ def set_networth(database: str, error_log, tablename="Account_Summary",  togglef
         moneyList = ["0.00", "0.00", "0.00", "0.00"]
 
     return moneyList
-
-
-# def update_ledger_balance(comboBox, database, error_log):
-#     """
-#     Function used to adjust the ledger balance amounts whenever a transaction is added, deleted, or updated. This will maintain correct
-#     balance values based upon the "order of transaction"
-#     """
-#     active_ledger = comboBox.currentText()
-#     sql_active_ledger = remove_space(active_ledger)
-#
-#     running_balance = 0
-#
-#     rowID_Statement = f"SELECT ROWID, Credit - Debit, Balance FROM '{sql_active_ledger}' Order by Transaction_Date Limit 0, 49999"
-#     rowID_list = obtain_sql_list(rowID_Statement, database, error_log)
-#
-#     for rowID in rowID_list:
-#         row = rowID[0]
-#         CreditDebit = rowID[1]
-#         trans_balance_ledger = rowID[2]
-#         trans_balance_calc = running_balance + CreditDebit
-#         trans_balance_calc = decimal_places(trans_balance_calc, 2)
-#
-#         if trans_balance_calc == trans_balance_ledger:
-#             pass
-#         else:
-#             update_balance = f"UPDATE '{sql_active_ledger}' SET Balance='{trans_balance_calc}' WHERE ROWID='{row}'"
-#             specific_sql_statement(update_balance, database, error_log)
-#
-#         running_balance = float(trans_balance_calc)
 
 
 if __name__ == "__main__":

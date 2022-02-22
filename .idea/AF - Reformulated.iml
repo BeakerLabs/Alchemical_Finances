@@ -2,14 +2,13 @@
 <module type="PYTHON_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
-      <excludeFolder url="file://$MODULE_DIR$/data" />
-      <excludeFolder url="file://$MODULE_DIR$/Receipts" />
       <excludeFolder url="file://$MODULE_DIR$/temp storage" />
-      <excludeFolder url="file://$MODULE_DIR$/Executable" />
-      <excludeFolder url="file://$MODULE_DIR$/Images" />
-      <excludeFolder url="file://$MODULE_DIR$/Data" />
-      <excludeFolder url="file://$MODULE_DIR$/venv" />
-      <excludeFolder url="file://$MODULE_DIR$/venv2.0" />
+      <excludeFolder url="file://$MODULE_DIR$/ZObsolete - Executable" />
+      <excludeFolder url="file://$MODULE_DIR$/ZObsolete - Images" />
+      <excludeFolder url="file://$MODULE_DIR$/ZObsolete - Receipts" />
+      <excludeFolder url="file://$MODULE_DIR$/ZObsolete - venv" />
+      <excludeFolder url="file://$MODULE_DIR$/ZObsolete -  Data" />
+      <excludePattern pattern="ZObsolete - Data" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.9 (venv2.0)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

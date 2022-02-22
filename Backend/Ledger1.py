@@ -19,10 +19,10 @@ import pandas as pd
 import sys
 import time
 
-from PySide2.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog, QVBoxLayout
-from PySide2.QtCore import QDate
-from PySide2.QtGui import QPixmap
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6.QtWidgets import QMessageBox, QDialog, QFileDialog, QInputDialog, QVBoxLayout
+from PySide6.QtCore import QDate
+from PySide6.QtGui import QPixmap
+from PySide6 import QtCore, QtWidgets, QtGui
 
 from pathlib import Path, PurePath
 from shutil import copy
@@ -41,7 +41,7 @@ from Toolbox.AF_Tools import disp_LedgerV1_Table, fill_widget, find_mult_row, fi
 from Toolbox.Error_Tools import check_characters, check_numerical_inputs
 from Toolbox.Formatting_Tools import add_comma, decimal_places, remove_comma, remove_space
 from Toolbox.SQL_Tools import obtain_sql_value, specific_sql_statement, sqlite3_keyword_check
-from Toolbox.OS_Tools import file_destination
+from Toolbox.OS_Tools import file_destination, obtain_storage_dir
 
 from StyleSheets.StandardCSS import standardAppearance
 from StyleSheets.LedgerCSS import transFrame, spendingLabel
@@ -59,6 +59,7 @@ class LedgerV1(QDialog):
         self.show()
 
         # Class Global Variables
+        self.storage_dir = obtain_storage_dir()
         self.refUserDB = database
         self.parentType = parentType
         self.refUser = user
@@ -68,7 +69,6 @@ class LedgerV1(QDialog):
         self.parentType_dict = {
             "Bank": "Bank_Account_Details",
             "Cash": "Cash_Account_Details",
-            "CD": "CD_Account_Details",
             "CD": "CD_Account_Details",
             "Treasury": "Treasury_Account_Details",
             "Credit": "Credit_Account_Details",
@@ -82,20 +82,21 @@ class LedgerV1(QDialog):
         self.year_label_dict = {}
         self.overall_label_dict = {}
 
-        # Canvas -- Statement
-        self.statementCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
-        self.sCanvasLayout = QVBoxLayout(self.ui.statementFrame)
-        self.sCanvasLayout.addWidget(self.statementCanvas)
+        if self.parentType != "Property":
+            # Canvas -- Statement
+            self.statementCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
+            self.sCanvasLayout = QVBoxLayout(self.ui.statementFrame)
+            self.sCanvasLayout.addWidget(self.statementCanvas)
 
-        # Canvas -- Years
-        self.yearsCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
-        self.yCanvasLayout = QVBoxLayout(self.ui.yearFrame)
-        self.yCanvasLayout.addWidget(self.yearsCanvas)
+            # Canvas -- Years
+            self.yearsCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
+            self.yCanvasLayout = QVBoxLayout(self.ui.yearFrame)
+            self.yCanvasLayout.addWidget(self.yearsCanvas)
 
-        # Canvas -- Overall
-        self.OverallCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
-        self.oCanvasLayout = QVBoxLayout(self.ui.overAllFrame)
-        self.oCanvasLayout.addWidget(self.OverallCanvas)
+            # Canvas -- Overall
+            self.OverallCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
+            self.oCanvasLayout = QVBoxLayout(self.ui.overAllFrame)
+            self.oCanvasLayout.addWidget(self.OverallCanvas)
 
         # Prepare Widgets for initial Use
         self.comboBoxAccountStatement = f"SELECT ID FROM Account_Summary WHERE ParentType= '{self.parentType}'"
@@ -181,7 +182,7 @@ class LedgerV1(QDialog):
     # Opens Modal Dialogs for ledger Modification
     def accounts_dialog(self):
         alf = AccountsDetails(self.refUserDB, self.parentType, self.refUser, self.ledgerContainer, self.error_Logger)
-        if alf.exec_() == QDialog.Accepted:
+        if alf.exec() == QDialog.Accepted:
             self.ui.comboBLedger1.clear()
             self.ui.comboBPeriod.clear()
             if self.parentType != "Property":
@@ -208,7 +209,7 @@ class LedgerV1(QDialog):
     # Opens Modal Dialog for Spending Category Modifications
     def categories_dialog(self):
         molly = SpendingCategories(self.refUserDB, self.parentType, self.ledgerContainer, self.error_Logger)
-        if molly.exec_() == QDialog.Accepted:
+        if molly.exec() == QDialog.Accepted:
             self.ui.comboBCategory.clear()
             self.comboBoxCategoriesStatement = f"SELECT Method FROM Categories WHERE ParentType= '{self.parentType}'"
             fill_widget(self.ui.comboBCategory, self.comboBoxCategoriesStatement, True, self.refUserDB, self.error_Logger)
@@ -217,7 +218,7 @@ class LedgerV1(QDialog):
     # Opens Modal Dialog for Modifying which Spending Categories are used in the Graphical Calculations
     def toggle_dialog(self):
         boston = Toggle_Categories(self.refUserDB, self.parentType, self.error_Logger)
-        if boston.exec_() == QDialog.Accepted:
+        if boston.exec() == QDialog.Accepted:
             self.update_spending_tab("Statement")
             self.update_spending_tab("Year")
             self.update_spending_tab("Overall")
@@ -570,12 +571,10 @@ class LedgerV1(QDialog):
         target_transaction = self.activeLedger[self.activeLedger['Post_Date'] == self.ui.tableWLedger1.item(row, 9).text()].index
         self.activeLedger.at[target_transaction, column_headers] = new_transaction
 
-        subtoc = time.perf_counter()
         # update_ledger_balance(self.ui.comboBLedger1, self.refUserDB, self.error_Logger)
         update_df_balance(self.activeLedger)
         toc = time.perf_counter()
-        print(f'Update ledger took {subtoc - tic:0.4f} seconds')
-        print(f'Full Transaction took {subtoc - toc:0.4f} seconds')
+        print(f'Full Transaction took {tic - toc:0.4f} seconds')
 
     def update_transaction(self):
         inputText1 = "Update Transaction"
@@ -800,8 +799,8 @@ class LedgerV1(QDialog):
                 if rowList.shape[0] == 1:
                     self.ui.lEditReceipt.setText("")
                     modifiedLN = remove_space(self.ui.comboBLedger1.currentText())
-                    oRName_path = file_destination(['Receipts', self.refUser, self.parentType, modifiedLN])
-                    oRName_path = Path.cwd() / oRName_path / oRName
+                    oRName_path = file_destination(['Alchemical Finances', 'Receipts', self.refUser, self.parentType, modifiedLN], starting_point=self.storage_dir)
+                    oRName_path = Path(oRName_path) / oRName
                     os.remove(oRName_path)
                 # If >= 2 row is found with the file name. Then the lineEdit is just cleared
                 else:
@@ -834,8 +833,8 @@ class LedgerV1(QDialog):
         fileName = self.ui.lEditReceipt.text()
         suffix = PurePath(fileName).suffix
 
-        receipt_path = file_destination(['Receipts', self.refUser, self.parentType, modifiedLN])
-        receipt_path = Path.cwd() / receipt_path / fileName
+        receipt_path = file_destination(['Alchemical Finances', 'Receipts', self.refUser, self.parentType, modifiedLN], starting_point=self.storage_dir)
+        receipt_path = Path(receipt_path) / fileName
 
         if fileName == "":
             noReceipt = "Sorry, No Receipt Uploaded"
@@ -849,7 +848,7 @@ class LedgerV1(QDialog):
         else:
             if os.path.isfile(receipt_path):
                 ion = Receipt(str(receipt_path), fileName)
-                if ion.exec_() == QDialog.Accepted:
+                if ion.exec() == QDialog.Accepted:
                     pass
             else:
                 noFileMessage = f"{fileName} was not located.\n\nDelete Receipt and Re-Upload if necessary."
@@ -873,8 +872,8 @@ class LedgerV1(QDialog):
             else:
                 nRName = rename_image(self.ui.comboBLedger1, self.ui.comboBCategory) + str(suffix)
                 modifiedLN = remove_space(self.ui.comboBLedger1.currentText())
-                nRName_path = file_destination(['Receipts', self.refUser, self.parentType, modifiedLN])
-                nRName_path = Path.cwd() / nRName_path / nRName
+                nRName_path = file_destination(['Alchemical Finances', 'Receipts', self.refUser, self.parentType, modifiedLN], starting_point=self.storage_dir)
+                nRName_path = Path(nRName_path) / nRName
                 copy(rname_path, nRName_path)
                 self.ui.lEditReceipt.setText(nRName)
         else:
@@ -903,8 +902,8 @@ class LedgerV1(QDialog):
         house_Image_location = house_Image_location_raw[0]
 
         modifiedLN = remove_space(self.ui.comboBLedger1.currentText())
-        currentPIname_path = file_destination(['Images', self.refUser, self.parentType, modifiedLN])
-        currentPIname_path = Path.cwd() / currentPIname_path / house_Image_location
+        currentPIname_path = file_destination(['Alchemical Finances', 'Images', self.refUser, self.parentType, modifiedLN], starting_point=self.storage_dir)
+        currentPIname_path = Path(currentPIname_path) / house_Image_location
         os.remove(currentPIname_path)
 
         self.ui.lHouseImage.setText(f"Upload a House Image\n\n Max Dimensions:\n{self.ui.houseFrame.geometry().width()} pixel x {self.ui.houseFrame.geometry().height()} pixel")
@@ -925,8 +924,8 @@ class LedgerV1(QDialog):
                 return False
             else:
                 modifiedLN = remove_space(self.ui.comboBLedger1.currentText())
-                currentPIname_path = file_destination(['Images', self.refUser, self.parentType, modifiedLN])
-                currentPIname_path = Path.cwd() / currentPIname_path / house_Image_location
+                currentPIname_path = file_destination(['Alchemical Finances', 'Images', self.refUser, self.parentType, modifiedLN], starting_point=self.storage_dir)
+                currentPIname_path = Path(currentPIname_path) / house_Image_location
                 house_Image = QPixmap(f'{currentPIname_path}')
 
                 self.ui.lHouseImage.setPixmap(house_Image)
@@ -948,8 +947,8 @@ class LedgerV1(QDialog):
             else:
                 nPIname = rename_image(self.ui.comboBLedger1, self.ui.comboBCategory) + str(suffix)
                 modifiedLN = remove_space(self.ui.comboBLedger1.currentText())
-                nPIName_path = file_destination(['Images', self.refUser, self.parentType, modifiedLN])
-                nPIName_path = Path.cwd() / nPIName_path / nPIname
+                nPIName_path = file_destination(['Alchemical Finances', 'Images', self.refUser, self.parentType, modifiedLN], starting_point=self.storage_dir)
+                nPIName_path = Path(nPIName_path) / nPIname
                 copy(pIname_path, nPIName_path)
 
                 house_image_statement = f"UPDATE Property_Account_Details SET Image='{nPIname}' WHERE Account_Name='{self.ui.comboBLedger1.currentText()}'"
@@ -993,6 +992,15 @@ class LedgerV1(QDialog):
         self.ui.pBDelete.setEnabled(toggle)
         self.ui.pBClearInputs.setEnabled(toggle)
         self.ui.tableWLedger1.setEnabled(toggle)
+
+        if toggle is False:
+            self.ui.statementFrame.hide()
+            self.ui.yearFrame.hide()
+            self.ui.overAllFrame.hide()
+        else:
+            self.ui.statementFrame.show()
+            self.ui.yearFrame.show()
+            self.ui.overAllFrame.show()
 
         if self.parentType == "Property":
             self.ui.pBUploadHouse.setEnabled(toggle)

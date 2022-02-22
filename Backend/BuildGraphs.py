@@ -11,6 +11,7 @@ Future Concepts
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
+import math
 import os
 import sys
 
@@ -18,7 +19,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from math import ceil
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 from Backend.LedgerDataAnalysis import category_spending_data, equity_subtype_data
@@ -36,14 +37,7 @@ class AF_Canvas(FigureCanvas):
         super(AF_Canvas, self).__init__(fig)
 
 
-def overTimeLineGraph(database, account, error_log):
-    parentType_statement = f"SELECT ParentType FROM Account_Summary WHERE ID='{add_space(account)}'"
-    parentType_raw = obtain_sql_value(parentType_statement, database, error_log)
-    if parentType_raw is None:
-        parentType = None
-    else:
-        parentType = parentType_raw[0]
-
+def overTimeLineGraph(database, account, parentType, error_log):
     # SQL raw data acquisition
     if account == "Net_Worth_Graph":
         combined_data_statement = "SELECT Date, Gross, Liabilities, Net FROM NetWorth ORDER BY Date ASC LIMIT 0, 49999"
@@ -128,21 +122,21 @@ def overTimeLineGraph(database, account, error_log):
     designation = ""
 
     # determines the divisor for the y-axis.
-    if largest_y_value >= 1000000:
+    if 1000000 <= largest_y_value <= 10000000:
         divisor = 10000
-        designation = "ten thousands"
-    elif largest_y_value >= 100000:
+        designation = "x 100,000"
+    elif 10000 <= largest_y_value < 1000000:
         divisor = 1000
-        designation = "thousands"
-    elif largest_y_value >= 10000:
-        divisor = 100
-        designation = "hundreds"
-    elif largest_y_value >= 1000:
+        designation = "x 1,000"
+    # elif 1000 <= largest_y_value < 10000:
+    #     divisor = 100
+    #     designation = "x 100"
+    elif 100 <= largest_y_value < 10000:
         divisor = 10
-        designation = "tens"
-    elif largest_y_value < 1000:
+        designation = "x 10"
+    elif 0 <= largest_y_value < 100:
         divisor = 1
-        designation = "dollars"
+        designation = "x 1"
 
     # separates the SQL data into their appropriate axis designations
     for date in combined_data_tuple:
@@ -178,6 +172,7 @@ def overTimeLineGraph(database, account, error_log):
 
         else:
             x_date.append(date_formatted)
+
             y1_gross.append(int(float(date[1])/divisor))
             if divisor == 1:
                 y1_gross_fill.append(int(float(date[1])/divisor))
@@ -189,23 +184,28 @@ def overTimeLineGraph(database, account, error_log):
 
     mod_lar_y = largest_y_value / divisor
 
-    y_max = round(mod_lar_y + 50, -2)
-    if y_max < 100:
-        y_max = 100
-
     y_interval_raw = ceil(mod_lar_y/10)
 
     y_interval = round(y_interval_raw, -1)
-    if 90 <= y_interval < 1000:
+
+    if 75 <= y_interval < 1000:
         y_interval = 100
-    elif 50 <= y_interval < 90:
+    elif 50 <= y_interval < 75:
+        y_interval = 75
+    elif 25 <= y_interval < 50:
         y_interval = 50
-    elif 40 <= y_interval < 50:
-        y_interval = 40
-    elif 10 <= y_interval < 40:
-        y_interval = 20
+    elif 10 <= y_interval < 25:
+        y_interval = 25
     elif y_interval < 10:
         y_interval = 10
+
+    num_intervals = round(mod_lar_y/y_interval)
+    num_intervals = num_intervals + 2
+
+    if num_intervals < 5:
+        num_intervals = 5
+
+    y_max = num_intervals * y_interval
 
     lg_data = [x_date, y1_gross, y2_liability, y3_net, x_interval, y_interval, y_max, designation, y1_gross_fill, y2_liability_fill, y3_net_fill]
     return lg_data

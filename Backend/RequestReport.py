@@ -13,8 +13,8 @@ Future Concepts
 import os
 import sys
 
-from PySide2.QtWidgets import QDialog, QFileDialog
-from PySide2 import QtCore, QtWidgets
+from PySide6.QtWidgets import QDialog, QFileDialog
+from PySide6 import QtCore, QtWidgets
 
 
 from Frontend.GenReportUi import Ui_GenReport
@@ -86,7 +86,7 @@ class user_report_request(QDialog):
         if dirname:
             self.ui.lEditPath.setText(dirname)
         else:
-            dirname = os.path.join(os.path.expanduser("~"), "Documents/")
+            dirname = os.path.join(os.path.expanduser("~"), "/Onedrive/Desktop/")
             self.ui.lEditPath.setText(dirname)
 
     # --- -- Used to Generate the report and open the .pdf file ---------------------------------------------------------------------------------------------------------------

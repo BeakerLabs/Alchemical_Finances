@@ -8,8 +8,8 @@
 import sys
 import os
 
-from PySide2 import QtCore, QtGui, QtWidgets
-from PySide2.QtWidgets import QMainWindow, QDialog, QApplication, QLayout
+from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6.QtWidgets import QMainWindow, QDialog, QApplication, QLayout
 
 
 class Ui_ToggleCategories(object):

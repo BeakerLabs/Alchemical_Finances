@@ -14,14 +14,14 @@ import os
 import shutil
 import sys
 
-from PySide2.QtWidgets import QMessageBox, QDialog, QInputDialog
-from PySide2 import QtCore
+from PySide6.QtWidgets import QMessageBox, QDialog, QInputDialog
+from PySide6 import QtCore
 from pathlib import Path, PurePath
 from Frontend.ArchiveUi import Ui_Archive
 from Backend.DataFrame import load_df_ledger
 from Backend.ReceiptViewer import Receipt
 
-from Toolbox.OS_Tools import file_destination
+from Toolbox.OS_Tools import file_destination, obtain_storage_dir
 from Toolbox.AF_Tools import disp_LedgerV1_Table, disp_LedgerV2_Table, generate_statement_months
 from Toolbox.SQL_Tools import execute_sql_statement_list, move_sql_tables, obtain_sql_value, obtain_sql_list
 from Toolbox.Formatting_Tools import remove_space
@@ -40,6 +40,7 @@ class Archive(QDialog):
         # set Stylesheet here
         self.show()
 
+        self.storage_dir = obtain_storage_dir()
         self.refUserDB = database
         self.refUser = user
         self.ledger_container = ledger_container
@@ -158,8 +159,8 @@ class Archive(QDialog):
             file_Name = self.ui.tWArchive.item(row, 7).text()
             suffix = PurePath(file_Name).suffix
 
-            file_pathway = file_destination(['Receipts', self.refUser, parentType_value, ledger_sql])
-            pathway = Path.cwd() / file_pathway / file_Name
+            file_pathway = file_destination(['Alchemical Finances', 'Receipts', self.refUser, parentType_value, ledger_sql], starting_point=self.storage_dir)
+            pathway = Path(file_pathway) / file_Name
 
             if file_Name == "":
                 noReceipt = "Sorry, No Receipt Uploaded"
@@ -168,7 +169,7 @@ class Archive(QDialog):
                 os.startfile(pathway)
             else:
                 ion = Receipt(str(pathway), file_Name)
-                if ion.exec_() == QDialog.Accepted:
+                if ion.exec() == QDialog.Accepted:
                     pass
 
     def fill_combobox(self, combobox, target):

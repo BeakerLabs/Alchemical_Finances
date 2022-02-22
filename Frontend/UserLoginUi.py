@@ -10,8 +10,8 @@ import os
 import pickle
 import sys
 
-from PySide2 import QtCore, QtGui, QtWidgets
-from PySide2.QtGui import QPixmap
+from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6.QtGui import QPixmap
 
 
 class Ui_LoginScreen(object):

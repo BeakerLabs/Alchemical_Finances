@@ -4,21 +4,27 @@
 #  contact@beakerlabstech.com
 
 import os
-from pathlib import Path
+import platform
 import sys
+
+from pathlib import Path
 
 
 # --- OS Functions --- #
-def file_destination(dir_name_lst=None):
+def file_destination(dir_name_lst=None, starting_point=None):
     """ Create desired directory or check for it's existence """
+    if starting_point is None:
+        starting_point = Path.cwd()
+
     if dir_name_lst is None:
         dir_name_lst = []
 
     if dir_name_lst[0] == "..":
-        current_dir = ".." / Path.cwd()
+        # Should I depreciate this? I dont' think I use a ".."
+        current_dir = Path.cwd()
         current_dir = str(current_dir)
     else:
-        current_dir = str(Path.cwd())
+        current_dir = str(starting_point)
 
     gen_str_path = current_dir
 
@@ -33,6 +39,29 @@ def file_destination(dir_name_lst=None):
     file_path = gen_str_path + chr(92)
 
     return file_path
+
+
+def obtain_storage_dir():
+    """Determine, which operating system is in use. Then determine where to store software files
+
+    :return -- user_pathway
+    """
+    operating_system = platform.system()
+
+    if operating_system == "Windows":
+        user_pathway = os.path.expanduser('~/Onedrive/documents')
+
+        if os.path.isdir(user_pathway) is False:
+            user_pathway = os.path.expanduser('~/documents')
+
+        if os.path.isdir(user_pathway) is False:
+            user_pathway = Path.cwd()
+
+    else:
+        user_pathway = Path.cwd()
+        # Will need to return to this to develop for Mac and Linux
+
+    return user_pathway
 
 
 if __name__ == "__main__":

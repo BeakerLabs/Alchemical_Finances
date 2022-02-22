@@ -19,9 +19,9 @@ import sqlite3
 
 from datetime import date
 from pathlib import Path
-from PySide2.QtWidgets import QMainWindow, QDialog, QMessageBox
-from PySide2 import QtCore
-from PySide2.QtCore import Slot
+from PySide6.QtWidgets import QMainWindow, QDialog, QMessageBox
+from PySide6 import QtCore
+from PySide6.QtCore import Slot
 from sqlite3 import Error
 
 from Frontend.AFui import Ui_MainWindow
@@ -36,19 +36,19 @@ from Backend.OverTimeGraph import OverTimeGraph
 from Backend.Profile import Profile
 from Backend.RequestReport import user_report_request
 from Backend.SaveDataFrame import SaveProgress
-# from Backend.Scrape import update_stock_price
 from Backend.Summary import Ledger_Summary
 
-from Toolbox.OS_Tools import file_destination
+from Toolbox.OS_Tools import file_destination, obtain_storage_dir
 from Toolbox.AF_Tools import set_networth
 from Toolbox.SQL_Tools import check_for_data, create_table, execute_sql_statement_list, specific_sql_statement, obtain_sql_list, obtain_sql_value
-from Toolbox.Formatting_Tools import decimal_places, remove_space, weekend_check
+from Toolbox.Formatting_Tools import decimal_places, remove_comma, remove_space
 
 from StyleSheets.MainWindowCSS import mainWindow
 
 
 class AFBackbone(QMainWindow):
     refresh_signal_summary = QtCore.Signal(str)
+    refresh_signal_OTG = QtCore.Signal(str)
 
     def __init__(self, user, messageCount, error_log):
         super().__init__()
@@ -56,14 +56,15 @@ class AFBackbone(QMainWindow):
         self.ui.setupUi(self)
 
         # Global Variables
-        self.dbPathway = file_destination(['data', 'account'])
-        self.dbPathway = Path.cwd() / self.dbPathway / "UAInformation.db"
+        self.storage_dir = obtain_storage_dir()
+        self.dbPathway = file_destination(['Alchemical Finances', 'Data', 'account'], starting_point=self.storage_dir)
+        self.dbPathway = Path(self.dbPathway) / "UAInformation.db"
         self.refUser = user
         self.switchCheck = int(messageCount)
         self.error_Logger = error_log
 
         self.today = date.today()
-        self.today = self.today.strftime("%m/%d/%Y")
+        self.today = self.today.strftime("%Y/%m/%d")
 
         # This will hold the saved version of the database
         self.saveState = None
@@ -208,10 +209,10 @@ class AFBackbone(QMainWindow):
     def create_profile_db(self):
         key = self.acquire_key()
         databaseFileName = "db" + key + "rf.dat"
-        userDbPathway = file_destination(['data', 'account'])
-        databaseFN_Pathway = Path.cwd() / userDbPathway / databaseFileName
+        userDbPathway = file_destination(['Alchemical Finances', 'data', 'account'], starting_point=self.storage_dir)
+        databaseFN_Pathway = Path(userDbPathway) / databaseFileName
         databaseName = self.create_db_name()
-        databaseName_Pathway = Path.cwd() / userDbPathway / databaseName
+        databaseName_Pathway = Path(userDbPathway) / databaseName
         try:
             with open(databaseFN_Pathway, mode="rb") as f:
                 codedDN = f.read()
@@ -234,7 +235,7 @@ class AFBackbone(QMainWindow):
     def create_dataframe_container(self, dictionary):
         key = self.acquire_key()
         containerFN = "df" + key + "rf.pkl"
-        dfPathway = Path.cwd() / 'data' / 'account' / containerFN
+        dfPathway = Path(self.storage_dir) / 'Alchemical Finances' / 'data' / 'account' / containerFN
 
         if os.path.exists(dfPathway):
             os.remove(dfPathway)
@@ -272,7 +273,7 @@ class AFBackbone(QMainWindow):
             reply = QMessageBox.question(self, "Save Account", save_mesg, QMessageBox.Yes, QMessageBox.No)
             if reply == QMessageBox.Yes:
                 progressDialog = SaveProgress(self.ledger_container, self.refUserDB, self.error_Logger)
-                if progressDialog.exec_() == QDialog.Accepted:
+                if progressDialog.exec() == QDialog.Accepted:
                     shutil.copyfile(self.refUserDB, self.saveState)
                     complete_mesg = "Your work has been saved."
                     done = QMessageBox.information(self, "Save Complete", complete_mesg, QMessageBox.Close, QMessageBox.NoButton)
@@ -644,7 +645,8 @@ class AFBackbone(QMainWindow):
                 specific_sql_statement(update_balance_statement, self.refUserDB, self.error_Logger)
 
     def user_manual(self):
-        user_manual_path = Path.cwd() / "Resources" / "USER_MANUAL.pdf"
+        # Will eventually need to build a way to install the resources. Right now they just exist
+        user_manual_path = self.storage_dir / "Resources" / "USER_MANUAL.pdf"
         user_manual_str = str(user_manual_path)
         os.startfile(user_manual_str)
 
@@ -653,10 +655,27 @@ class AFBackbone(QMainWindow):
         """ formats and updates Net Worth values"""
         if message == "1":
             netWorth = set_networth(self.refUserDB, "Account_Summary", toggleformatting=True)
+            # Update Display Values
             self.ui.labelNW.setText(netWorth[1])
-            self.ui.labelTAssests.setText(netWorth[2])
+            self.ui.labelTAssests.setText(netWorth[2])  # Gross
             self.ui.labelTLiabilities.setText(netWorth[3])
+
+            # log Net Worth
+            gross = remove_comma(netWorth[2][5:-1])
+            liability = remove_comma(netWorth[3][5:-1])
+            net = remove_comma(netWorth[1][5:-1])
+            update_statement = f"UPDATE NetWorth SET Gross='{gross}', Liabilities='{liability}', Net='{net}' WHERE Date='{self.today}'"
+            specific_sql_statement(update_statement, self.refUserDB, self.error_Logger)
+
+            # Trigger graph refrish
+            if "OTG" in self.tabdic:
+                self.trigger_refresh_graph()
+            else:
+                pass
+
+            # Toggle Save to False to allow user to save changes
             self.saveToggle = False
+            # trigger refresh of summary values.
             self.trigger_refresh_summary()
         else:
             pass
@@ -673,6 +692,10 @@ class AFBackbone(QMainWindow):
     def trigger_refresh_summary(self):
         """ Signal to trigger the Summary QDialog to refresh Account Balances """
         self.refresh_signal_summary.emit("2")
+
+    def trigger_refresh_graph(self):
+        """ Signal to trigger the OTG to refresh and reflect new Balances"""
+        self.refresh_signal_OTG.emit("3")
 
 
 if __name__ == "__main__":

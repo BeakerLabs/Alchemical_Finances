@@ -13,7 +13,7 @@ Future Concepts
 import os
 import sys
 
-from PySide2.QtWidgets import QDialog, QMessageBox
+from PySide6.QtWidgets import QDialog, QMessageBox
 
 from Backend.DataFrame import load_df_ledger, update_df_ledger
 
@@ -22,6 +22,8 @@ from Frontend.CategoriesUi import Ui_Categories
 from Toolbox.AF_Tools import fill_widget
 from Toolbox.Error_Tools import check_characters, first_character_check
 from Toolbox.SQL_Tools import attempt_sql_statement, obtain_sql_list, specific_sql_statement
+
+from StyleSheets.StandardCSS import standardAppearance
 
 
 class SpendingCategories(QDialog):
@@ -51,6 +53,7 @@ class SpendingCategories(QDialog):
         self.disp_current_category()
         self.ui.listWidgetCat.itemClicked.connect(self.disp_current_category)
         self.setModal(True)
+        self.setStyleSheet(standardAppearance)
         self.show()
 
     def alter_appearance(self, state):

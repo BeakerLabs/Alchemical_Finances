@@ -13,11 +13,13 @@ Future Concepts
 import os
 import sys
 
-from PySide2.QtWidgets import QDialog, QInputDialog
+from PySide6.QtWidgets import QDialog, QInputDialog
 
 from Frontend.SubTypeQuestionUi import Ui_YNCInput
 
 from Toolbox.SQL_Tools import obtain_sql_list, specific_sql_statement
+
+from StyleSheets.StandardCSS import standardAppearance
 
 
 class YNTypeQuestion(QDialog):
@@ -29,6 +31,7 @@ class YNTypeQuestion(QDialog):
         self.parentType = parentType
 
         self.setModal(True)
+        self.setStyleSheet(standardAppearance)
         self.show()
 
         # Program Error Logger

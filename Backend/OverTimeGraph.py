@@ -15,10 +15,9 @@ import numpy as np
 import os
 import sys
 
-from PySide2 import QtGui, QtCore, QtWidgets
-from PySide2.QtWidgets import QDialog, QVBoxLayout
-from PySide2.QtGui import QPainter, QColor
-
+from PySide6 import QtCore
+from PySide6.QtWidgets import QDialog, QVBoxLayout
+from PySide6.QtCore import Slot
 
 from Backend.BuildGraphs import AF_Canvas, overTimeLineGraph
 from Toolbox.AF_Tools import fill_widget
@@ -58,9 +57,11 @@ class OverTimeGraph(QDialog):
         self.ui.lGraphTitle.setStyleSheet(overTime)
         self.show()
 
+        parent.refresh_signal_OTG.connect(self.refresh_visual)
+
     def generate_graph(self):
         account = self.ui.graphAccountComboBox.currentText()
-        self.ui.lGraphTitle.setText(f"{account} over Time")
+        self.ui.lGraphTitle.setText(f"{account}")
         account = remove_space(account)
         self.update_lg_plot(self.lgraphCanvas, account)
 
@@ -122,7 +123,7 @@ class OverTimeGraph(QDialog):
         else:
             parentType = parentType_raw[0]
 
-        lg_data = overTimeLineGraph(database=self.refUserDB, account=account, error_log=self.error_Logger)
+        lg_data = overTimeLineGraph(database=self.refUserDB, account=account, parentType=parentType, error_log=self.error_Logger)
 
         # [X-axis, Y1-axis = gross, Y2-axis = liability, Y3-axis = net, x-interval, y_interval, y-max, y-axis units, y1-Fill, y2-Fill, y3-Fill]
         canvas.axes.clear()
@@ -163,7 +164,7 @@ class OverTimeGraph(QDialog):
         canvas.axes.set_ylim(bottom=0)
         canvas.axes.set_xlim(left=0, right=len(lg_data[0]))
         # canvas.axes.set_xlabel('Date (MM/DD/YY) ', labelpad=1, size='3')
-        canvas.axes.set_ylabel(f'$ ({lg_data[7]})', labelpad=3, size='3')
+        canvas.axes.set_ylabel(f'$ {lg_data[7]}', labelpad=3, size='3')
 
         canvas.axes.grid(b=True,
                          which='major',
@@ -266,6 +267,11 @@ class OverTimeGraph(QDialog):
 
         peakdata = (gross, net, liability)
         return peakdata
+
+    @Slot(str)
+    def refresh_visual(self, message):
+        if message == "3":
+            self.generate_graph()
 
     def trigger_del_tab(self):
         self.remove_tab_OTG.emit("OTG")

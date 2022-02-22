@@ -1,7 +1,7 @@
 **Alchemical Finances: _Hands on Personal Finance_**
 ==============================================
-* **Version:** 0.4.13 (Changed to match the Code Version Commits)
-* **Release Date:** 01/28/2022
+* **Version:** 0.5.0 (Changed to match the Code Version Commits)
+* **Release Date:** 02/22/2022
 * **Copyright:** (c) 2021, Beaker Labs LLC
 * **Website:** www.BeakerLabsTech.com
 * **Code Versions** Notes about the Git Commits can be found on the website.  
@@ -11,11 +11,8 @@ License
 -------
 Provided in the repository file [LICENSE.txt](LICENSE.txt)
 
-This software is intended to be built with Pyside6. Currently, the software utilizes Pyside2 to operate with the Matplotlib module properly. This should be updated and reverted before the years end. As it appears Matpltlib version 3.5.0
-should address the Pyside6 backend issues. Pyside2 and Pyside6 function under the LGPLv3.0 as it is built upon the Qt C++ framework in the same manner as Pyside6.
-
-~~This software was built using Pyside6 from the Qt Company which is produced and distributed under the GNU LGPLv3.0 License, as such so is this program. This repository doesn't come with the Pyside6 Module. The best way
-to obtain the software is there _python -m pip install Pyside6_ (or your systems variant.)~~ 
+This software was built using Pyside6 from the Qt Company which is produced and distributed under the GNU LGPLv3.0 License, as such so is this program. This repository doesn't come with the Pyside6 Module. The best way
+to obtain the software is there _python -m pip install Pyside6 (or your systems variant.)
 
 License information for Pyside6 can be located at the following website [Pyside6 License](https://doc.qt.io/qtforpython/licenses.html)
 
