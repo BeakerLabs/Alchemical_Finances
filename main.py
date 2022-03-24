@@ -81,4 +81,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    # Trying to solve a commit issue where my local master and github master wont merge.
+    # Trying to solve a commit issue where my local master and gitHub master won't merge.

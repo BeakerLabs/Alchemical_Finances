@@ -3,9 +3,6 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-# This layout was manual coded without Qt Designer.
-# This code relies on a GridLayout Structure. In Theory should be able to able to adjust to every screen resolution.
-
 import os
 import pickle
 import sys
@@ -94,13 +91,16 @@ class Ui_LoginScreen(object):
         self.labelTitle.setObjectName("labelTitle")
         title_font = QtGui.QFont()
         title_font.setBold(True)
-        title_font.setPixelSize(28)
+        title_font.setPixelSize(30)
         self.labelTitle.setAlignment(QtCore.Qt.AlignCenter)
         self.labelTitle.setFont(title_font)
         self.vlr2.addWidget(self.labelTitle)
 
         general_font = QtGui.QFont()
-        general_font.setPixelSize(20)
+        general_font.setPixelSize(22)
+
+        pushbutton_font = QtGui.QFont()
+        pushbutton_font.setPixelSize(16)
 
         self.labelSubTitle = QtWidgets.QLabel(Dialog)
         self.labelSubTitle.setObjectName("labelSubTitle")
@@ -239,6 +239,7 @@ class Ui_LoginScreen(object):
         self.pushButtonLogin = QtWidgets.QPushButton(Dialog)
         self.pushButtonLogin.setObjectName("pushButtonLogin")
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        self.pushButtonLogin.setFont(pushbutton_font)
         self.pushButtonLogin.setSizePolicy(sizePolicy)
         self.pushButtonLogin.setEnabled(True)
         self.hlr8.addWidget(self.pushButtonLogin)
@@ -249,6 +250,7 @@ class Ui_LoginScreen(object):
         self.pushButtonSubmitProfile.setEnabled(False)
         self.pushButtonSubmitProfile.setHidden(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        self.pushButtonSubmitProfile.setFont(pushbutton_font)
         sizePolicy.retainSizeWhenHidden()
         self.pushButtonSubmitProfile.setSizePolicy(sizePolicy)
         self.pushButtonSubmitProfile.setEnabled(True)
@@ -257,6 +259,7 @@ class Ui_LoginScreen(object):
         self.pushButtonQuit = QtWidgets.QPushButton(Dialog)
         self.pushButtonQuit.setObjectName("pushButtonQuit")
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        self.pushButtonQuit.setFont(pushbutton_font)
         self.pushButtonQuit.setSizePolicy(sizePolicy)
         sizePolicy.retainSizeWhenHidden()
         self.pushButtonQuit.setEnabled(True)
@@ -268,6 +271,7 @@ class Ui_LoginScreen(object):
         self.pushButtonCancel.setEnabled(False)
         self.pushButtonCancel.setHidden(True)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        self.pushButtonCancel.setFont(pushbutton_font)
         sizePolicy.retainSizeWhenHidden()
         self.pushButtonCancel.setSizePolicy(sizePolicy)
         self.pushButtonCancel.setEnabled(True)
@@ -290,6 +294,7 @@ class Ui_LoginScreen(object):
         self.pushButtonNewProfile = QtWidgets.QPushButton(Dialog)
         self.pushButtonNewProfile.setObjectName("pushButtonNewProfile")
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        self.pushButtonNewProfile.setFont(pushbutton_font)
         sizePolicy.retainSizeWhenHidden()
         self.pushButtonNewProfile.setSizePolicy(sizePolicy)
         self.pushButtonNewProfile.setEnabled(True)

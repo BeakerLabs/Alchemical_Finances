@@ -3,8 +3,6 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-# Dialog for user to load images within the program.
-
 import os
 import sys
 
@@ -28,7 +26,7 @@ class Ui_Receipt(object):
 
         # Font and Size Policy
         general_font = QtGui.QFont()
-        general_font.setPixelSize(12)
+        general_font.setPixelSize(14)
         general_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)

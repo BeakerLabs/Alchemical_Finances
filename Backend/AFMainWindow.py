@@ -1,11 +1,3 @@
-"""
-This script is the backend to Frontend.AFui.py
-
-Future Concepts
-1) Create a profile tab. This can be used to house settings and an e-mail address
-2) Create Properties Ledger Page
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
@@ -16,15 +8,18 @@ import pandas as pd
 import pickle
 import shutil
 import sqlite3
+import time
 
 from datetime import date
 from pathlib import Path
-from PySide6.QtWidgets import QMainWindow, QDialog, QMessageBox
 from PySide6 import QtCore
 from PySide6.QtCore import Slot
+from PySide6.QtWidgets import QMainWindow, QDialog, QMessageBox
 from sqlite3 import Error
 
 from Frontend.AFui import Ui_MainWindow
+
+from StyleSheets.MainWindowCSS import mainWindow
 
 from Backend.About import AboutProgram
 from Backend.ArchiveLedger import Archive
@@ -38,13 +33,10 @@ from Backend.RequestReport import user_report_request
 from Backend.SaveDataFrame import SaveProgress
 from Backend.Summary import Ledger_Summary
 
-from Toolbox.OS_Tools import file_destination, obtain_storage_dir
 from Toolbox.AF_Tools import set_networth
-from Toolbox.SQL_Tools import check_for_data, create_table, execute_sql_statement_list, specific_sql_statement, obtain_sql_list, obtain_sql_value
 from Toolbox.Formatting_Tools import decimal_places, remove_comma, remove_space
-
-from StyleSheets.MainWindowCSS import mainWindow
-
+from Toolbox.OS_Tools import file_destination, obtain_storage_dir
+from Toolbox.SQL_Tools import check_for_data, create_table, execute_sql_statement_list, specific_sql_statement, obtain_sql_list, obtain_sql_value
 
 class AFBackbone(QMainWindow):
     refresh_signal_summary = QtCore.Signal(str)
@@ -74,7 +66,7 @@ class AFBackbone(QMainWindow):
         # Data Check is a Legacy Variable that isn't in use.
         self.dataCheck = None
 
-        # Dictionary used to determine what Tabs are open currently. Prevents duplicates
+        # Dictionary used to determine what Tabs are open currently to prevent duplicate instances
         self.tabdic = {}
 
         # obtain e-mail if it exists
@@ -146,7 +138,7 @@ class AFBackbone(QMainWindow):
                                         ov_graph_statement,
                                         contribution_graph_statement], self.saveState, self.error_Logger)
 
-        # No else statement for the create new profile. Not necessary if database already exists
+        # No else statement for the creation of a new profile. Not necessary if database already exists
 
         # Swap over to temporary Database
         # This will hold the temporary/active version of the database
@@ -213,13 +205,15 @@ class AFBackbone(QMainWindow):
         databaseFN_Pathway = Path(userDbPathway) / databaseFileName
         databaseName = self.create_db_name()
         databaseName_Pathway = Path(userDbPathway) / databaseName
+
         try:
             with open(databaseFN_Pathway, mode="rb") as f:
                 codedDN = f.read()
                 self.saveState = codedDN.decode('utf-8')
                 # DataCheck is legacy Variable not currently in use.
-                self.dataCheck = ("Opened File: " + self.saveState + " User Key: "
-                                  + key + " User Name: " + str(self.refUser))
+                # self.dataCheck = ("Opened File: " + self.saveState + " User Key: "
+                #                   + key + " User Name: " + str(self.refUser))
+                # print(self.dataCheck)
                 f.close()
                 return False
         except IOError:
@@ -275,6 +269,7 @@ class AFBackbone(QMainWindow):
                 progressDialog = SaveProgress(self.ledger_container, self.refUserDB, self.error_Logger)
                 if progressDialog.exec() == QDialog.Accepted:
                     shutil.copyfile(self.refUserDB, self.saveState)
+                    time.sleep(1)
                     complete_mesg = "Your work has been saved."
                     done = QMessageBox.information(self, "Save Complete", complete_mesg, QMessageBox.Close, QMessageBox.NoButton)
                     if done == QMessageBox.Close:
@@ -282,7 +277,7 @@ class AFBackbone(QMainWindow):
 
             else:
                 if close:
-                    doubleCheck = "Are you sure?"
+                    doubleCheck = "Are you sure?          "
                     usercheck = QMessageBox.question(self, "Save Before Close", doubleCheck, QMessageBox.Yes, QMessageBox.No)
                     if usercheck == QMessageBox.Yes:
                         pass
@@ -479,13 +474,13 @@ class AFBackbone(QMainWindow):
         else:
             pass
 
-    def log_contributions(self, action, date):
+    def log_contributions(self, action, instanceDate):
         """ Obtain Equity and Retirement Contribution sums for the Contributions Table"""
         select_target_accounts = "SELECT ID FROM Account_Summary WHERE ParentType='Equity' or ParentType='Retirement'"
         target_accounts_raw = obtain_sql_list(select_target_accounts, self.refUserDB, self.error_Logger)
 
         if action == "Insert":
-            insert_date = f"INSERT INTO ContributionTotals(Date) VALUES('{date}')"
+            insert_date = f"INSERT INTO ContributionTotals(Date) VALUES('{instanceDate}')"
             specific_sql_statement(insert_date, self.refUserDB, self.error_Logger)
         else:
             pass
@@ -503,7 +498,7 @@ class AFBackbone(QMainWindow):
 
             contribution_sum = str(decimal_places(contribution_sum_checked, 2))
 
-            insert_contribution = f"UPDATE ContributionTotals SET '{sql_account}'={contribution_sum} WHERE Date='{date}'"
+            insert_contribution = f"UPDATE ContributionTotals SET '{sql_account}'={contribution_sum} WHERE Date='{instanceDate}'"
             specific_sql_statement(insert_contribution, self.refUserDB, self.error_Logger)
 
     def log_netWorth(self, entryPoint):
@@ -635,14 +630,18 @@ class AFBackbone(QMainWindow):
                 formattedShares = decimal_places(shareBalance, 4)
                 formattedShares = float(formattedShares)
 
-            ticker_symbol = account_dict[account]
-            market_price = equity_dict[ticker_symbol]
-            if market_price <= 0:
+            if len(equity_dict) <= 0:
                 pass
             else:
-                new_balance = formattedShares * float(equity_dict[ticker_symbol])
-                update_balance_statement = f"UPDATE Account_Summary SET Balance='{new_balance}' WHERE ID='{account}'"
-                specific_sql_statement(update_balance_statement, self.refUserDB, self.error_Logger)
+                ticker_symbol = account_dict[account]
+                market_price = equity_dict[ticker_symbol]
+
+                if market_price <= 0:
+                    pass
+                else:
+                    new_balance = formattedShares * float(equity_dict[ticker_symbol])
+                    update_balance_statement = f"UPDATE Account_Summary SET Balance='{new_balance}' WHERE ID='{account}'"
+                    specific_sql_statement(update_balance_statement, self.refUserDB, self.error_Logger)
 
     def user_manual(self):
         # Will eventually need to build a way to install the resources. Right now they just exist
@@ -673,7 +672,7 @@ class AFBackbone(QMainWindow):
             else:
                 pass
 
-            # Toggle Save to False to allow user to save changes
+            # sets self.saveToggle too False to allow user to save future changes
             self.saveToggle = False
             # trigger refresh of summary values.
             self.trigger_refresh_summary()

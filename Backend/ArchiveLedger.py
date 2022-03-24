@@ -1,10 +1,3 @@
-"""
-This script is the backend to Frontend.ArchiveUi.py
-
-Future Concepts
-
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
@@ -14,19 +7,21 @@ import os
 import shutil
 import sys
 
-from PySide6.QtWidgets import QMessageBox, QDialog, QInputDialog
-from PySide6 import QtCore
 from pathlib import Path, PurePath
+from PySide6 import QtCore
+from PySide6.QtWidgets import QMessageBox, QDialog, QInputDialog
+
 from Frontend.ArchiveUi import Ui_Archive
+
+from StyleSheets.StandardCSS import standardAppearance
+
 from Backend.DataFrame import load_df_ledger
 from Backend.ReceiptViewer import Receipt
 
-from Toolbox.OS_Tools import file_destination, obtain_storage_dir
 from Toolbox.AF_Tools import disp_LedgerV1_Table, disp_LedgerV2_Table, generate_statement_months
-from Toolbox.SQL_Tools import execute_sql_statement_list, move_sql_tables, obtain_sql_value, obtain_sql_list
 from Toolbox.Formatting_Tools import remove_space
-
-from StyleSheets.StandardCSS import standardAppearance
+from Toolbox.OS_Tools import file_destination, obtain_storage_dir
+from Toolbox.SQL_Tools import execute_sql_statement_list, move_sql_tables, obtain_sql_value, obtain_sql_list
 
 
 class Archive(QDialog):

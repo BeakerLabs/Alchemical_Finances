@@ -1,9 +1,3 @@
-"""
-This script is the backend to Frontend.ProfileUi.py
-
-Due to the "static" nature of the tab. Anything kinetic can be done in the Frontend.
-
-"""
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
@@ -13,15 +7,14 @@ import os
 import sys
 
 from pathlib import Path
-
 from PySide6 import QtGui, QtCore, QtWidgets
 from PySide6.QtWidgets import QDialog, QMessageBox
 
 from Frontend.ProfileUi import Ui_Profile
 
-from StyleSheets.StandardCSS import standardAppearance
-from StyleSheets.ProfileCSS import profileFrame
 from StyleSheets.ErrorCSS import generalError
+from StyleSheets.ProfileCSS import profileFrame
+from StyleSheets.StandardCSS import standardAppearance
 
 from Toolbox.OS_Tools import file_destination, obtain_storage_dir
 from Toolbox.Error_Tools import find_specific_character, check_characters, check_numerical_inputs, spacing_check
@@ -166,7 +159,7 @@ class Profile(QDialog):
         confirm_new = self.ui.lEditConfirmNewPassword.text()
 
         if self.check_password(original_pass, new_pass, confirm_new):
-            update_Statement = f"UPDATE Users SET Password='{new_pass}', WHERE Profile='{self.refUser}'"
+            update_Statement = f"UPDATE Users SET Password='{new_pass}' WHERE Profile='{self.refUser}'"
             specific_sql_statement(update_Statement, self.dbPathway, self.error_Logger)
             self.ui.lmessage.setStyleSheet(standardAppearance)
             self.ui.lmessage.setText("New Password set for future reference")

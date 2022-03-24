@@ -1,17 +1,8 @@
-"""
-This script is the backend to all graphical displays
-
-Future Concepts
-1)
-
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-import math
 import os
 import sys
 
@@ -22,15 +13,21 @@ from math import ceil
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-from Backend.LedgerDataAnalysis import category_spending_data, equity_subtype_data
-
-from Toolbox.Formatting_Tools import add_space, cash_format, decimal_places
+from Toolbox.Formatting_Tools import cash_format, decimal_places
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
 
 
 class AF_Canvas(FigureCanvas):
-    def __init__(self, parent=None, width=5, height=4, dpi=100, facecolor="#FAFAFA"):
+    def __init__(self, parent=None, width=4, height=4, adjustment=None, dpi=100, facecolor="#FAFAFA"):
         fig = Figure(figsize=(width, height), dpi=dpi, facecolor=facecolor)
+
+        if adjustment is None:
+            pass
+        elif adjustment == "left":
+            fig.subplots_adjust(left=0.5)
+        else:  # right
+            fig.subplots_adjust(right=0.5)
+
         self.axes = fig.add_subplot(111)
         self.axes.set_facecolor('#e3e3e3')
         self.axes.spines[["top", "bottom", "left", "right"]].set_linewidth(0.5)
@@ -40,9 +37,8 @@ class AF_Canvas(FigureCanvas):
 def overTimeLineGraph(database, account, parentType, error_log):
     # SQL raw data acquisition
     if account == "Net_Worth_Graph":
-        combined_data_statement = "SELECT Date, Gross, Liabilities, Net FROM NetWorth ORDER BY Date ASC LIMIT 0, 49999"
+        combined_data_statement = "SELECT Date, Gross, Liabilities, Net FROM NetWorth ORDER BY Date LIMIT 0, 49999"
         combined_data_tuple = obtain_sql_list(combined_data_statement, database, error_log)
-
         largest_grossValue_raw = []
         largest_liabilityValue_raw = []
 
@@ -59,9 +55,9 @@ def overTimeLineGraph(database, account, parentType, error_log):
             largest_y_value = largest_liabilityValue
 
     elif account != "Net_Worth_Graph" and parentType in ["Equity", "Retirement"]:
-        value_data_statement = f"""SELECT Date, "{account}" FROM AccountWorth WHERE "{account}" IS NOT NULL ORDER BY Date ASC Limit 0, 49999"""
+        value_data_statement = f"""SELECT Date, "{account}" FROM AccountWorth WHERE "{account}" IS NOT NULL ORDER BY Date Limit 0, 49999"""
         value_data_tuple = obtain_sql_list(value_data_statement, database, error_log)
-        contribution_data_statement = f"""SELECT Date, "{account}", 0 FROM ContributionTotals WHERE "{account}" IS NOT NULL ORDER BY Date ASC Limit 0, 49999"""
+        contribution_data_statement = f"""SELECT Date, "{account}", 0 FROM ContributionTotals WHERE "{account}" IS NOT NULL ORDER BY Date Limit 0, 49999"""
         contribution_tuple = obtain_sql_list(contribution_data_statement, database, error_log)
 
         combined_data_tuple = []
@@ -74,8 +70,8 @@ def overTimeLineGraph(database, account, parentType, error_log):
                 last_cont_value = contribution
             except IndexError:
                 contribution = last_cont_value
-            tuple = (value[0], value[1], contribution)
-            combined_data_tuple.append(tuple)
+            tempTuple = (value[0], value[1], contribution)
+            combined_data_tuple.append(tempTuple)
             x += 1
 
         largest_grossValue_raw = []
@@ -94,7 +90,7 @@ def overTimeLineGraph(database, account, parentType, error_log):
             largest_y_value = largest_ContributionValue
 
     else:
-        combined_data_statement = f"""SELECT Date, "{account}" FROM AccountWorth WHERE "{account}" IS NOT NULL ORDER BY Date ASC Limit 0, 49999"""
+        combined_data_statement = f"""SELECT Date, "{account}" FROM AccountWorth WHERE "{account}" IS NOT NULL ORDER BY Date Limit 0, 49999"""
         combined_data_tuple = obtain_sql_list(combined_data_statement, database, error_log)
         largest_value_statement = f"""SELECT "{account}" FROM AccountWorth WHERE "{account}" IS NOT NULL"""
         largest_y_tuple = obtain_sql_list(largest_value_statement, database, error_log)
@@ -151,7 +147,7 @@ def overTimeLineGraph(database, account, parentType, error_log):
             y3_net.append(int(float(date[3])/divisor))
 
             if divisor == 1:
-                y1_gross_fill.append(int(float(date[1])/divisor))
+                y1_gross_fill.append(int(float(date[1]) / divisor))
                 y2_liability_fill.append(int(float(date[2]) / divisor))
                 y3_net_fill.append(int(float(date[3]) / divisor))
             else:
@@ -228,10 +224,8 @@ def snapshot_chart(database, graph_focus, error_log):
     gross_statement = "SELECT SUM(Balance) FROM Account_Summary WHERE ItemType='{0}'".format(graph_focus)
     gross_worth = obtain_sql_value(gross_statement, database, error_log)[0]
 
-    if gross_worth is None:
-        gross_worth = 1
-    if gross_worth <= 0:
-        gross_worth = 1
+    if gross_worth is None or gross_worth <= 0:
+        gross_worth = 0.5
 
     for parent in parentTypes:
         size_statement = "SELECT SUM(Balance) FROM Account_Summary WHERE ParentType='{0}'".format(parent)
@@ -250,30 +244,23 @@ def snapshot_chart(database, graph_focus, error_log):
             segment_data.append(parentType[:3])
             segment_balances.append(parentType[3])
 
-    if graph_focus == "Asset":
-        if gross_worth < 1:
-            cmap = plt.cm.Greys
-            segment_data.append(["", 100, 0])
-            segment_colors = [*cmap(np.linspace(0.8, .33, 1))]
-        else:
-            cmap = plt.cm.terrain
-            segment_colors = [*cmap(np.linspace(0, 0.8, len(segment_data)))]
-
-    else:  # graph_focus == 'Liability'
-        if gross_worth < 1:
-            cmap = plt.cm.Greys
-            segment_data.append(["", 100, 0])
-            segment_colors = [*cmap(np.linspace(0.8, .33, 1))]
-        else:
-            cmap = plt.cm.OrRd
-            segment_colors = [*cmap(np.linspace(0.8, .33, 2))]
+    if gross_worth < 1:
+        cmap = plt.cm.Greys
+        segment_data.append(["Null", 100, "$ 0.00"])
+        segment_balances.append(1)
+        segment_colors = [*cmap(np.linspace(0.8, .33, 1))]
+    elif gross_worth > 1 and graph_focus == "Asset":
+        cmap = plt.cm.terrain
+        segment_colors = [*cmap(np.linspace(0, 0.8, len(segment_data)))]
+    else:  # gross_worth > 1 and graph_focus == "Liability"
+        cmap = plt.cm.OrRd
+        segment_colors = [*cmap(np.linspace(0.8, .33, 2))]
 
     return segment_balances, segment_data, segment_colors
 
 
 def spending_chart(spendingData: list, canvas):
-    # Will piggyback off of the spending tabs data. This way the calculations were already determined and I am using the same
-    # data for the charts as the graphs.
+    # Will piggyback off of the spending tabs data. This way the calculations were already determined, and I am using the same data for the graphs as labels.
     pie_slices = []
 
     for segment in spendingData:
@@ -283,10 +270,17 @@ def spending_chart(spendingData: list, canvas):
     if len(pie_slices) < 1:
         cmap = plt.cm.Greys
         pie_slices.append(100)
-        segment_colors = [*cmap(np.linspace(0.8, .33, 1))]
+        pie_slices.append(0)
+        segment_colors = [*cmap(np.linspace(0.8, .33, 2))]
+    elif pie_slices is None:
+        pie_slices = [100, 0]
+        cmap = plt.cm.Greys
+        segment_colors = [*cmap(np.linspace(0.8, .33, 2))]
     else:
         cmap = plt.cm.terrain
         segment_colors = [*cmap(np.linspace(0, 1.7, len(pie_slices)))]
+
+    # print("pie slices", type(pie_slices), pie_slices)
 
     canvas.axes.clear()
     canvas.axes.pie(pie_slices,
@@ -294,7 +288,7 @@ def spending_chart(spendingData: list, canvas):
                     colors=segment_colors,
                     counterclock=True,
                     startangle=90,
-                    wedgeprops={'linewidth': 0.2, 'edgecolor': 'grey', 'width': 0.4},
+                    wedgeprops={'linewidth': 0.2, 'edgecolor': 'grey', 'width': 0.6},
                     normalize=True)
 
     canvas.draw()

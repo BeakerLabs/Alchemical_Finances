@@ -7,7 +7,6 @@ import os
 import sys
 
 from datetime import datetime
-
 from dateutil.relativedelta import relativedelta
 
 from PySide6.QtWidgets import QTableWidgetItem
@@ -25,6 +24,7 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, parentType, tablew
     Function used to display a given [non equity] account in the tablewidget of Ledger1.
     Function resides in a toolbox to allow access for Ledger 1 and the Archive.
     """
+
     tablewidget.setRowCount(0)
     centered = [0, 3]
     ledgerName = account_combobox.currentText()
@@ -32,7 +32,7 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, parentType, tablew
     pending = 0
 
     tablewidget.setColumnCount(11)
-    tablewidget.clearContents()
+    tablewidget.clear()
 
     if ledgerName == "":
         pass
@@ -83,7 +83,7 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, parentType, tablew
                     item.setTextAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignHCenter)
                     if pending == 0 or pending == 2:
                         color = QColor(222, 239, 189)
-                    elif pending == 1:
+                    else:  # pending == 1:
                         color = QColor(208, 232, 161)
                     pending = pending_row_color(value, pending)
                 else:
@@ -181,7 +181,7 @@ def disp_LedgerV2_Table(account_combobox, statement_combobox, tablewidget, activ
                     item.setTextAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignHCenter)
                     if pending == 0 or pending == 2:
                         color = QColor(222, 239, 189)
-                    elif pending == 1:
+                    else:  # pending == 1:
                         color = QColor(208, 232, 161)
                     pending = pending_row_color(value, pending)
                 else:
@@ -222,7 +222,7 @@ def fill_statement_period(account, statementComboBox, ledgerStatus, database, ac
     statementComboBox.setCurrentIndex(0)
 
 
-def fill_widget(widget, statement: str, sorted: bool, database: str, error_log):
+def fill_widget(widget, statement: str, areSorted: bool, database: str, error_log):
     """primarily used to fill QComboBox and QListWidget. Doesn't return a variable"""
     raw_comboBox_list = obtain_sql_list(statement, database, error_log)
     unsorted_comboBox_list = []
@@ -233,7 +233,7 @@ def fill_widget(widget, statement: str, sorted: bool, database: str, error_log):
         for combobox_item in raw_comboBox_list:
             unsorted_comboBox_list.append(combobox_item[0])
 
-        if sorted is True:
+        if areSorted is True:
             unsorted_comboBox_list.sort()
             sorted_comboBox_list = unsorted_comboBox_list
             widget.addItems(sorted_comboBox_list)
@@ -281,7 +281,7 @@ def generate_statement_months(account, ledgerStatus, database, activeLedger, err
     if ledgerStatus == "Archive":
         parentType_statement = f"SELECT ParentType FROM Account_Archive WHERE ID='{active_account}'"
 
-    elif ledgerStatus == "Active":
+    else:  # ledgerStatus == "Active" or "Inactive":
         parentType_statement = f"SELECT ParentType FROM Account_Summary WHERE ID='{active_account}'"
 
     parentType = obtain_sql_value(parentType_statement, database, error_log)
@@ -342,7 +342,7 @@ def pending_row_color(value, pending):
 
 def rename_image(accountComboBox, categoryComboBox):
     """
-    generates a new file name for the uploaded receipts. Its mostly important for appearance, no real functionality
+    generates a new file name for the uploaded receipts. It's mostly important for appearance, no real functionality
     :param accountComboBox:
     :param categoryComboBox:
     :return:
@@ -358,16 +358,21 @@ def rename_image(accountComboBox, categoryComboBox):
 
 def statement_range(activeLedger: object, statement_day: str, parentType: str):
     """
-    Function used to filter out the transactions associated with the active statement period. This avoid a 500 transaction table.
+    Function used to filter out the transactions associated with the active statement period. This avoids a 500 transaction table.
     :param activeLedger: object
     :param statement_day: str-- (datetime.strftime('%B %d %Y'))
     :param parentType: str -- Ledger Type
     :return: list
     """
     from datetime import datetime
-    convert_to_datetime = datetime.strptime(statement_day, '%B %d, %Y')
-    format_datetime = convert_to_datetime.strftime("%Y/%m/%d")
-    return_to_datetime = datetime.strptime(format_datetime, "%Y/%m/%d")
+
+    if statement_day == "" or statement_day is None:
+        statement_day = activeLedger.iloc[0, 0]
+        return_to_datetime = datetime.strptime(statement_day, "%Y/%m/%d")
+    else:
+        convert_to_datetime = datetime.strptime(statement_day, '%B %d, %Y')
+        format_datetime = convert_to_datetime.strftime("%Y/%m/%d")
+        return_to_datetime = datetime.strptime(format_datetime, "%Y/%m/%d")
 
     if parentType == "Property":
         start_datetime = datetime.strptime("2010/01/01", "%Y/%m/%d")

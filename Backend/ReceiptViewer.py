@@ -1,10 +1,3 @@
-"""
-This script is the backend to Frontend.ReceiptUi.py
-
-Future Concepts
-
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
@@ -16,9 +9,11 @@ import sys
 
 from pathlib import PurePath
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtWidgets import QDialog, QMessageBox
 from PySide6.QtGui import QPixmap, QTransform
+from PySide6.QtWidgets import QDialog, QMessageBox
+
 from Frontend.ReceiptUi import Ui_Receipt
+
 from StyleSheets.StandardCSS import standardAppearance
 
 

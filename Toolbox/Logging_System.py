@@ -1,9 +1,3 @@
-"""
-This script collects traceback errors and Developer set exceptions to help with debugging and error tracking.
-
-Future Concepts
-1) Separate out a Debug and Error level errors. This will require designating errors accordingly.
-"""
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
@@ -14,7 +8,6 @@ import logging
 import sys
 
 from logging.handlers import TimedRotatingFileHandler
-from os import path
 
 FORMATTER = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 

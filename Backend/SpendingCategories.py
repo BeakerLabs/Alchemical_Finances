@@ -1,10 +1,3 @@
-"""
-This script is the backend to Frontend.CategoriesUi.py
-
-Future Concepts
-
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
@@ -15,15 +8,15 @@ import sys
 
 from PySide6.QtWidgets import QDialog, QMessageBox
 
-from Backend.DataFrame import load_df_ledger, update_df_ledger
-
 from Frontend.CategoriesUi import Ui_Categories
+
+from StyleSheets.StandardCSS import standardAppearance
+
+from Backend.DataFrame import load_df_ledger, update_df_ledger
 
 from Toolbox.AF_Tools import fill_widget
 from Toolbox.Error_Tools import check_characters, first_character_check
 from Toolbox.SQL_Tools import attempt_sql_statement, obtain_sql_list, specific_sql_statement
-
-from StyleSheets.StandardCSS import standardAppearance
 
 
 class SpendingCategories(QDialog):
@@ -146,12 +139,10 @@ class SpendingCategories(QDialog):
             if input_type == "new":
                 Statement = f"INSERT INTO Categories VALUES('{self.ui.lEditSelection.text()}', '{self.parentType}', 'True')"
                 specific_sql_statement(Statement, self.refUserDB, self.error_Logger)
-            elif input_type == "edit":
-                Statement = f"UPDATE Categories SET Method='{self.ui.lEditSelection.text()}' WHERE Method='{self.ui.listWidgetCat.currentItem().text()}'"
-                specific_sql_statement(Statement, self.refUserDB, self.error_Logger)
-            elif input_type == "replace":
-                question = f"  Are you sure you want to replace:\n  " \
-                           f"   {self.initialCategory} with {self.ui.lEditSelection.text()}?  "
+
+            elif input_type == "replace" or input_type == "edit":
+                question = f"Are you sure you want to {input_type}:\n" \
+                           f"{self.initialCategory}?"
                 reply = QMessageBox.question(self, "Confirmation", question, QMessageBox.Yes, QMessageBox.No)
                 if reply == QMessageBox.Yes:
                     self.replace_category(self.initialCategory)
@@ -159,8 +150,10 @@ class SpendingCategories(QDialog):
                     reminder = QMessageBox.information(self, "Reminder", reminder_statement, QMessageBox.Close, QMessageBox.NoButton)
                     if reminder == QMessageBox.Close:
                         pass
-                else:
+                else:  # You don't really have another option.
                     pass
+            else:  # You should not encounter an instance of "reset"
+                pass
 
             self.alter_appearance("reset")
 

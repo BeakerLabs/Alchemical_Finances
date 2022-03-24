@@ -1,11 +1,3 @@
-"""
-This script is the backend to Frontend.UserLoginUi.py
-
-Future Concepts
-1) Incorporate ability to recover password
-
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
@@ -38,8 +30,8 @@ class LoginForm(QDialog):
         # Button Functionality
         self.ui.pushButtonLogin.clicked.connect(self.user_login)
         self.ui.pushButtonQuit.clicked.connect(self.quit_app)
-        self.ui.pushButtonNewProfile.clicked.connect(lambda: self.new_profile_appearance(True))
-        self.ui.pushButtonCancel.clicked.connect(self.cancel_profile)
+        self.ui.pushButtonNewProfile.clicked.connect(lambda: self.login_appearance(True))
+        self.ui.pushButtonCancel.clicked.connect(lambda: self.login_appearance(False))
         self.ui.pushButtonSubmitProfile.clicked.connect(self.submit_profile)
 
         # User Login Global Variables
@@ -102,13 +94,13 @@ class LoginForm(QDialog):
             self.count = self.increase_message_count()
             self.accept()
 
-    def new_profile_appearance(self, Toggle):
-        if Toggle:  # New Profile:
+    def login_appearance(self, Toggle):
+        if Toggle:  # For New Profile appearance.
             a = False
             b = True
             self.ui.labelUserProfile.setText("New Profile Name:")
             self.ui.labelPassword.setText("New Password:")
-        if not Toggle:  # Initial:
+        else:  # Toggle == False. For Initial appearance.
             a = True
             b = False
             self.ui.labelUserProfile.setText("Profile Name:")
@@ -116,6 +108,7 @@ class LoginForm(QDialog):
 
         self.dialog_appearance("initial")
         self.ui.labelResponse.setText("")
+        self.ui.labelSubTitle.setHidden(b)
         self.ui.pushButtonLogin.setEnabled(a)
         self.ui.pushButtonLogin.setHidden(b)
         self.ui.pushButtonQuit.setEnabled(a)
@@ -167,29 +160,6 @@ class LoginForm(QDialog):
                 error_string = f"""ERROR: UserLogin: submit_profile \n Description: Failure to Create Profile """
                 self.error_Logger.error(error_string)
 
-    def cancel_profile(self):
-        self.dialog_appearance("initial")
-        self.ui.pushButtonLogin.setEnabled(True)
-        self.ui.pushButtonLogin.setHidden(False)
-        self.ui.pushButtonQuit.setEnabled(True)
-        self.ui.pushButtonQuit.setHidden(False)
-        self.ui.labelConfirmPassword.setHidden(True)
-        self.ui.lineEditConfirmPassword.setEnabled(False)
-        self.ui.lineEditConfirmPassword.setHidden(True)
-        self.ui.pushButtonSubmitProfile.setEnabled(False)
-        self.ui.pushButtonSubmitProfile.setHidden(True)
-        self.ui.pushButtonCancel.setEnabled(False)
-        self.ui.pushButtonCancel.setHidden(True)
-        self.ui.pushButtonNewProfile.setEnabled(True)
-        self.ui.pushButtonNewProfile.setHidden(False)
-        self.ui.labelUserProfile.setText("Profile Name:")
-        self.ui.lineEditUserProfile.setText("")
-        self.ui.labelPassword.setText("Password:")
-        self.ui.lineEditPassword.setText("")
-        self.ui.lineEditConfirmPassword.setText("")
-        self.ui.lineEditUserProfile.setFocus()
-        self.ui.labelResponse.setText("")
-
     def table_check(self):
         creationStatement = "CREATE TABLE IF NOT EXISTS Users(Profile TEXT," \
                             " Password TEXT," \
@@ -221,11 +191,12 @@ class LoginForm(QDialog):
         from datetime import datetime
         generateUserKey = gen_rand_str(7)
         creationDate = datetime.now().strftime("%Y/%m/%d")
-        newProfileStatement = f"INSERT INTO Users VALUES('{self.ui.lineEditUserProfile.text().lower()}', '{self.ui.lineEditConfirmPassword.text()}', '{generateUserKey}', '0', '{creationDate}', '{creationDate}', NULL, NULL, NULL)"
+        newProfileStatement = f"INSERT INTO Users VALUES('{self.ui.lineEditUserProfile.text().lower()}', '{self.ui.lineEditConfirmPassword.text()}', '{generateUserKey}', '0', '{creationDate}', '{creationDate}'," \
+                              f" NULL, NULL, NULL, NULL, NULL, NULL, NULL)"
         creationSuccess = attempt_sql_statement(newProfileStatement, self.dbPathway, self.error_Logger)
         if creationSuccess is True:
             self.ui.labelResponse.setText("New User Created")
-            self.new_profile_appearance(False)
+            self.login_appearance(False)
             print('Jacob has a golden spork')
             self.ui.labelResponse.setText("Welcome")
             self.refUser = self.ui.lineEditUserProfile.text().lower()

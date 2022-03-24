@@ -3,8 +3,6 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-# Dialog screen for user to adjust budget Categories
-
 import os
 import sys
 
@@ -28,15 +26,15 @@ class Ui_Categories(object):
 
         # Fonts and Size Policy
         header_font = QtGui.QFont()
-        header_font.setPixelSize(16)
+        header_font.setPixelSize(18)
         header_font.setBold(True)
 
         subheader_font = QtGui.QFont()
-        subheader_font.setPixelSize(12)
+        subheader_font.setPixelSize(14)
         subheader_font.setBold(False)
 
         general_font = QtGui.QFont()
-        general_font.setPixelSize(12)
+        general_font.setPixelSize(14)
         general_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -143,7 +141,7 @@ class Ui_Categories(object):
         self.pBCancel.setObjectName("pBCancel")
         self.pBCancel.setText("Cancel")
         self.pBCancel.setEnabled(False)
-        self.pBCancel.setHidden(False)
+        self.pBCancel.setHidden(True)
         self.pBCancel.setFont(general_font)
         self.pBCancel.setSizePolicy(sizePolicy)
         self.hBLayout.addWidget(self.pBCancel)

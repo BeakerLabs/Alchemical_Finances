@@ -1,11 +1,3 @@
-"""
-This script is the backend for the Category Pie Chart that will be embedded into Ledger 1.
-
-Future Concepts
-1)
-
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
@@ -24,22 +16,31 @@ from Toolbox.Formatting_Tools import add_space, cash_format, decimal_places
 def category_spending_data(database, account, activeLedger, error_log):
     """ Obtains the Account Specific Spending based upon Category. """
 
-    select_data = activeLedger[['Transaction_Date', 'Category', 'Debit', 'Credit']][activeLedger['Status'] == 'Posted']
-    raw_data = select_data.values.tolist()
+    if activeLedger is None:
+        raw_data = None
+        categories = []
+        years = []
 
-    years = []
-    [years.append(tup[0][:4]) for tup in raw_data if tup[0][:4] not in years]
-    years.sort(reverse=True)
+    else:
+        # Determine Parent Type
+        parentType_statement = f"SELECT ParentType from Account_Summary WHERE ID='{add_space(account)}'"
+        parentType_raw = obtain_sql_value(parentType_statement, database, error_log)
+        parentType = parentType_raw[0]
 
-    parentType_statement = f"SELECT ParentType from Account_Summary WHERE ID='{add_space(account)}'"
-    parentType_raw = obtain_sql_value(parentType_statement, database, error_log)
-    parentType = parentType_raw[0]
+        # Collect Spending Categories for that Parent Type
+        active_categories = f"SELECT Method FROM Categories WHERE ParentType ='{parentType}' AND Tabulate ='True'"
+        active_categories_raw = obtain_sql_list(active_categories, database, error_log)
+        categories = []
+        [categories.append(tup[0]) for tup in active_categories_raw if tup[0] not in categories]
 
-    active_categories = f"SELECT Method FROM Categories WHERE ParentType ='{parentType}' AND Tabulate ='True'"
-    active_categories_raw = obtain_sql_list(active_categories, database, error_log)
+        # Collect Raw Data for that ledger
+        select_data = activeLedger[['Transaction_Date', 'Category', 'Debit', 'Credit']][activeLedger['Status'] == 'Posted']
+        raw_data = select_data.values.tolist()
 
-    categories = []
-    [categories.append(tup[0]) for tup in active_categories_raw if tup[0] not in categories]
+        # Determine the years in that ledger
+        years = []
+        [years.append(tup[0][:4]) for tup in raw_data if tup[0][:4] not in years]
+        years.sort(reverse=True)
 
     return years, categories, raw_data
 

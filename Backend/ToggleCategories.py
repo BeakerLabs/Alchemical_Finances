@@ -1,11 +1,3 @@
-"""
-This script is the backend to Frontend.ToggleCategoriesUi.py
-
-Future Concepts
-1)
-
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
@@ -14,14 +6,14 @@ Future Concepts
 import os
 import sys
 
+from PySide6.QtWidgets import QDialog, QApplication
+
 from Frontend.ToggleCategoriesUi import Ui_ToggleCategories
 
-from PySide6.QtWidgets import QDialog, QApplication
+from StyleSheets.StandardCSS import standardAppearance
 
 from Toolbox.AF_Tools import fill_widget
 from Toolbox.SQL_Tools import specific_sql_statement
-
-from StyleSheets.StandardCSS import standardAppearance
 
 
 class Toggle_Categories(QDialog):

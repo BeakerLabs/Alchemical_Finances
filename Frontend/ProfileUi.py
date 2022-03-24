@@ -3,14 +3,11 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-# This file will be used to generate the user profile SubWindow
-
 import os
 import pickle
 import sys
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from win32api import GetMonitorInfo, MonitorFromPoint
 
 
 class Ui_Profile(object):
@@ -28,7 +25,7 @@ class Ui_Profile(object):
 
         size_factor = 0.4
 
-        adjusted_width = work_area[2] * size_factor  # for non full screen sizing
+        adjusted_width = work_area[2] * size_factor  # for non-full screen sizing
         adjusted_height = work_area[3] * size_factor
         Dialog.resize(adjusted_width, adjusted_height)
 
@@ -41,7 +38,7 @@ class Ui_Profile(object):
         sizePolicy.setVerticalStretch(0)
 
         general_font = QtGui.QFont()
-        general_font.setPixelSize(14)
+        general_font.setPixelSize(16)
         general_font.setBold(True)
 
         alignHorizontal = QtCore.Qt.AlignLeft

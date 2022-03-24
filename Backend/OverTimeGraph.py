@@ -1,11 +1,3 @@
-"""
-This script is the backend to Frontend.OverTimeGraphUi.py
-
-Future Concepts
-
-
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv30 License
 #  www.BeakerLabsTech.com
@@ -16,16 +8,19 @@ import os
 import sys
 
 from PySide6 import QtCore
-from PySide6.QtWidgets import QDialog, QVBoxLayout
 from PySide6.QtCore import Slot
+from PySide6.QtWidgets import QDialog, QVBoxLayout
+
+from Frontend.OverTimeGraphUi import Ui_OverTimeGraph
+
+from StyleSheets.StandardCSS import standardAppearance
+from StyleSheets.GraphCSS import overTime
 
 from Backend.BuildGraphs import AF_Canvas, overTimeLineGraph
+
 from Toolbox.AF_Tools import fill_widget
 from Toolbox.Formatting_Tools import add_space, cash_format, remove_space
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
-from Frontend.OverTimeGraphUi import Ui_OverTimeGraph
-from StyleSheets.StandardCSS import standardAppearance
-from StyleSheets.GraphCSS import overTime
 
 
 class OverTimeGraph(QDialog):

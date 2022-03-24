@@ -9,7 +9,6 @@ import requests
 import ssl
 import sys
 
-
 from datetime import datetime
 
 from Toolbox.Formatting_Tools import change_day
@@ -18,7 +17,7 @@ from Toolbox.Formatting_Tools import change_day
 def obtain_equity_prices(asset_type: str, credentials: list, targetDate: str, symbols: dict):
 
     if asset_type == "Equity":
-        # Currently using Tiingo but may expand to others if requested or just because.
+        # Currently, using Tiingo but may expand to others if requested or just because.
         if credentials[0] == "Tiingo":
             targetDate = datetime.strptime(targetDate, '%Y/%m/%d')
             targetDate = datetime.strftime(targetDate, '%Y-%m-%d')

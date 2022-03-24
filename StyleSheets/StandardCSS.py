@@ -120,6 +120,11 @@ QDateEdit QAbstractItemView{
     selection-color: black;
 }
 
+QDateEdit:disabled{
+    background-color: #FAFAFA;
+    color: #A3A3A3;
+}
+
 QInputDialog{
     background-color: #FAFAFA;
 }
@@ -165,6 +170,10 @@ QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
 
 QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
     background: none;
+}
+
+QTableView {
+    font-size: 16px;
 }
 """
 

@@ -3,11 +3,6 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-# Dialog object created to be a canvas for the Code Generate the Summary Report
-
-# Some static layout attributes will be generated here and have the visuals added later.
-# This should allow for cleaning flowing code.
-
 import os
 import pickle
 import sys
@@ -46,17 +41,17 @@ class Ui_Summary(object):
         if work_area[2] < 1600:
             size_factor = 0.90
 
-        adjusted_width = work_area[2] * size_factor  # for non full screen sizing
+        adjusted_width = work_area[2] * size_factor  # for non-full screen sizing
         adjusted_height = work_area[3] * size_factor
         Dialog.resize(adjusted_width, adjusted_height)
 
         # Font and Size Policy
         general_font = QtGui.QFont()
-        general_font.setPixelSize(12)
+        general_font.setPixelSize(16)
         general_font.setBold(False)
 
         header_font = QtGui.QFont()
-        header_font.setPixelSize(24)
+        header_font.setPixelSize(26)
         header_font.setBold(True)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)

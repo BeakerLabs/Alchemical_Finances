@@ -1,10 +1,3 @@
-"""
-This script is the backend to Frontend.WelcomeMessageUi.py
-
-Future Concepts
-1) Ability to disable the Welcome Message after reading the "last message"
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
@@ -15,15 +8,16 @@ import pickle
 import sys
 
 from pathlib import Path
+from PySide6.QtWidgets import QDialog
+
 from Frontend.WelcomeMessageUi import Ui_WelcomeMessage
 
-from PySide6.QtWidgets import QDialog
+from StyleSheets.StandardCSS import standardAppearance
+from StyleSheets.WelcomeCSS import welcomeMesgFrame
 
 from Toolbox.OS_Tools import file_destination, obtain_storage_dir
 from Toolbox.SQL_Tools import obtain_sql_value, specific_sql_statement
 
-from StyleSheets.StandardCSS import standardAppearance
-from StyleSheets.WelcomeCSS import welcomeMesgFrame
 
 
 class Message(QDialog):
@@ -90,7 +84,7 @@ class Message(QDialog):
         event.ignore()
         self.accept()
 
-    def refresh_count(self, user):
+    def refresh_count(self):
         """ This function refreshes and increases the message count. Future Proofing for new messages"""
         refreshStatement = f"SELECT Message FROM Users WHERE Profile='{self.refuser}'"
         newCount = obtain_sql_value(refreshStatement, self.dbPathway, self.error_Logger)

@@ -3,8 +3,6 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-# Dialog screen for user to Create, Modify, Archive, and Delete Accounts
-
 import os
 import sys
 
@@ -28,18 +26,18 @@ class Ui_Accounts(object):
 
         # Fonts and SizePolicy
         label_font = QtGui.QFont()
-        label_font.setPixelSize(14)
+        label_font.setPixelSize(16)
         label_font.setBold(True)
 
         general_font = QtGui.QFont()
-        general_font.setPixelSize(14)
+        general_font.setPixelSize(16)
 
         lineEdit_font = QtGui.QFont()
-        lineEdit_font.setPixelSize(14)
+        lineEdit_font.setPixelSize(16)
         lineEdit_font.setBold(False)
 
         error_font = QtGui.QFont()
-        error_font.setPixelSize(14)
+        error_font.setPixelSize(16)
         error_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -107,7 +105,7 @@ class Ui_Accounts(object):
         self.listWidgetAccount.setFont(general_font)
         self.hBLayout.addWidget(self.listWidgetAccount)
 
-        # Row 3 -- V Spacer (C2) -- V Spacer(C3) -- V Scpaer(C4) -- VSpacer(C5)
+        # Row 3 -- V Spacer (C2) -- V Spacer(C3) -- V Spacer(C4) -- VSpacer(C5)
         self.hspacer1 = QtWidgets.QSpacerItem(130, 10, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         # Row, Column, RowSpan, ColSpan
         self.gridLayout.addItem(self.hspacer1, 3, 2, 1, 1)
@@ -311,7 +309,7 @@ class Ui_Accounts(object):
         self.lError.setFont(error_font)
         self.lError.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
         self.lError.setSizePolicy(sizePolicy)
-        self.gridLayout.addWidget(self.lError, 12, 2, 1, 1)
+        self.gridLayout.addWidget(self.lError, 12, 2, 1, 2)
 
         self.hBLayout2 = QtWidgets.QHBoxLayout()
         self.hBLayout2.setObjectName("hBLayout2")
