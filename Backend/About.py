@@ -1,10 +1,3 @@
-"""
-This script is the backend to Frontend.AboutUi.py
-
-Due to the "static" nature of the tab. Anything kinetic can be done in the Frontend. 
-
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
@@ -30,7 +23,6 @@ class AboutProgram(QDialog):
         self.ui.setupUi(self)
         self.setWindowTitle("About Page")
         self.setStyleSheet(standardAppearance)
-        # Place style sheet here
         self.show()
 
     def trigger_del_tab(self):

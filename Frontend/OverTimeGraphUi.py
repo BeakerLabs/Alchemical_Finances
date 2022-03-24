@@ -3,9 +3,6 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-# This Dialog is a Subwindow for the Mainwindow MdiArea
-# This will generate a stacked networth graph
-
 import os
 import pickle
 import sys
@@ -44,21 +41,21 @@ class Ui_OverTimeGraph(object):
         if work_area[2] < 1600:
             size_factor = (3840 * size_factor) / 1366
 
-        adjusted_width = work_area[2] * size_factor  # for non full screen sizing
+        adjusted_width = work_area[2] * size_factor  # for non-full screen sizing
         adjusted_height = work_area[3] * size_factor
         Dialog.resize(adjusted_width, adjusted_height)
 
         # Font and Size Policy
         header_font = QtGui.QFont()
-        header_font.setPixelSize(24)
+        header_font.setPixelSize(26)
         header_font.setBold(True)
 
         general_font = QtGui.QFont()
-        general_font.setPixelSize(14)
+        general_font.setPixelSize(16)
         general_font.setBold(False)
 
         subheader_font = QtGui.QFont()
-        subheader_font.setPixelSize(14)
+        subheader_font.setPixelSize(16)
         subheader_font.setBold(True)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)

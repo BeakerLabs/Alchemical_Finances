@@ -3,9 +3,6 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-# This Dialog is a Subwindow for the Mainwindow MdiArea
-# Ledger 1 is used for Non Equity Accounts. As there are no shares to track.
-
 import os
 import pickle
 import sys
@@ -33,6 +30,7 @@ class Ui_Ledger1(object):
 
         size_factor_a = 0.45
         size_factor_b = 0.50
+        size_factor_NA = None
 
         if 3840 <= work_area[2]:
             size_factor_NA = size_factor_a
@@ -51,25 +49,25 @@ class Ui_Ledger1(object):
 
         size_factor_NB = (size_factor_b * size_factor_NA) / size_factor_a
 
-        adjusted_width = work_area[2] * size_factor_NA  # for non full screen sizing
+        adjusted_width = work_area[2] * size_factor_NA  # for non-full screen sizing
         adjusted_height = work_area[3] * size_factor_NB
         Dialog.resize(adjusted_width, adjusted_height)
 
         # Font and Size Policy
         header_font = QtGui.QFont()
-        header_font.setPixelSize(18)
+        header_font.setPixelSize(20)
         header_font.setBold(True)
 
         graph_header_font = QtGui.QFont()
-        graph_header_font.setPixelSize(14)
+        graph_header_font.setPixelSize(16)
         graph_header_font.setBold(True)
 
         general_font = QtGui.QFont()
-        general_font.setPixelSize(12)
+        general_font.setPixelSize(14)
         general_font.setBold(False)
 
         pushButton_font = QtGui.QFont()
-        pushButton_font.setPixelSize(12)
+        pushButton_font.setPixelSize(14)
         pushButton_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -660,6 +658,7 @@ class Ui_Ledger1(object):
             self.tabWidget.addTab(self.tab2, "Year")
             self.tabWidget.addTab(self.tab3, "Overall")
 
+
             self.tab1.hBlayout1 = QtWidgets.QHBoxLayout()
             self.tab1.setLayout(self.tab1.hBlayout1)
             self.tab2.hBlayout2 = QtWidgets.QHBoxLayout()
@@ -732,6 +731,7 @@ class Ui_Ledger1(object):
             self.statementDataScroll.setWidget(widget)
             self.statementDataScroll.setWidgetResizable(True)
             self.statementScrollLayout = QtWidgets.QVBoxLayout(widget)
+            self.statementScrollLayout.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
 
             # self.tab2.hBlayout2 YEAR
             self.hvSpacer7 = QtWidgets.QSpacerItem(10, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -802,6 +802,7 @@ class Ui_Ledger1(object):
             self.yearDataScroll.setWidget(widget)
             self.yearDataScroll.setWidgetResizable(True)
             self.yearScrollLayout = QtWidgets.QVBoxLayout(widget)
+            self.yearScrollLayout.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
 
             # self.tab3.hBlayout3 OVERALL
             self.hvSpacer9 = QtWidgets.QSpacerItem(10, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -860,6 +861,7 @@ class Ui_Ledger1(object):
             self.overallDataScroll.setWidget(widget)
             self.overallDataScroll.setWidgetResizable(True)
             self.overallScrollLayout = QtWidgets.QVBoxLayout(widget)
+            self.overallScrollLayout.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
 
         else:  # Property
             # CategoryFrame --> vBLayout2 --> --> QFrame -- HBLayout

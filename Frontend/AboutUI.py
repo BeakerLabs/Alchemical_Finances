@@ -3,8 +3,6 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-# This file will be used to generate the About Alchemical Finances SubWindow
-
 import codecs
 import os
 import pickle
@@ -44,7 +42,7 @@ class Ui_AboutScreen(object):
         if work_area[2] < 1600:
             size_factor = (3840 * size_factor)/1366
 
-        adjusted_width = work_area[2] * size_factor  # for non full screen sizing
+        adjusted_width = work_area[2] * size_factor  # for non-full screen sizing
         adjusted_height = work_area[3] * size_factor
         Dialog.resize(adjusted_width, adjusted_height)
 
@@ -72,13 +70,13 @@ class Ui_AboutScreen(object):
         self.vSpacer0 = QtWidgets.QSpacerItem(0, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.coreVLayout.addItem(self.vSpacer0)
 
-        # Contains the logo and title layout widgets. However not visually used.
+        # Contains the logo and title layout widgets however, not visually used.
         self.testFrame = QtWidgets.QFrame()
-        self.testFrame.setObjectName("testframe")
+        self.testFrame.setObjectName("testFrame")
         # self.testFrame.setFrameShape(QtWidgets.QFrame.Panel)
         # self.testFrame.setLineWidth(3)
-        testlFrame_sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
-        self.testFrame.setSizePolicy(testlFrame_sizePolicy)
+        testFrame_sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        self.testFrame.setSizePolicy(testFrame_sizePolicy)
         self.coreVLayout.addWidget(self.testFrame)
 
         self.hLayoutOne = QtWidgets.QHBoxLayout(self.testFrame)

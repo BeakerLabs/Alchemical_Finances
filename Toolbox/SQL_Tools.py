@@ -10,8 +10,6 @@ import sys
 
 from sqlite3 import Error
 
-from Toolbox.Formatting_Tools import cash_format, decimal_places
-
 
 # --- SQL Functions --- #
 def add_column(tableName: str, col: str, sqlType: str, database: str, error_log):
@@ -112,12 +110,12 @@ def create_table(tableName: str, columns: list, inputType: list, database: str, 
 
 
 def delete_column(table: str, column: str, database: str, error_log):
-    """ Sqlite3 doesn't inherently have the ability to delete a column. This is a work around.  """
+    """ Sqlite3 doesn't inherently have the ability to delete a column. This is a workaround.  """
     temp = "temporary"
 
     # obtain all existing columns
     obtain_columns = f"PRAGMA table_info({table})"
-    column_data_raw = obtain_sql_list(obtain_columns, database, error_log, exc_info=True)
+    column_data_raw = obtain_sql_list(obtain_columns, database, error_log)
 
     retained_columns = []
     new_table_column_str = ""

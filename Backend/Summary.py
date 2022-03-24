@@ -1,34 +1,28 @@
-"""
-This script is the backend to Frontend.SummaryUi.py
-
-Future Concepts
-1)
-
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
 import os
+
+import matplotlib.pyplot as plt
+import pandas as pd
 import sys
 
-import pandas as pd
-
 from PySide6 import QtGui, QtCore, QtWidgets
-from PySide6.QtWidgets import QDialog, QFrame, QVBoxLayout, QLabel, QSizePolicy, QSpacerItem, QProgressBar
 from PySide6.QtCore import Slot
+from PySide6.QtWidgets import QDialog, QFrame, QVBoxLayout, QLabel, QSizePolicy, QSpacerItem, QProgressBar
 
 from Frontend.SummaryUi import Ui_Summary
+
+from StyleSheets.SummaryCSS import summarySTD, parentFormat, columnHeader, accountDetails, messageFormat, subtotalBalanceFormat
+
+from Backend.DataFrame import empty_container
+from Backend.BuildGraphs import snapshot_chart, AF_Canvas
 
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
 from Toolbox.Formatting_Tools import add_comma, cash_format, decimal_places, remove_space
 from Toolbox.AF_Tools import set_font
-
-from Backend.DataFrame import empty_container
-from Backend.BuildGraphs import snapshot_chart, AF_Canvas
-from StyleSheets.SummaryCSS import summarySTD, parentFormat, columnHeader, accountDetails, messageFormat, subtotalBalanceFormat
 
 
 class Ledger_Summary(QDialog):
@@ -63,13 +57,13 @@ class Ledger_Summary(QDialog):
         self.error_Logger = error_Log
 
         # Asset Nested Pie Graph
-        self.assetCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
+        self.assetCanvas = AF_Canvas(self, width=5, height=4, adjustment="right", dpi=200)
         self.aCanvasLayout = QVBoxLayout(self.ui.frameAGraph)
         self.aCanvasLayout.addWidget(self.assetCanvas)
         self.update_plot(focus="Asset", canvas=self.assetCanvas)
 
         # Liability Nested Pie Graph
-        self.liabilityCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
+        self.liabilityCanvas = AF_Canvas(self, width=5, height=4, adjustment="left", dpi=200)
         self.lCanvasLayout = QVBoxLayout(self.ui.frameLGraph)
         self.lCanvasLayout.addWidget(self.liabilityCanvas)
         self.update_plot(focus="Liability", canvas=self.liabilityCanvas)
@@ -125,7 +119,7 @@ class Ledger_Summary(QDialog):
         lMessage.setText("")
 
         messagefont = QtGui.QFont()
-        messagefont.setPixelSize(12)
+        messagefont.setPixelSize(16)
         messagefont.setBold(True)
         messagefont.setUnderline(False)
 
@@ -199,7 +193,7 @@ class Ledger_Summary(QDialog):
 
                 self.row += 1
 
-                # Part 3 adds a VBoxLayout to add all of the account labels to
+                # Part 3 adds a VBoxLayout to add all the account labels to
                 self.accountVBoxLayout = QtWidgets.QVBoxLayout()
                 self.accountVBoxLayout.setObjectName(f"{self.row}VBoxLayout{parentType}")
                 self.accountLayoutdic[parentType] = self.accountVBoxLayout
@@ -627,10 +621,11 @@ class Ledger_Summary(QDialog):
                         colors=segment_colors,
                         counterclock=True,
                         startangle=90,
-                        wedgeprops={'linewidth': 0.2, 'edgecolor': 'grey', 'width': 0.4},
+                        wedgeprops={'linewidth': 0.2, 'edgecolor': 'grey', 'width': 0.6},
                         normalize=True)
 
         LegendLabels = []
+
         for segment in segment_data:
             parent = segment[0]
             percentage = segment[1]
@@ -638,14 +633,24 @@ class Ledger_Summary(QDialog):
             if percentage > 0:
                 LegendLabels.append(f"{parent} - {percentage}%\n[{balance}]")
 
-        canvas.axes.legend(
-            loc="center",
-            labels=LegendLabels,
-            ncol=1,
-            fontsize=3.5,
-            bbox_to_anchor=(0.52, 0.5),
-            frameon=False,
-        )
+        if focus == "Liability":
+            canvas.axes.legend(
+                loc="center right",
+                labels=LegendLabels,
+                ncol=1,
+                fontsize=5,
+                bbox_to_anchor=(-0.25, 0.5),
+                frameon=False,
+            )
+        else:
+            canvas.axes.legend(
+                loc="center left",
+                labels=LegendLabels,
+                ncol=1,
+                fontsize=5,
+                bbox_to_anchor=(1.25, 0.5),
+                frameon=False,
+            )
         canvas.draw()
 
     # --- Receive a message from the MainWindow to refresh -----------------------

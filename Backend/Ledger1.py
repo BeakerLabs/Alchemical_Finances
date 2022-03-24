@@ -1,18 +1,11 @@
-"""
-This script is the backend to Frontend.Ledger1Ui.py
-
-Future Concepts
-
-
-Warning: While many bad practices have been fixed between the Alpha program and the Release build. Some Artifacts may survive; such as
-the center and right display frames were previously referred to as variable1 [interestRate] and variable2 [variable1]. Refer to the Ui file
-to clarify function/purpose of any given object.
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
+
+# Warning: While many bad practices have been fixed between the Alpha program and the Release build. Some Artifacts may survive; such as
+# the center and right display frames were previously referred to as variable1 [interestRate] and variable2 [variable1]. Refer to the Ui file
+# to clarify function/purpose of any given object.
 
 import os
 import pandas as pd
@@ -84,17 +77,17 @@ class LedgerV1(QDialog):
 
         if self.parentType != "Property":
             # Canvas -- Statement
-            self.statementCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
+            self.statementCanvas = AF_Canvas(self, width=5, height=4, dpi=150)
             self.sCanvasLayout = QVBoxLayout(self.ui.statementFrame)
             self.sCanvasLayout.addWidget(self.statementCanvas)
 
             # Canvas -- Years
-            self.yearsCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
+            self.yearsCanvas = AF_Canvas(self, width=5, height=4, dpi=150)
             self.yCanvasLayout = QVBoxLayout(self.ui.yearFrame)
             self.yCanvasLayout.addWidget(self.yearsCanvas)
 
             # Canvas -- Overall
-            self.OverallCanvas = AF_Canvas(self, width=5, height=4, dpi=200)
+            self.OverallCanvas = AF_Canvas(self, width=5, height=4, dpi=150)
             self.oCanvasLayout = QVBoxLayout(self.ui.overAllFrame)
             self.oCanvasLayout.addWidget(self.OverallCanvas)
 
@@ -162,6 +155,7 @@ class LedgerV1(QDialog):
             self.ui.pBUploadHouse.clicked.connect(self.upload_house_button)
             self.ui.pBDeleteHouse.clicked.connect(self.delete_house_action)
 
+        # This is required even though it feels to be a duplicate or superfluous
         self.display_ledger_1()
 
         self.initialMoneyList = self.net_ledger_value()
@@ -213,7 +207,12 @@ class LedgerV1(QDialog):
             self.ui.comboBCategory.clear()
             self.comboBoxCategoriesStatement = f"SELECT Method FROM Categories WHERE ParentType= '{self.parentType}'"
             fill_widget(self.ui.comboBCategory, self.comboBoxCategoriesStatement, True, self.refUserDB, self.error_Logger)
-            self.trigger_refresh()
+
+            # The ledger needs to be reloaded to account for any replacements.
+            self.activeLedger = load_df_ledger(self.ledgerContainer, self.active_account)
+            self.activeLedger = self.activeLedger.sort_values(by=['Transaction_Date', 'Update_Date'], ascending=True)
+
+            self.transaction_refresh()
 
     # Opens Modal Dialog for Modifying which Spending Categories are used in the Graphical Calculations
     def toggle_dialog(self):
@@ -245,7 +244,7 @@ class LedgerV1(QDialog):
             return False  # Restricts the length of the Note input
 
         # The following three conditions are valid variants on the Debit and Credit Inputs
-        # Debit appears before Credit on the screen so it is checked first for a value
+        # Debit appears before Credit on the screen, so it is checked first for a value
         elif self.ui.lEditDebit.text() == "" and self.ui.lEditCredit.text() == "":
             return True    # Debit and Credit are blank
         elif check_numerical_inputs(self.ui.lEditDebit.text()) is True and self.ui.lEditCredit.text() == "":
@@ -253,7 +252,7 @@ class LedgerV1(QDialog):
         elif self.ui.lEditDebit.text() == "" and check_numerical_inputs(self.ui.lEditCredit.text()):
             return True    # Debit is Blank and Credit is Numerical
         else:
-            # Catches Debit or Credit = " " or having a non numerical input
+            # Catches Debit or Credit = " " or having a non-numerical input
             return False
 
     def clear_inputs(self):
@@ -339,7 +338,7 @@ class LedgerV1(QDialog):
                                                'Receipt': [self.ui.lEditReceipt.text()],
                                                'Post_Date': [currentDate],
                                                'Update_Date': [currentDate]})
-                self.activeLedger = self.activeLedger.append(transaction_df, ignore_index=True)
+                self.activeLedger = pd.concat([self.activeLedger, transaction_df], ignore_index=True)
                 self.activeLedger = self.activeLedger.sort_values(by=['Transaction_Date', 'Update_Date'], ascending=True)
                 self.activeLedger = update_df_balance(self.activeLedger)
 
@@ -409,23 +408,20 @@ class LedgerV1(QDialog):
                 self.update_spending_tab("Statement")
                 self.update_spending_tab("Year")
                 self.update_spending_tab("Overall")
-                self.display_ledger_1()
             else:
                 self.set_variable1B()
                 self.set_variable2B()
-                self.display_ledger_1()
 
     def display_ledger_1(self):
         ledger = self.active_account
+        statementPeriod = self.ui.comboBPeriod.currentText()
 
-        if self.parentType != "Property":
-            statement = self.ui.comboBPeriod.currentText()
-        else:
-            statement = "filler"
+        if statementPeriod in ["", " ", None]:
+            statementPeriod = None
 
-        if ledger is None or statement == "":
-
+        if ledger is None or statementPeriod is None:
             self.ui.tableWLedger1.clearContents()
+            self.ui.tableWLedger1.setRowCount(0)
             self.ui.lAccountBalance.setText("$ 0.00")
             if self.parentType != "Property":
                 self.ui.lStatementGraph.setText("Spending During TBD")
@@ -460,7 +456,7 @@ class LedgerV1(QDialog):
         balanceStatement = f"UPDATE Account_Summary SET Balance='{ledgerValue[0]}' WHERE ID='{self.ui.comboBLedger1.currentText()}'"
         specific_sql_statement(balanceStatement, self.refUserDB, self.error_Logger)
 
-        # Clears Inputs to allow for a new transaction
+        # Following code clears inputs to allow for a new transaction
         self.clear_inputs()
         update_df_ledger(self.ledgerContainer,
                          self.active_account,
@@ -727,7 +723,7 @@ class LedgerV1(QDialog):
 
     def update_spending_tab(self, target_tab):
         label_font = QtGui.QFont()
-        set_font(label_font, 12, True, False)
+        set_font(label_font, 14, True, False)
 
         tab_sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
 
@@ -746,13 +742,13 @@ class LedgerV1(QDialog):
         account = remove_space(self.ui.comboBLedger1.currentText())
 
         # spending_Statement_data will be used for the graph
+        spending_statement_data = []
+        spending_statement_string = {}
 
-        if target_tab == 'Year' and self.ui.comboBTab2Year.currentText() == "":
-            pass
-        elif target_tab == "Statement" and self.ui.comboBPeriod.currentText() == "":
-            pass
-        elif target_tab == "Overall" and self.ui.comboBTab2Year.currentText() == "":
-            pass
+        if self.ui.comboBTab2Year.currentText() == "":
+            spending_chart(spending_statement_data, self.yearsCanvas)
+            spending_chart(spending_statement_data, self.statementCanvas)
+            spending_chart(spending_statement_data, self.OverallCanvas)
         else:
             if target_tab == 'Year' and self.ui.comboBTab2Year.currentText() != "":
                 spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, self.activeLedger, target_tab, self.ui.comboBTab2Year.currentText(), self.error_Logger)
@@ -760,31 +756,35 @@ class LedgerV1(QDialog):
             elif target_tab == "Statement" and self.ui.comboBPeriod.currentText() != "":
                 spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, self.activeLedger, target_tab, self.ui.comboBPeriod.currentText(), self.error_Logger)
                 spending_chart(spending_statement_data, self.statementCanvas)
-            else:  # Overall
+            elif target_tab == "Overall" and self.ui.comboBPeriod.currentText() != "":
                 spending_statement_data, spending_statement_string, _ = category_spending_by_interval(self.refUserDB, account, self.activeLedger, target_tab, self.ui.comboBTab2Year.currentText(), self.error_Logger)
                 spending_chart(spending_statement_data, self.OverallCanvas)
+            else:
+                # Should not encounter this option
+                pass
 
-            for count, value in enumerate(spending_statement_data, start=1):
-                try:
-                    target_label = label_dict[count]
-                    target_label.setText(spending_statement_string[value[0]])
-                except KeyError:
-                    self.spendingLabel = QtWidgets.QLabel()
-                    self.spendingLabel.setObjectName(f"lspending{target_tab}Type{count}")
-                    self.spendingLabel.setText(spending_statement_string[value[0]])
-                    self.spendingLabel.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
-                    self.spendingLabel.setFont(label_font)
-                    self.spendingLabel.setStyleSheet(spendingLabel)
-                    self.spendingLabel.setSizePolicy(tab_sizePolicy)
-                    label_dict[count] = self.spendingLabel
+        for count, value in enumerate(spending_statement_data, start=1):
+            try:
+                target_label = label_dict[count]
+                target_label.setHidden(False)
+                target_label.setText(spending_statement_string[value[0]])
+            except KeyError:
+                self.spendingLabel = QtWidgets.QLabel()
+                self.spendingLabel.setObjectName(f"lspending{target_tab}Type{count}")
+                self.spendingLabel.setText(spending_statement_string[value[0]])
+                self.spendingLabel.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft)
+                self.spendingLabel.setFont(label_font)
+                self.spendingLabel.setStyleSheet(spendingLabel)
+                self.spendingLabel.setSizePolicy(tab_sizePolicy)
+                label_dict[count] = self.spendingLabel
+                tabLayout.addWidget(self.spendingLabel)
 
-                    tabLayout.addWidget(self.spendingLabel)
-
-            if len(label_dict) > len(spending_statement_data):
-                unused_label_count = len(label_dict) - (len(label_dict) - len(spending_statement_string))
-                for defunctLabel in range(unused_label_count + 1, len(label_dict) + 1, 1):
-                    target_label = label_dict[defunctLabel]
-                    target_label.setText("")
+        if len(label_dict) > len(spending_statement_data):
+            unused_label_count = len(label_dict) - (len(label_dict) - len(spending_statement_string))
+            for defunctLabel in range(unused_label_count + 1, len(label_dict) + 1, 1):
+                target_label = label_dict[defunctLabel]
+                target_label.setText("")
+                target_label.setHidden(True)
 
     # Functions focused around the Receipt/Invoice inputs
     def clear_receipt_action(self, delete=False):
@@ -993,21 +993,21 @@ class LedgerV1(QDialog):
         self.ui.pBClearInputs.setEnabled(toggle)
         self.ui.tableWLedger1.setEnabled(toggle)
 
-        if toggle is False:
-            self.ui.statementFrame.hide()
-            self.ui.yearFrame.hide()
-            self.ui.overAllFrame.hide()
-        else:
-            self.ui.statementFrame.show()
-            self.ui.yearFrame.show()
-            self.ui.overAllFrame.show()
-
         if self.parentType == "Property":
             self.ui.pBUploadHouse.setEnabled(toggle)
         else:
             self.ui.tabWidget.setEnabled(toggle)
             self.ui.pBToggle.setEnabled(toggle)
             self.ui.comboBTab2Year.setEnabled(toggle)
+
+            if toggle is False:
+                self.ui.statementFrame.hide()
+                self.ui.yearFrame.hide()
+                self.ui.overAllFrame.hide()
+            else:
+                self.ui.statementFrame.show()
+                self.ui.yearFrame.show()
+                self.ui.overAllFrame.show()
 
     # Pyside6 signals to refresh the QMainWindow Labels for NetWorth
     def trigger_refresh(self):

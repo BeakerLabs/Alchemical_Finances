@@ -6,6 +6,7 @@
 import os
 import sqlite3
 import sys
+import time
 
 from PySide6.QtCore import QObject, QThread, Signal, Slot
 from PySide6.QtWidgets import QDialog
@@ -13,7 +14,7 @@ from sqlite3 import Error
 
 from Frontend.SaveDFlUi import Ui_SaveDF
 
-from Backend.DataFrame import empty_container, refill_container
+from Backend.DataFrame import empty_container
 
 from Toolbox.Formatting_Tools import remove_space
 
@@ -46,6 +47,8 @@ class SaveProgress(QDialog):
         self.processor.saveFinishedSignal.connect(self.FilesSaved)
         self.processor.labelSignal.connect(self.updateLabel)
         self.processor.valueSignal.connect(self.updateProgress)
+
+        self.threadHolder.quit()
 
     @Slot(str)
     def FilesSaved(self, status):
@@ -99,6 +102,7 @@ class ProgressThread(QObject):
                                          if_exists="replace",
                                          index=False,
                                          index_label=None)
+                        time.sleep(1)
                         self.savePercentage += (1 / self.ledger_count) * 100
                         self.valueSignal.emit(self.savePercentage)
 

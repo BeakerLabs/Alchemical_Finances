@@ -1,10 +1,3 @@
-"""
-This script is the backend to Frontend.GenReportUi.py
-
-Future Concepts
-
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
@@ -14,14 +7,12 @@ import os
 import sys
 
 from PySide6.QtWidgets import QDialog, QFileDialog
-from PySide6 import QtCore, QtWidgets
-
 
 from Frontend.GenReportUi import Ui_GenReport
 
-from Backend.BuildReports import Generate_user_report
-
 from StyleSheets.StandardCSS import standardAppearance
+
+from Backend.BuildReports import Generate_user_report
 
 
 class user_report_request(QDialog):

@@ -3,9 +3,6 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-# This Front End Code is used to Generate the GUI for the MainWindow of the Alchemical Finances Program
-# Many of the UI will be placed into the MdiArea as sub windows. Some will be dialog boxes
-
 import os
 import pickle
 import sys
@@ -25,7 +22,7 @@ class Ui_MainWindow(object):
 
         size_factor = 0.85
 
-        adjusted_width = work_area[2] * size_factor  # for non full screen sizing
+        adjusted_width = work_area[2] * size_factor  # for non-full screen sizing
         adjusted_height = work_area[3] * size_factor
 
         screen_dimensions_file = open("Resources/dimensions.pkl", "wb")
@@ -106,10 +103,10 @@ class Ui_MainWindow(object):
         for label in label_construction:
             font = QtGui.QFont()
             if label[1] == "standard":
-                font.setPixelSize(20)
+                font.setPixelSize(22)
                 font.setBold(False)
             else:
-                font.setPixelSize(20)
+                font.setPixelSize(22)
                 font.setBold(True)
 
             initial_x = 0
@@ -150,7 +147,7 @@ class Ui_MainWindow(object):
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1200, 18))
         self.menubar.setObjectName("menubar")
         font = self.menubar.font()
-        font.setPixelSize(14)
+        font.setPixelSize(16)
         self.menubar.setFont(font)
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -160,8 +157,8 @@ class Ui_MainWindow(object):
         self.menuLiabilities.setObjectName("menuLiabilities")
         self.menuTools = QtWidgets.QMenu(self.menubar)
         self.menuTools.setObjectName("menuTools")
-        self.menuAbout = QtWidgets.QMenu(self.menubar)
-        self.menuAbout.setObjectName("menuAbout")
+        self.menuOther = QtWidgets.QMenu(self.menubar)
+        self.menuOther.setObjectName("menuAbout")
         MainWindow.setMenuBar(self.menubar)
 
         self.actionProfile = QtWidgets.QWidgetAction(MainWindow)
@@ -220,7 +217,7 @@ class Ui_MainWindow(object):
 
         for submenu in submenu_lst:
             font = submenu.font()
-            font.setPixelSize(12)
+            font.setPixelSize(14)
             submenu.setFont(font)
 
         self.statusBar = QtWidgets.QStatusBar(MainWindow)
@@ -248,13 +245,15 @@ class Ui_MainWindow(object):
 
         self.menuTools.addAction(self.actionArchive)
         self.menuTools.addAction(self.actionBudgeting_Future)
-        self.menuAbout.addAction(self.actionUserManual)
-        self.menuAbout.addAction(self.actionAbout)
+
+        self.menuOther.addAction(self.actionUserManual)
+        self.menuOther.addAction(self.actionAbout)
+
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuAssets.menuAction())
         self.menubar.addAction(self.menuLiabilities.menuAction())
         self.menubar.addAction(self.menuTools.menuAction())
-        self.menubar.addAction(self.menuAbout.menuAction())
+        self.menubar.addAction(self.menuOther.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -266,7 +265,7 @@ class Ui_MainWindow(object):
         self.menuAssets.setTitle(_translate("MainWindow", "Assets", None))
         self.menuLiabilities.setTitle(_translate("MainWindow", "Liabilities", None))
         self.menuTools.setTitle(_translate("MainWindow", "Tools", None))
-        self.menuAbout.setTitle(_translate("MainWindow", "Other", None))
+        self.menuOther.setTitle(_translate("MainWindow", "Other", None))
         self.actionSummary.setText(_translate("MainWindow", "Summary", None))
         self.actionExport.setText(_translate("MainWindow", "Export [Future]", None))
         self.actionClose.setText(_translate("MainWindow", "Close", None))

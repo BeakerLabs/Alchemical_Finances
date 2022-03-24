@@ -3,9 +3,6 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-# This Dialog is a Subwindow for the Mainwindow MdiArea
-# Ledger 2 is used for Equity Accounts.
-
 import os
 import pickle
 import sys
@@ -47,25 +44,25 @@ class Ui_Ledger2(object):
 
         size_factor_NB = (size_factor_b * size_factor_NA)/size_factor_a
 
-        adjusted_width = work_area[2] * size_factor_NA  # for non full screen sizing
+        adjusted_width = work_area[2] * size_factor_NA  # for non-full screen sizing
         adjusted_height = work_area[3] * size_factor_NB
         Dialog.resize(adjusted_width, adjusted_height)
 
         # Font and Size Policy
         header_font = QtGui.QFont()
-        header_font.setPixelSize(18)
+        header_font.setPixelSize(20)
         header_font.setBold(True)
 
         graph_header_font = QtGui.QFont()
-        graph_header_font.setPixelSize(14)
+        graph_header_font.setPixelSize(16)
         graph_header_font.setBold(True)
 
         general_font = QtGui.QFont()
-        general_font.setPixelSize(12)
+        general_font.setPixelSize(14)
         general_font.setBold(False)
 
         pushButton_font = QtGui.QFont()
-        pushButton_font.setPixelSize(12)
+        pushButton_font.setPixelSize(14)
         pushButton_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -763,6 +760,7 @@ class Ui_Ledger2(object):
         self.typeScroll.setWidget(widget)
         self.typeScroll.setWidgetResizable(True)
         self.typeScrollLayout = QtWidgets.QVBoxLayout(widget)
+        self.typeScrollLayout.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
 
         # self.tab2Ledger2.hBlayout2 INVESTMENT
         self.hvSpacer7 = QtWidgets.QSpacerItem(10, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -826,6 +824,7 @@ class Ui_Ledger2(object):
         self.investmentDataScroll.setWidget(widget)
         self.investmentDataScroll.setWidgetResizable(True)
         self.investmentScrollLayout = QtWidgets.QVBoxLayout(widget)
+        self.investmentScrollLayout.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
 
         # self.tab3Ledger2.hBlayout3 -- Breakdown by Type
         self.hvSpacer9 = QtWidgets.QSpacerItem(10, 25, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -884,6 +883,7 @@ class Ui_Ledger2(object):
         self.sectorScroll.setWidget(widget)
         self.sectorScroll.setWidgetResizable(True)
         self.sectorScrollLayout = QtWidgets.QVBoxLayout(widget)
+        self.sectorScrollLayout.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
 
         # Row Last -- hVSpacer (C4)
         self.hVSpacer2 = QtWidgets.QSpacerItem(5, 0, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)

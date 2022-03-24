@@ -3,8 +3,6 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-# Dialog screen for user to set parameters to generate a .pdf snapshot report
-
 import os
 import sys
 
@@ -29,15 +27,15 @@ class Ui_GenReport(object):
 
         # Fonts and Size Policy
         groupBox_font = QtGui.QFont()
-        groupBox_font.setPixelSize(16)
+        groupBox_font.setPixelSize(18)
         groupBox_font.setBold(True)
 
         parentType_font = QtGui.QFont()
-        parentType_font.setPixelSize(12)
+        parentType_font.setPixelSize(14)
         parentType_font.setBold(False)
 
         general_font = QtGui.QFont()
-        general_font.setPixelSize(12)
+        general_font.setPixelSize(14)
         general_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)

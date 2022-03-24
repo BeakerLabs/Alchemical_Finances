@@ -1,11 +1,3 @@
-"""
-This script is the backend to Frontend.AccountsUi.py
-
-Future Concepts
-1)
-
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
@@ -15,22 +7,21 @@ import os
 import shutil
 import sys
 
-from Backend.DataFrame import create_DF, load_df_ledger, update_df_ledger
-from Backend.Question import YNTypeQuestion
+from PySide6.QtWidgets import QDialog, QMessageBox, QListWidgetItem
 
 from Frontend.AccountsUi import Ui_Accounts
 
-from PySide6.QtWidgets import QDialog, QMessageBox, QListWidgetItem
+from StyleSheets.ErrorCSS import generalError
+from StyleSheets.StandardCSS import standardAppearance
+
+from Backend.DataFrame import create_DF, load_df_ledger, update_df_ledger
+from Backend.Question import YNTypeQuestion
 
 from Toolbox.AF_Tools import fill_widget
-from Toolbox.Error_Tools import check_characters, find_character, first_character_check
+from Toolbox.Error_Tools import check_characters, check_numerical_inputs, find_character, first_character_check
 from Toolbox.Formatting_Tools import decimal_places, remove_space
 from Toolbox.OS_Tools import file_destination, obtain_storage_dir
-from Toolbox.SQL_Tools import move_sql_tables, check_for_data, delete_column, obtain_sql_value, execute_sql_statement_list, specific_sql_statement,\
-    sqlite3_keyword_check
-
-from StyleSheets.StandardCSS import standardAppearance
-from StyleSheets.ErrorCSS import generalError
+from Toolbox.SQL_Tools import move_sql_tables, check_for_data, delete_column, obtain_sql_value, execute_sql_statement_list, specific_sql_statement, sqlite3_keyword_check
 
 
 class AccountsDetails(QDialog):
@@ -55,7 +46,6 @@ class AccountsDetails(QDialog):
                                 "Cash": "Cash_Account_Details",
                                 "Property": "Property_Account_Details"}
 
-        # Program Error Logger
         self.error_Logger = error_Log
 
         self.accountDetailsTable = self.parentType_dict[parentType]
@@ -359,6 +349,13 @@ class AccountsDetails(QDialog):
                     self.ui.lError.setStyleSheet(generalError)
                     error_status = True
                     return error_status
+
+                elif check_numerical_inputs(accountVariable1) is False:
+                    self.ui.lError.setText("Monetary Format: 0.00")
+                    self.ui.lError.setStyleSheet(generalError)
+                    error_status = True
+                    return error_status
+
             elif self.parentType in ["Equity", "Retirement", "Property"]:
                 if find_character(accountVariable1) is False:
                     self.ui.lError.setText("Alphanumeric Inputs")
@@ -379,7 +376,7 @@ class AccountsDetails(QDialog):
                     error_status = True
                     return error_status
                 elif self.parentType in ["Equity", "Retirement", "Debt"]:
-                    self.ui.lError.setText("Monitary Format: 0.00")
+                    self.ui.lError.setText("Monetary Format: 0.00")
                     self.ui.lError.setStyleSheet(generalError)
                     error_status = True
                     return error_status

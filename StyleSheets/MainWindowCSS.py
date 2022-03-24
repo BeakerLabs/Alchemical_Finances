@@ -191,8 +191,7 @@ QTabWidget::tab-bar {
     left: 5px; /* move to the right by 5px */
 }
 
-/* Style the tab using the tab sub-control. Note that
-    it reads QTabBar _not_ QTabWidget */
+/* Style the tab using the tab sub-control. Note that it reads QTabBar _not_ QTabWidget */
 QTabBar::tab {
     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
                                 stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
@@ -203,26 +202,60 @@ QTabBar::tab {
     border-top-right-radius: 2px;
     min-width: 90px;
     padding: 4px;
-    font-size: 12px;
-    color: #414E41;
+    font-size: 14px;
+    color: #000000;
     font-weight: bold;
-}
-
-QTabBar::tab:selected, QTabBar::tab:hover {
-    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                stop: 0 #fafafa, stop: 0.4 #f4f4f4,
-                                stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);
 }
 
 QTabBar::tab:selected {
     border-color: #414E41;
-    border-bottom-color: #FAFAFA; /* same as pane color */
+    background-color:  #8BA78C;
+    border-bottom-color: #BEDF7C; 
 }
 
 QTabBar::tab:!selected {
     margin-top: 2px; /* make non-selected tabs look smaller */   
 } 
 
+QTabBar::tab:hover {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0 y2: 1,
+                                stop: 0 #BEDF7C, stop: 0.4 #B4D969,
+                                stop: 0.5 #AFD06D, stop: 0.1 #B8D774);
+}
+
+QTabBar::tab:disabled {
+    border-color: #414E41;
+    background-color:  #FAFAFA;
+    border-bottom-color: #FAFAFA; 
+}
+
+QMenuBar {
+    background-color: #FAFAFA;
+    spacing: 5px;
+    color: #000000;
+}
+
+QMenuBar:item:selected {
+    background: #8BA78C;
+}
+
+QMenuBar:item:pressed {
+    background: #BEDF7C;
+}
+
+QMenu {
+    background-color: #FAFAFA;
+    spacing: 5px;
+    color: #000000;
+}
+
+QMenu:item:selected {
+    background: #8BA78C;
+}
+
+QMenu:item:pressed {
+    background: #BEDF7C;
+}
 """
 
 if __name__ == "__main__":

@@ -18,14 +18,14 @@ class Ui_SaveDF(object):
         Dialog.setMinimumSize(800, 150)
         Dialog.setMaximumSize(800, 150)
 
-        # Dialog.setWindowFlags(Dialog.windowFlags() | QtCore.Qt.FramelessWindowHint)
+        Dialog.setWindowFlags(Dialog.windowFlags() | QtCore.Qt.FramelessWindowHint)
 
         # Core Layout
         self.horizontalLayout = QtWidgets.QHBoxLayout(Dialog)
         self.horizontalLayout.setObjectName("HorizontalLayout")
 
         text_font = QtGui.QFont()
-        text_font.setPixelSize(24)
+        text_font.setPixelSize(26)
         text_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)

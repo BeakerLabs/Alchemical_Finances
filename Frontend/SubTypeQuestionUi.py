@@ -3,10 +3,6 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-# Custom InputDialog box that contains three options.
-# Created for the purposes of allowing user to create / delete / nvm a new Account Sub Type.
-# This dialog box is activated through the ledger Category "Modify" pushbutton
-
 import os
 import sys
 
@@ -35,7 +31,7 @@ class Ui_YNCInput(object):  # YNC == Yes No Cancel
 
         # Row 2 -- Label (C2-C4) Spacer (C5)
         input_font = QtGui.QFont()
-        input_font.setPixelSize(14)
+        input_font.setPixelSize(16)
 
         self.InputLabel = QtWidgets.QLabel()
         self.InputLabel.setObjectName("InputLabel")
@@ -53,7 +49,7 @@ class Ui_YNCInput(object):  # YNC == Yes No Cancel
         self.gridLayout.addItem(self.vspacer1, 3, 1, 1, 1)
 
         button_font = QtGui.QFont()
-        button_font.setPixelSize(12)
+        button_font.setPixelSize(14)
 
         self.pBAdd = QtWidgets.QPushButton()
         self.pBAdd.setObjectName("addPushButton")

@@ -1,13 +1,8 @@
-"""
-This script is the backend to Frontend.Ledger2Ui.py
+# This script is the backend to Frontend.Ledger2Ui.py
 
-Future Concepts
-
-
-Warning: While many bad practices have been fixed between the Alpha program and the Release build. Some Artifacts may survive; such as
-the center and right display frames were previously referred to as variable1 [ShareBalance] and variable2 [variable1]. Refer to the Ui file
-to clarify function/purpose of any given object.
-"""
+# Warning: While many bad practices have been fixed between the Alpha program and the Release build. Some Artifacts may survive; such as
+# the center and right display frames were previously referred to as variable1 [ShareBalance] and variable2 [variable1]. Refer to the Ui file
+# to clarify function/purpose of any given object.
 
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
@@ -26,23 +21,23 @@ from PySide6 import QtGui, QtCore, QtWidgets
 from pathlib import Path, PurePath
 from shutil import copy
 
+from Frontend.Ledger2Ui import Ui_Ledger2
+
+from StyleSheets.StandardCSS import standardAppearance
+from StyleSheets.LedgerCSS import transFrame, spendingLabel
+
 from Backend.AccountDetails import AccountsDetails
 from Backend.BuildGraphs import AF_Canvas, spending_chart
 from Backend.DataFrame import load_df_ledger, update_df_ledger, update_df_balance
 from Backend.LedgerDataAnalysis import equity_subtype_data
-from Backend.SpendingCategories import SpendingCategories
 from Backend.ReceiptViewer import Receipt
-
-from Frontend.Ledger2Ui import Ui_Ledger2
+from Backend.SpendingCategories import SpendingCategories
 
 from Toolbox.AF_Tools import disp_LedgerV2_Table, fill_widget, find_mult_row, fill_statement_period, rename_image, set_font
 from Toolbox.Error_Tools import check_characters, check_numerical_inputs
 from Toolbox.Formatting_Tools import add_comma, decimal_places, remove_comma, remove_space
-from Toolbox.SQL_Tools import execute_sql_statement_list, obtain_sql_value, specific_sql_statement, sqlite3_keyword_check
 from Toolbox.OS_Tools import file_destination, obtain_storage_dir
-
-from StyleSheets.StandardCSS import standardAppearance
-from StyleSheets.LedgerCSS import transFrame, spendingLabel
+from Toolbox.SQL_Tools import execute_sql_statement_list, obtain_sql_value, specific_sql_statement, sqlite3_keyword_check
 
 
 class LedgerV2(QDialog):
@@ -100,8 +95,11 @@ class LedgerV2(QDialog):
         fill_widget(self.ui.comboBLedger2, self.comboBoxAccountStatement, True, self.refUserDB, self.error_Logger)
 
         self.active_account = self.ui.comboBLedger2.currentText()
-        self.activeLedger = load_df_ledger(self.ledgerContainer, self.active_account)
-        self.activeLedger = self.activeLedger.sort_values(by=['Transaction_Date', 'Update_Date'], ascending=True)
+        if self.active_account == "" or self.active_account is None:
+            self.activeLedger = None
+        else:
+            self.activeLedger = load_df_ledger(self.ledgerContainer, self.active_account)
+            self.activeLedger = self.activeLedger.sort_values(by=['Transaction_Date', 'Update_Date'], ascending=True)
 
         self.comboBoxCategoriesStatement = f"SELECT Method FROM Categories WHERE ParentType= '{self.parentType}'"
         fill_widget(self.ui.comboBCategory, self.comboBoxCategoriesStatement, True, self.refUserDB, self.error_Logger)
@@ -172,12 +170,19 @@ class LedgerV2(QDialog):
             self.ui.comboBLedger2.setCurrentIndex(0)
             self.trigger_refresh()
 
+    # Opens Modal Dialog for Spending Category Modifications
     def categories_dialog(self):
         molly = SpendingCategories(self.refUserDB, self.parentType, self.ledgerContainer, self.error_Logger)
         if molly.exec() == QDialog.Accepted:
             self.ui.comboBCategory.clear()
             self.comboBoxCategoriesStatement = f"SELECT Method FROM Categories WHERE ParentType= '{self.parentType}'"
             fill_widget(self.ui.comboBCategory, self.comboBoxCategoriesStatement, True, self.refUserDB, self.error_Logger)
+
+            # The ledger needs to be reloaded to account for any replacements.
+            self.activeLedger = load_df_ledger(self.ledgerContainer, self.active_account)
+            self.activeLedger = self.activeLedger.sort_values(by=['Transaction_Date', 'Update_Date'], ascending=True)
+
+            self.transaction_refresh()
 
     # General Functions
     def check_transactions(self):
@@ -187,7 +192,7 @@ class LedgerV2(QDialog):
 
         for widget in listA:
             if not check_characters(widget.text(), "general"):
-                return False  # Input Has Non Alphanumeric characters
+                return False  # Input Has Non-alphanumeric characters
 
             if widget.text() == "" or widget.text() == " ":
                 return False  # Input is Blank
@@ -291,7 +296,7 @@ class LedgerV2(QDialog):
                                                'Post_Date': [currentDate],
                                                'Update_Date': [currentDate]})
 
-                self.activeLedger = self.activeLedger.append(transaction_df, ignore_index=True)
+                self.activeLedger = pd.concat([self.activeLedger, transaction_df], ignore_index=True)
                 self.activeLedger = self.activeLedger.sort_values(by=['Transaction_Date', 'Update_Date'], ascending=True)
                 self.activeLedger = update_df_balance(self.activeLedger)
                 self.transaction_refresh()
@@ -357,6 +362,7 @@ class LedgerV2(QDialog):
             pass
         elif statement == "":
             self.ui.tableWLedger2.clearContents()
+            self.ui.tableWLedger2.setRowCount(0)
         else:
             parentType_statement = f"SELECT ParentType FROM Account_Summary WHERE ID='{ledger}'"
             parentType_value = obtain_sql_value(parentType_statement, self.refUserDB, self.error_Logger)
@@ -545,7 +551,7 @@ class LedgerV2(QDialog):
         self.update_tab_display("Investment")
         self.update_tab_display("Sector")
 
-        # Clears Inputs to allow for a new transaction
+        # following function clears inputs to allow for a new transaction
         self.clear_inputs()
 
         # Update the
@@ -820,6 +826,7 @@ class LedgerV2(QDialog):
         for count, assetType in enumerate(string_data, start=1):
             try:
                 target_label = label_dict[count]
+                target_label.setHidden(False)
                 target_label.setText(string_data[assetType])
             except KeyError:
                 self.TypeLabel = QtWidgets.QLabel()
@@ -838,6 +845,7 @@ class LedgerV2(QDialog):
             for defunctLabel in range(unused_label_count + 1, len(label_dict) + 1, 1):
                 target_label = label_dict[defunctLabel]
                 target_label.setText("")
+                target_label.setHidden(True)
 
     def toggle_entire_ledger(self, toggle: bool):
         self.ui.DateEditTransDate.setEnabled(toggle)

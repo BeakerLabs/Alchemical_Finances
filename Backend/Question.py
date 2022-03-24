@@ -1,10 +1,3 @@
-"""
-This script is the backend to Frontend.SubTypeQuestionUi.py
-
-Future Concepts
-
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
@@ -17,9 +10,9 @@ from PySide6.QtWidgets import QDialog, QInputDialog
 
 from Frontend.SubTypeQuestionUi import Ui_YNCInput
 
-from Toolbox.SQL_Tools import obtain_sql_list, specific_sql_statement
-
 from StyleSheets.StandardCSS import standardAppearance
+
+from Toolbox.SQL_Tools import obtain_sql_list, specific_sql_statement
 
 
 class YNTypeQuestion(QDialog):
@@ -43,9 +36,9 @@ class YNTypeQuestion(QDialog):
         self.ui.pBCancel.clicked.connect(self.close)
 
     def addType(self, tableName):
-        type, ok = QInputDialog.getText(self, "Add", "Enter Account Type:")
-        if ok and type != "":
-            addStatement = f"INSERT INTO {tableName} VALUES('{type}', '{self.parentType}')"
+        questionType, ok = QInputDialog.getText(self, "Add", "Enter Account Type:")
+        if ok and questionType != "":
+            addStatement = f"INSERT INTO {tableName} VALUES('{questionType}', '{self.parentType}')"
             specific_sql_statement(addStatement, self.refUserDB, self.error_Logger)
         else:
             # canceled and not submitted
@@ -63,9 +56,9 @@ class YNTypeQuestion(QDialog):
             typeList.append(account[0])
         typeList.sort()
 
-        type, ok = QInputDialog.getItem(self, "Remove", "Choose Account Type: ", typeList, 0, False)
-        if ok and type:
-            deleteStatement = f"DELETE FROM {tablename} WHERE {colone}='{type}' and {coltwo}='{self.parentType}'"
+        questionType, ok = QInputDialog.getItem(self, "Remove", "Choose Account Type: ", typeList, 0, False)
+        if ok and questionType:
+            deleteStatement = f"DELETE FROM {tablename} WHERE {colone}='{questionType}' and {coltwo}='{self.parentType}'"
             specific_sql_statement(deleteStatement, self.refUserDB, self.error_Logger)
         else:
             pass

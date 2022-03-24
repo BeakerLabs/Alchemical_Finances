@@ -3,16 +3,6 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-# This file is used as a welcome/update message dialog for users.
-# This layout was manual coded without Qt Designer.
-# This code relies on a GridLayout Structure. In Theory should be able to able to adjust to every screen resolution
-"""
-Future Feature
-
-1) Add Check box to "Disable the welcome message"
-
-"""
-
 import os
 import pickle
 import sys
@@ -35,25 +25,33 @@ class Ui_WelcomeMessage(object):
 
         work_area = screen_dimensions
 
-        size_factor = 0.35
+        size_factor = 0.25
+        modifier = 0
 
         if 2160 <= work_area[3]:
             size_factor = size_factor
+            modifier = 0
 
         if 1600 <= work_area[3] < 2160:
             size_factor = (2160 * size_factor)/1600
+            modifier = 0
 
         if 1080 <= work_area[3] < 1600:
             size_factor = (2160 * size_factor)/1080
+            modifier = 150
 
         if 900 <= work_area[3] < 1080:
             size_factor = (2160 * size_factor)/900
+            modifier = 150
 
         if work_area[3] < 900:
             size_factor = (2160 * size_factor)/900
+            modifier = 200
 
-        adjusted_height = work_area[3] * size_factor
+        adjusted_height = (work_area[3] * size_factor) + modifier
         adjusted_width = work_area[2] * size_factor
+
+        print(adjusted_height, adjusted_width)
         # Making the Message screen larger than log in but not full screen.
         # Rational - Make it catch the users eye
         Dialog.resize(adjusted_width, adjusted_height)
@@ -104,7 +102,7 @@ class Ui_WelcomeMessage(object):
         # Row 2 -- Frame -- Message
 
         # QHBoxLayout --> QFrame --> QHBoxLayout --> QSpacer & QFrame --> QScrollArea (Set as Widget) --> QVBoxLayout --> QLabel
-        # The messageFrame sets the "invisible" outer most width
+        # The messageFrame sets the "invisible" outermost width
         # The messageSpacer keeps the scroll area height constant. This allows for the buttons to have an expanding height
         # From an alignment standpoint The scroll area doesn't align with the outermost widgets in Rows 1, 3 & 4
 
@@ -195,6 +193,9 @@ class Ui_WelcomeMessage(object):
         self.pushButtonNext = QtWidgets.QPushButton()
         self.pushButtonNext.setObjectName("pushButtonNext")
         self.pushButtonNext.setText("Next")
+        pushbutton_font = QtGui.QFont()
+        pushbutton_font.setPixelSize(16)
+        self.pushButtonNext.setFont(pushbutton_font)
         self.pushButtonNext.setSizePolicy(pushbuttonSizePolicy)
         self.pushButtonNext.setFixedWidth(pusbutton_width)
         self.hlr4.addWidget(self.pushButtonNext)
@@ -202,6 +203,7 @@ class Ui_WelcomeMessage(object):
         self.pushButtonClose = QtWidgets.QPushButton()
         self.pushButtonClose.setObjectName("pushButtonClose")
         self.pushButtonClose.setText("Close")
+        self.pushButtonClose.setFont(pushbutton_font)
         self.pushButtonClose.setSizePolicy(pushbuttonSizePolicy)
         self.pushButtonClose.setFixedWidth(pusbutton_width)
         self.hlr4.addWidget(self.pushButtonClose)

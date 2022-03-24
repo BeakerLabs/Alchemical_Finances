@@ -3,10 +3,6 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-# MdiArea SubWindow -- Displays the ledgers for Archived Accounts
-# Archived Accounts are accounts that have been closed.
-# Archiving keeps the account history without it being apart of the summary report
-
 import os
 import pickle
 import sys
@@ -44,17 +40,17 @@ class Ui_Archive(object):
         if work_area[2] < 1600:
             size_factor = (3840 * size_factor)/1366
 
-        adjusted_width = work_area[2] * size_factor  # for non full screen sizing
+        adjusted_width = work_area[2] * size_factor  # for non-full screen sizing
         adjusted_height = work_area[3] * size_factor
         Dialog.resize(adjusted_width, adjusted_height)
 
         # Font and Size Policy
         general_font = QtGui.QFont()
-        general_font.setPixelSize(18)
+        general_font.setPixelSize(20)
         general_font.setBold(False)
 
         pushButton_font = QtGui.QFont()
-        pushButton_font.setPixelSize(12)
+        pushButton_font.setPixelSize(14)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
 

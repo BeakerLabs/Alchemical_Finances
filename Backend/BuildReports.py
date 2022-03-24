@@ -1,11 +1,3 @@
-"""
-This script is associated with RequestReport.py and GenReportUi.py
-
-Future Concepts
-1) Explore a rebuild that incorporates graphs
-
-"""
-
 #  Copyright (c) 2021 Beaker Labs LLC.
 #  This software the GNU LGPLv3.0 License
 #  www.BeakerLabsTech.com
@@ -21,8 +13,8 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, TableStyle
 
-from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
 from Toolbox.Formatting_Tools import cash_format, remove_space, decimal_places
+from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
 
 
 class Generate_user_report:
@@ -94,7 +86,7 @@ class Generate_user_report:
         pdf.setFont('Times-Bold', 16)
         table_title = "User Account Snapshot*"
         pdf.drawCentredString(300, 618, table_title)
-        # net_worth = 1] Net w/o comma 2] Net w/ Comma 3] Assets w/ comma 4] liabilities w/comma
+        # net_worth = [1] Net w/o comma [2] Net w/ Comma [3] Assets w/ comma [4] liabilities w/comma
         snapshot = self.generate_snapshot(request)
         snapshot_data = [['Gross', 'Liabilities', 'Net Worth'],
                          [snapshot[0], snapshot[1], snapshot[2]]]
@@ -180,7 +172,7 @@ class Generate_user_report:
         parenttype_list = request[2]  # Used to determine what parent types to include in the list.
         acc_statement_list = []  # List of Sqlite3 statements to acquire a list of accounts by parent type.
         st_statement_list = []  # List of Sqlite3 statements to acquire subtotals for each parent type.
-        accounts = []  # List of list of accounts by parent type.
+        accounts = []  # List containing a list of accounts by parent type.
         subtotals = []  # List of subtotals by parent type.
         report_structure = []  # Full list of lists for the table(s)
         shares_dct = {}
@@ -273,9 +265,9 @@ class Generate_user_report:
                 y += 1
 
         table_data = []  # List of lists of table data. Each sub list equates to a table
-        table_header_rows = []  # List of list of table header rows. This is used for styling
+        table_header_rows = []  # List containing a list of table header rows. This is used for styling
         table_row_counts = []  # List of row counts for tables
-        table_styles = []  # Contains a list of list for each tables style
+        table_styles = []  # Contains a list containing a list of tables style
 
         table = []  # List to hold individual table data prior to being added to table_data
         header_rows = []  # List to hold individual table data

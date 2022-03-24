@@ -3,8 +3,6 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-# Dialog screen for use to determine what categories are used to calculate spending habits
-
 import sys
 import os
 
@@ -24,11 +22,11 @@ class Ui_ToggleCategories(object):
         Dialog.setMaximumSize(600, 400)
 
         header_font = QtGui.QFont()
-        header_font.setPixelSize(16)
+        header_font.setPixelSize(18)
         header_font.setBold(True)
 
         general_font = QtGui.QFont()
-        general_font.setPixelSize(12)
+        general_font.setPixelSize(14)
         general_font.setBold(False)
 
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)

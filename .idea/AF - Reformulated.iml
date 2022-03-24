@@ -8,9 +8,10 @@
       <excludeFolder url="file://$MODULE_DIR$/ZObsolete - Receipts" />
       <excludeFolder url="file://$MODULE_DIR$/ZObsolete - venv" />
       <excludeFolder url="file://$MODULE_DIR$/ZObsolete -  Data" />
+      <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludePattern pattern="ZObsolete - Data" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.9 (venv2.0)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.10 (AF - Reformulated)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
