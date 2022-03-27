@@ -48,6 +48,5 @@ def get_logger(logger_name, log_file):
 
 
 if __name__ == "__main__":
-
     sys.tracebacklimit = 0
     raise RuntimeError(f"Check your Executable File.\n{os.path.basename(__file__)} is not intended as independent script")

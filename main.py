@@ -78,7 +78,10 @@ def main():
             porcelainGod.show()
             sys.exit(app.exec())
 
+    else:
+        print("I Lost my Spork?!")
+        sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
-    # Trying to solve a commit issue where my local master and gitHub master won't merge.

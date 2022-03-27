@@ -51,7 +51,6 @@ class Ui_WelcomeMessage(object):
         adjusted_height = (work_area[3] * size_factor) + modifier
         adjusted_width = work_area[2] * size_factor
 
-        print(adjusted_height, adjusted_width)
         # Making the Message screen larger than log in but not full screen.
         # Rational - Make it catch the users eye
         Dialog.resize(adjusted_width, adjusted_height)

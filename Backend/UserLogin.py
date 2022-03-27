@@ -221,9 +221,11 @@ class LoginForm(QDialog):
                 pass
         return count
 
-    def closeEvent(self, event):
-        print("I Lost my Spork?!")
-        self.close()
+    # def closeEvent(self, event):
+    #     event.ignore()
+    #     print("I Lost my Spork?!")
+    #     event.exit()
+
 
 
 if __name__ == "__main__":

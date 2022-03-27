@@ -102,7 +102,7 @@ class ProgressThread(QObject):
                                          if_exists="replace",
                                          index=False,
                                          index_label=None)
-                        time.sleep(1)
+                        time.sleep(0.25)
                         self.savePercentage += (1 / self.ledger_count) * 100
                         self.valueSignal.emit(self.savePercentage)
 
