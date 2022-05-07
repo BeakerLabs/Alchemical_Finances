@@ -1,0 +1,10 @@
+<h1>Equity APIs</h1>
+<p>While manual tracking of your finances is the core philosophy behind <em>Alchemical Finances</em> the use of APIs can be helpful tools especially when it comes to investing. Remember that this is not an investment broker, so prices reflecting the up to the second market value isn&rsquo;t currently possible. However, through free APIs you can obtain a market snapshot of your investments value.</p>
+<h3>Tiingo</h3>
+<p><a href="https://api.tiingo.com/"><strong>https://api.tiingo.com/</strong></a></p>
+<p>Currently, the only active api in <em>Alchemical Finances </em>is Tiingo. It is a free API that provides end of day NYSE Equity prices. It is recommended to go to their website and sign up there to obtain a user key. That key can be added to your <strong>User Profile</strong> which will enable you to automate updating your equity values.</p>
+<h3>Crypto</h3>
+<p>Crypto is currently on hold, but under development. Looking to determine the best Free Option to obtain reliable asset values. This also requires knowing how to handle crypto names. Unlike the NYSE where there are set naming conventions, this does not appear to be the case in the world of Crypto. Beaker Labs LLC hopes to overcome these challenges and provide access.</p>
+<h3><strong>Housing Market</strong></h3>
+<p>Unlike the NYSE and even Crypto exchanges, the Housing market is harder to provide active housing valuations. This does not mean it is impossible, but the information does not come free. Additionally, real estate websites are proactive in restricting access to their information</p>
+<p><strong><span style="color: #ff0000;">If a viable manner to include market values for property can be found it will be incorporated into the software. Currently, you can choose to manually update the value of your property via its ledger.</span></strong></p>

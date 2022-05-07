@@ -1,0 +1,9 @@
+<h1><strong>User Data Ownership</strong></h1>
+<p>Beaker Labs llc takes user data ownership very seriously. As a core principle used in the development of <em>Alchemical Finances</em> is the fact that the user owns their data, and not Beaker Labs llc. There will be no data mining or off-site access to user information. All information input into your profile remains isolated to your access only.</p>
+<p>User data is not currently encrypted, so access to the information is possible outside of the <em>Alchemical Finances</em> ecosystem. Future updates will bring the ability to import and export your data accordingly. For use anywhere you please.</p>
+<p>No Beaker Labs llc associate will ever request that you send them any personal data.</p>
+<p>If you have concerns about the safety of your data in Alchemical Finances as it is being stored on a third-party cloud system. It is always highly recommended you use nicknames for account specific information and not the full account number. This reduces the personal information available if your data is compromised.</p>
+<p>When adding receipts or invoices to your transactions. Be sure to review the information on the receipt to make sure nothing unnecessary is visible in the file</p>
+<p><strong>Consult a tax professional when it comes to saving receipts for tax purposes. Images and PDFs may not always be acceptable forms of records. This functionality is to provide you with the ability check records against on another. Always save the original receipt until you are sure it will not be required of you.</strong></p>
+<h1><strong>&nbsp;</strong></h1>
+<p><strong>&nbsp;</strong></p>

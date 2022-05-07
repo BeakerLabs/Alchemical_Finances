@@ -1,0 +1,12 @@
+<h1>Over Time Graphs</h1>
+<p>These graphs display the account balances over the course of their lifetime. Each data point is added upon log in for the current day and the previous day if not already present. The system is unable to provide data points from where the account was in active. This does not mean your finances did not fluctuate in the interim, just that there is no interaction with the software to record it. The software will update the current days data point during use.&nbsp; As you adjust your records the graphs will update.</p>
+<p>These graphs also provide you with specific values reflecting the peak and valley amounts for the account. Allowing you to know if you are currently at a new high or new low relative to history values.</p>
+<h3>Net Worth over Time</h3>
+<p>This graph will display your Gross Worth, Liabilities, and Net Worth over time simultaneously. Allowing you to see the affect of your liabilities on your Net Worth. It can also show you the overtime trajectory of your actions. Hopefully highlighting and enforcing good habits and providing warning signals to bad habits.</p>
+<h3>Equity Graphs</h3>
+<p>Unlike other accounts, these graphs provide a <em>Contributions over time</em>line relative to the account balance. This allows you to see how much money you have invested into a specific equity or retirement account. This can provide two specific insights.</p>
+<ol>
+<li>It displays accounts that appear to have a downward trajectory no matter how much money you invest</li>
+<li>It displays the returns on positive investments over time. Showing just how much the balance has grown compared to the amount invested.</li>
+</ol>
+<p><strong>Do not use these graphs to make finances decisions regarding the performance of an investment. Please use them as a snapshot and do your due diligence. </strong></p>

@@ -9,15 +9,14 @@ import sys
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
+from Toolbox.OS_Tools import obtain_screen_dimensions
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
 
-        screen_dimensions_file = open("Resources/dimensions.pkl", "rb")
-        screen_dimensions = pickle.load(screen_dimensions_file)
-        screen_dimensions_file.close()
-
+        screen_dimensions, screen_dimensions_path = obtain_screen_dimensions()
         work_area = screen_dimensions
 
         size_factor = 0.85
@@ -25,7 +24,9 @@ class Ui_MainWindow(object):
         adjusted_width = work_area[2] * size_factor  # for non-full screen sizing
         adjusted_height = work_area[3] * size_factor
 
-        screen_dimensions_file = open("Resources/dimensions.pkl", "wb")
+        screen_dimensions_file = open(screen_dimensions_path, "wb")
+        # Dimensions = [full screen, not full screen]
+        # second input is for MDI area stuff
         dimensions = [work_area, [0, 0, adjusted_width, adjusted_height]]
 
         pickle.dump(dimensions, screen_dimensions_file)
@@ -205,14 +206,14 @@ class Ui_MainWindow(object):
         self.actionArchive.setObjectName("actionArchive")
         self.actionReports_Future = QtWidgets.QWidgetAction(MainWindow)
         self.actionReports_Future.setObjectName("actionReports_Future")
-        self.actionBudgeting_Future = QtWidgets.QWidgetAction(MainWindow)
-        self.actionBudgeting_Future.setObjectName("actionBudgeting_Future")
+        self.actionBudgeting = QtWidgets.QWidgetAction(MainWindow)
+        self.actionBudgeting.setObjectName("actionBudgeting")
 
         submenu_lst = [self.actionSummary, self.actionGenerate, self.actionNWG, self.actionExport, self.actionSave,
                        self.actionClose, self.actionBank, self.actionCash, self.actionCertificate_of_Deposit,
                        self.actionEquity, self.actionProperty, self.actionRetirement, self.actionTreasury_Bonds,
                        self.actionDebt, self.actionCredit_Cards, self.actionCredit_Cards, self.actionUserManual,
-                       self.actionAbout, self.actionArchive, self.actionReports_Future, self.actionBudgeting_Future,
+                       self.actionAbout, self.actionArchive, self.actionReports_Future, self.actionBudgeting,
                        self.actionProfile]
 
         for submenu in submenu_lst:
@@ -244,7 +245,7 @@ class Ui_MainWindow(object):
         self.menuLiabilities.addAction(self.actionCredit_Cards)
 
         self.menuTools.addAction(self.actionArchive)
-        self.menuTools.addAction(self.actionBudgeting_Future)
+        self.menuTools.addAction(self.actionBudgeting)
 
         self.menuOther.addAction(self.actionUserManual)
         self.menuOther.addAction(self.actionAbout)
@@ -287,7 +288,7 @@ class Ui_MainWindow(object):
         self.actionAbout.setText(_translate("MainWindow", "About", None))
         self.actionAbout.setToolTip(_translate("MainWindow", "Other", None))
         self.actionArchive.setText(_translate("MainWindow", "Archive", None))
-        self.actionBudgeting_Future.setText(_translate("MainWindow", "Budgeting [Future]", None))
+        self.actionBudgeting.setText(_translate("MainWindow", "Budgeting [Future]", None))
         self.actionGenerate.setText(_translate("MainWindow", "Generate Report", None))
         self.actionNWG.setText(_translate("MainWindow", "Over Time Graph", None))
         self.actionProfile.setText(_translate("MainWindow", "User Profile", None))

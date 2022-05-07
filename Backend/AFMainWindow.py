@@ -27,6 +27,7 @@ from Backend.DataFrame import create_DF_dict, load_df_ledger
 from Backend.EquityUpdate import obtain_equity_prices
 from Backend.Ledger1 import LedgerV1
 from Backend.Ledger2 import LedgerV2
+from Backend.Manual import UserManual
 from Backend.OverTimeGraph import OverTimeGraph
 from Backend.Profile import Profile
 from Backend.RequestReport import user_report_request
@@ -90,52 +91,53 @@ class AFBackbone(QMainWindow):
         self.ui.actionCertificate_of_Deposit.triggered.connect(lambda: self.switch_tab("CD"))
         self.ui.actionTreasury_Bonds.triggered.connect(lambda: self.switch_tab("Treasury"))
         self.ui.actionCash.triggered.connect(lambda: self.switch_tab("Cash"))
-        # -- Liabilities - Debt, CC, DC[Future], Cash[Future]
+        # -- Liabilities - Debt, CC
         self.ui.actionDebt.triggered.connect(lambda: self.switch_tab("Debt"))
         self.ui.actionCredit_Cards.triggered.connect(lambda: self.switch_tab("Credit"))
-        self.ui.actionAbout.triggered.connect(lambda: self.switch_tab("About"))
+        # -- Tools -- Archive, Budget [Future]
         self.ui.actionArchive.triggered.connect(lambda: self.switch_tab("Archive"))
+        self.ui.actionBudgeting.triggered.connect(lambda: self.switch_tab("Budget"))
+        # -- Other -- About
         self.ui.actionUserManual.triggered.connect(self.user_manual)
+        self.ui.actionAbout.triggered.connect(lambda: self.switch_tab("About"))
+
+        creation_container = self.create_profile_db()
 
         # Creation of a New User
-        if self.create_profile_db():
+        if creation_container:
 
             # ParentType: [Example Account Name, Example Account Type, [Account SubType List]]
-            example_accounts_dict = {
-                "Bank": ["Example Banking Account", "Checking", ["Checking", "Savings", "Money Market"]],
-                "Cash": ["Example Wallet", "Wallet", ["Wallet", "Envelope"]],
-                "CD": ["Example CD Account", "12 Month", ["12 Month", "2 Year", "3 Year", "4 Year", "5 Year"]],
-                "Treasury": ["Example Treasury Bond", "E Bond", ["E Bond", "EE Bond"]],
-                "Credit": ["Example Credit Card Account", "Visa", ["Visa", "Mastercard", "Discover", "American Express"]],
-                "Debt": ["Example Debt Account", "Student Loan", ["Student Loan", "Personal Loan", "Mortgage", "Car Loan"]],
-                "Equity": ["Example Equity Account", "Stock", ["Stock", "ETF", "Mutual Fund"]],
-                "Retirement": ["Example Retirement Account", "Traditional 401K", ["Traditional 401K", "Roth 401K", "Traditional IRA", "Roth IRA"]],
-                "Property": ["Example Home", "Single Occupancy", ["Single Occupancy", "Rental", "Vacation", "Duplex"]],
+            initial_subtypes_dict = {
+                "Bank": ["Checking", "Savings", "Money Market"],
+                "Cash": ["Wallet", "Envelope"],
+                "CD": ["12 Month", "2 Year", "3 Year", "4 Year", "5 Year"],
+                "Treasury": ["E Bond", "EE Bond"],
+                "Credit": ["Visa", "Mastercard", "Discover", "American Express"],
+                "Debt": ["Student Loan", "Personal Loan", "Mortgage", "Car Loan"],
+                "Equity": ["Stock", "ETF", "Mutual Fund"],
+                "Retirement": ["Traditional 401K", "Roth 401K", "Traditional IRA", "Roth IRA"],
+                "Property": ["Single Occupancy", "Rental", "Vacation", "Duplex"],
             }
 
             self.initial_categories(["Initial", "Statement"], ["Bank", "Equity", "Retirement", "CD", "Treasury", "Debt", "Credit", "Cash", "Property"], self.saveState)
 
-            for parentType in example_accounts_dict:
-                self.account_subtypes(example_accounts_dict[parentType][2], parentType, self.saveState)
+            for parentType in initial_subtypes_dict:
+                self.account_subtypes(initial_subtypes_dict[parentType], parentType, self.saveState)
 
-                # Account Summary Function (below) designed for use with example accounts.
                 summaryStatement = "CREATE TABLE IF NOT EXISTS Account_Summary(ID TEXT, ItemType TEXT, ParentType TEXT, SubType TEXT, Ticker_Symbol TEXT, Balance REAL)"
                 specific_sql_statement(summaryStatement, self.saveState, self.error_Logger)
-                self.account_details(parentType, self.saveState, toggle_example=False, subtype='')  # Subtype had no effect when not creating an example account
-
-                # Example accounts are great for debugging and testing. However, for actual users probably just annoying
-                # self.account_ledger(example_accounts_dict[parentType][0], parentType)
-                # self.account_summary(example_accounts_dict[parentType][0], parentType)
-                # self.account_details(example_accounts_dict[parentType][0], example_accounts_dict[parentType][1], parentType, toggle_example=True)
+                self.account_details(parentType, self.saveState)
 
             archiveStatement = "CREATE TABLE IF NOT EXISTS Account_Archive(ID TEXT, ItemType TEXT, ParentType TEXT," \
                                " SubType TEXT, Ticker_Symbol TEXT, Balance REAL)"
             nw_graph_statement = "CREATE TABLE IF NOT EXISTS NetWorth(Date TEXT, Gross TEXT, Liabilities TEXT, Net TEXT)"
-            ov_graph_statement = "CREATE TABLE IF NOT EXISTS AccountWorth(Date TEXT)"
+            ov_time_graph_statement = "CREATE TABLE IF NOT EXISTS AccountWorth(Date TEXT)"
             contribution_graph_statement = "CREATE TABLE IF NOT EXISTS ContributionTotals(Date TEXT)"
+            delete_acc_statement = "CREATE TABLE IF NOT EXISTS DeletePending(ID TEXT, ParentType TEXT)"
             execute_sql_statement_list([archiveStatement,
                                         nw_graph_statement,
-                                        ov_graph_statement,
+                                        ov_time_graph_statement,
+                                        delete_acc_statement,
                                         contribution_graph_statement], self.saveState, self.error_Logger)
 
         # No else statement for the creation of a new profile. Not necessary if database already exists
@@ -178,6 +180,9 @@ class AFBackbone(QMainWindow):
         self.ui.labelNW.setText(netWorth[1])
         self.ui.labelTAssests.setText(netWorth[2])
         self.ui.labelTLiabilities.setText(netWorth[3])
+
+        if self.switchCheck == 0:
+            self.user_manual()
 
     def acquire_key(self):
         keyStatement = f"SELECT UserKey FROM Users WHERE Profile ='{self.refUser}'"
@@ -266,7 +271,7 @@ class AFBackbone(QMainWindow):
             save_mesg = "Do you wish to save your current information?"
             reply = QMessageBox.question(self, "Save Account", save_mesg, QMessageBox.Yes, QMessageBox.No)
             if reply == QMessageBox.Yes:
-                progressDialog = SaveProgress(self.ledger_container, self.refUserDB, self.error_Logger)
+                progressDialog = SaveProgress(self.refUser, self.ledger_container, self.refUserDB, self.error_Logger)
                 if progressDialog.exec() == QDialog.Accepted:
                     shutil.copyfile(self.refUserDB, self.saveState)
                     time.sleep(1)
@@ -310,58 +315,63 @@ class AFBackbone(QMainWindow):
             os.remove(self.ledger_container)
             event.accept()
 
-    def switch_tab(self, parentType):
+    def switch_tab(self, switch: str):
         type1 = ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit", "Property"]
         type2 = ["Equity", "Retirement"]
         try:
-            self.tabdic[parentType].setFocus()
+            self.tabdic[switch].setFocus()
         except KeyError:
-            if parentType == "Summary":
+            if switch == "Summary":
                 summary = Ledger_Summary(self, self.refUserDB, self.ledger_container, self.error_Logger)
                 self.ui.mdiArea.addSubWindow(summary)
                 summary.remove_tab_LS.connect(self.remove_tab)
                 summary.showMaximized()
-                self.tabdic.update({parentType: summary})
-            elif parentType == "Profile":
+                self.tabdic.update({switch: summary})
+            elif switch == "Profile":
                 profile = Profile(self.refUser, self.error_Logger)
                 self.ui.mdiArea.addSubWindow(profile)
                 profile.remove_tab_profile.connect(self.remove_tab)
                 profile.showMaximized()
-                self.tabdic.update({parentType: profile})
-            elif parentType in type1:
-                ledger = LedgerV1(self.refUserDB, parentType, self.refUser, self.ledger_container, self.error_Logger)
+                self.tabdic.update({switch: profile})
+            elif switch in type1:
+                ledger = LedgerV1(self.refUserDB, switch, self.refUser, self.ledger_container, self.error_Logger)
                 self.ui.mdiArea.addSubWindow(ledger)
                 ledger.refresh_signal.connect(self.refresh_netWorth)
                 ledger.remove_tab.connect(self.remove_tab)
                 ledger.showMaximized()
-                self.tabdic.update({parentType: ledger})
-            elif parentType in type2:
-                ledger2 = LedgerV2(self.refUserDB, parentType, self.refUser, self.ledger_container, self.error_Logger)
+                self.tabdic.update({switch: ledger})
+            elif switch in type2:
+                ledger2 = LedgerV2(self.refUserDB, switch, self.refUser, self.ledger_container, self.error_Logger)
                 self.ui.mdiArea.addSubWindow(ledger2)
                 ledger2.refresh_signal_L2.connect(self.refresh_netWorth)
                 ledger2.remove_tab_L2.connect(self.remove_tab)
                 ledger2.showMaximized()
-                self.tabdic.update({parentType: ledger2})
-            elif parentType == "About":
+                self.tabdic.update({switch: ledger2})
+            elif switch == "About":
                 about = AboutProgram()
                 self.ui.mdiArea.addSubWindow(about)
                 about.remove_tab_about.connect(self.remove_tab)
                 about.showMaximized()
-                self.tabdic.update({parentType: about})
-            elif parentType == "Archive":
+                self.tabdic.update({switch: about})
+            elif switch == "Archive":
                 archive = Archive(self.refUserDB, self.refUser, self.ledger_container, self.error_Logger)
                 self.ui.mdiArea.addSubWindow(archive)
                 archive.remove_tab_archive.connect(self.remove_tab)
                 archive.showMaximized()
-                self.tabdic.update({parentType: archive})
-            elif parentType == "OTG":
+                self.tabdic.update({switch: archive})
+            elif switch == "OTG":
                 graph = OverTimeGraph(self, self.refUserDB, self.error_Logger)
                 self.ui.mdiArea.addSubWindow(graph)
                 graph.remove_tab_OTG.connect(self.remove_tab)
                 graph.showMaximized()
-                self.tabdic.update({parentType: graph})
+                self.tabdic.update({switch: graph})
+            elif switch == "Budget":
+                budget_msg = "The Budget application is currently under development."
+                read_msg = QMessageBox.information(self, "Budget [Future]", budget_msg, QMessageBox.Close, QMessageBox.NoButton)
+                if read_msg == QMessageBox.Close:
+                    pass
             else:
-                print(f"""ERROR: AFMainWindow: switch_tab \n Input Error -- Variable = {parentType}""")
+                print(f"""ERROR: AFMainWindow: switch_tab \n Input Error -- Variable = {switch}""")
 
     def account_ledger(self, accountName, parentType):
         finalName = remove_space(accountName)
@@ -390,15 +400,13 @@ class AFBackbone(QMainWindow):
             exampleStatement = f"INSERT INTO Account_Summary VALUES('{accountName}', NULL, '{accountType}', NULL, NULL, '0.00')"
             specific_sql_statement(exampleStatement, self.refUserDB, self.error_Logger)
 
-    def account_details(self, parentType, database, toggle_example, subtype, accountName="Example_Account"):
-        """ Single use Function: Used to Create Parent Type Account Details Table, and Example Account Details
+    def account_details(self, parentType, database):
+        """ Single use Function: Used to Create Parent Type Account Details Table
             These details are intended to be Parent Type specific while the Account Summary Table it more general
 
             Admittance - These tables could be wrapped into the summary table. However, they were created to minimize the number
             of empty columns and null values.
         """
-        from datetime import datetime
-        currentDate = datetime.now().strftime("%m/%d/%Y")
 
         itemTypeDict = {
             "Bank": ["Asset", "Bank_Account_Details"],
@@ -425,29 +433,7 @@ class AFBackbone(QMainWindow):
             "Property": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Ownder TEXT, Bank TEXT, Address_1 TEXT, County TEXT, State_Initials TEXT, Zip_Code INTEGER, Image TEXT)",
         }
 
-        if toggle_example is True:
-            if parentType == "Equity" or parentType == "Retirement":
-                summaryStatement = f"UPDATE Account_Summary SET SubType='{subtype}', ItemType='{itemTypeDict[parentType][0]}', Ticker_Symbol='AFB' WHERE ID='{accountName}'"
-            else:
-                summaryStatement = f"UPDATE Account_Summary SET SubType='{subtype}', ItemType='{itemTypeDict[parentType][0]}' WHERE ID='{accountName}'"
-
-            detailsValueDict= {
-                "Bank": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', 'Alchemical Finances Bank', '1','1.00')",
-                "Cash": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', 'Alchemical Finances Bank', '1')",
-                "CD": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', 'Alchemical Finances Bank', ',1', '1.00', '{currentDate}')",
-                "Treasury": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', 'Alchemical Finances Bank', '1', '1.00',, '{currentDate}')",
-                "Credit": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', 'Alchemical Finances Bank', '1', '10000')",
-                "Debt": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', 'Alchemical Finances Bank', '1', '1.00', '10000')",
-                "Equity": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', 'Unspecified', '{self.refUser}', 'Alchemical Finances Bank', '1', 'AFB',  '1.0000')",
-                "Retirement": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', 'Unspecified', '{self.refUser}', 'Alchemical Finances Bank', '1', 'AFB',  '1.0000')",
-                "Property": f"INSERT INTO {itemTypeDict[parentType][1]} VALUES('{accountName}', '{subtype}', '{self.refUser}', '123 Finance Street', 'County', 'State 91002', NULL)",
-            }
-            specific_sql_statement(detailsTableDict[parentType], database, self.error_Logger)
-            if check_for_data(itemTypeDict[parentType][1], "Account_Name", accountName, database, self.error_Logger) is True:
-                specific_sql_statement(detailsValueDict[parentType], database, self.error_Logger)
-                specific_sql_statement(summaryStatement, database, self.error_Logger)
-        else:
-            specific_sql_statement(detailsTableDict[parentType], database, self.error_Logger)
+        specific_sql_statement(detailsTableDict[parentType], database, self.error_Logger)
 
     def initial_categories(self, methodList, typeList, database):
         """ Single Use Function: Used to create the starting spending Categories for each Parent Type"""
@@ -644,10 +630,9 @@ class AFBackbone(QMainWindow):
                     specific_sql_statement(update_balance_statement, self.refUserDB, self.error_Logger)
 
     def user_manual(self):
-        # Will eventually need to build a way to install the resources. Right now they just exist
-        user_manual_path = self.storage_dir / "Resources" / "USER_MANUAL.pdf"
-        user_manual_str = str(user_manual_path)
-        os.startfile(user_manual_str)
+        manual = UserManual(self.error_Logger)
+        if manual.exec() == QDialog.Accepted:
+            pass
 
     @Slot(str)
     def refresh_netWorth(self, message):
@@ -688,6 +673,7 @@ class AFBackbone(QMainWindow):
         except KeyError:
             self.statusBar().showMessage(f"""ERROR: AFMainWindow: remove_tab \n message: {message} \n tabledic contents: {self.tabdic}""")
 
+    # Pyside6 signals to refresh the QMainWindow Labels for NetWorth
     def trigger_refresh_summary(self):
         """ Signal to trigger the Summary QDialog to refresh Account Balances """
         self.refresh_signal_summary.emit("2")

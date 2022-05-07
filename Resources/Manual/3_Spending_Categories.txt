@@ -1,0 +1,16 @@
+<h1>Spending Categories</h1>
+<h3>What are spending Categories?</h3>
+<p>Spending Categories are the designations given to a transaction to denote where or how money has been utilized. You, most commonly, come across this type of designation on budgets, credit cards, or bank statements. Where transactions are categorized into, but not limited, to headings like: Gas Stations, Restaurants, or Drug Stores.</p>
+<p><em>Alchemical Finances</em> Spending Categories are designed to allow you the freedom to designate a transaction into whatever category you feel best suits your needs. This can allow you to track utility expenses, rent, groceries, take out, or avocado toast under unique tags. Giving you the ability to spot check where you are sending the bulk of your money, for that account.</p>
+<p>You manage your spending categories specific to each Parent Type account. This is done using the <strong>[Modify]</strong> button located next to the Category drop down menu located on the ledger screen. <em>Go to 5. First Ledger </em>for more details<em>.</em></p>
+<p>Some ledgers present this data to you in the form of a pie chart on the left-hand side of the screen. With a breakdown of each category for a period associated with the account displayed under the chart.</p>
+<h3><strong>What does Statement, Year, Overall mean?</strong></h3>
+<p>The pie chart provided the category spending data over three different time periods.</p>
+<ul>
+<li><strong>Statement</strong> &ndash; This is your monthly bill cycle. The statement start date is controlled via the account settings.</li>
+<li><strong>Year</strong> &ndash; This will cover spending for the account over the course of a selected year.</li>
+<li><strong>Overall &ndash; </strong>This covers spending for the lifetime of the account</li>
+</ul>
+<p>You can adjust which categories are tracked so, categories like Initial, Payment, and Deposit can be deactivated to allow you to focus on out-going categories versus incoming categories. This is done by using the <strong>[Toggle Categories]</strong> button located below the pie chart on the Statement tab.</p>
+<h3>Other Ledgers: [Equity, Retirement, Property]</h3>
+<p>These ledgers will show different information on the left-hand side of the screen. Spending categories are still utilized for those transactions but are not displayed. Currently, a budget specific tab is under development that will utilize these spending categories in a manner that more closely reflects a traditional zero dollar budget.</p>

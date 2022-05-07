@@ -19,7 +19,6 @@ from Toolbox.OS_Tools import file_destination, obtain_storage_dir
 from Toolbox.SQL_Tools import obtain_sql_value, specific_sql_statement
 
 
-
 class Message(QDialog):
     def __init__(self, messageCount, user, error_Log):
         super().__init__()

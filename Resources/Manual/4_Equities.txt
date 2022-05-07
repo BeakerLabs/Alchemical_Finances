@@ -1,0 +1,18 @@
+<h1>Equities</h1>
+<p>Unlike other Parent Type ledgers. The <strong><em>Equities</em> </strong>and <strong><em>Retirement</em></strong> ledgers do not display spending Categories on the left-hand side of the screen. These pie charts display a different set of information for the user to reference. This information is broken down into three categories of Account Type, The Specific Investment, the Investment Sector.</p>
+<h4>Type</h4>
+<ul>
+<li>The four most common investment types: Mutual Fund, Stock, ETF and Company Stock are supplied by default. Additional types can be added through the <em>Account Type</em> <strong>[Modify] </strong>option found on the Accounts screen. This is the same functionality used for designating a Checking or Savings <em>Account Type.</em></li>
+</ul>
+<h4>Investment</h4>
+<ul>
+<li>This tab displays the break down of your entire <strong><em>Equities</em></strong> (or <strong><em>Retirement</em></strong>) portfolio by account. The accounts are organized from highest value to lowest value.</li>
+</ul>
+<h4>Sector</h4>
+<ul>
+<li>This tab displayed the brown down of your entire Equities (or Retirement) portfolio by sector. There are 12 standard sectors used in <em>Alchemical Finances</em>. Unlike other tags, these are static without the option to change.</li>
+</ul>
+<p>The purpose of these three pie charts is to show the user how diversified their portfolio is from different perspectives. This can of course be challenging when using broad market ETFs &amp; Mutual Funds as they do not always fall into a specific sector.</p>
+<p><strong><em>Retirement</em> </strong>and <strong><em>Equity</em> </strong>accounts are kept separate to both separate your tax advantage accounts from other investments but to also separate portfolio diversification. One type of portfolio can be significantly larger than the other and both portfolios should be treated differently, as their time horizons can be different.</p>
+<p><em>HSA investment accounts while tax advantaged fall into a gray area between Retirement and Equity. As it will depend heavily on the owner of the account how best to utilize the funds available to them. Additionally, not all HSA funds are invested so it is possible to have them present in different Parent Type accounts.</em></p>
+<p><strong><u>Do not rely on these charts as your sole point of reference when making investment decisions. Consider seeking professional advice when making large transactions.</u></strong></p>

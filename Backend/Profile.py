@@ -44,8 +44,8 @@ class Profile(QDialog):
         name_statement = f"SELECT FirstName, LastName FROM Users WHERE Profile='{self.refUser}'"
         name_raw = obtain_sql_list(name_statement, self.dbPathway, self.error_Logger)
         name = name_raw[0]
-        self.ui.lEditFirstName.setText(name[0])
-        self.ui.lEditLastName.setText(name[1])
+        nameText = f"{name[0]} {name[1]}"
+        self.ui.lEditUserName.setText(nameText)
 
         email_Statement = f"SELECT Email FROM Users WHERE Profile='{self.refUser}'"
         email_raw = obtain_sql_value(email_Statement, self.dbPathway, self.error_Logger)
@@ -82,6 +82,7 @@ class Profile(QDialog):
         self.ui.lEditCryptoToken.textChanged.connect(lambda: self.toggle_button("Crypto", True))
 
         # Place style sheet here
+        self.ui.lEditFirstName.setFocus()
         self.show()
 
     def check_name(self, firstName, lastName):
@@ -108,6 +109,7 @@ class Profile(QDialog):
     def update_name(self):
         firstName = self.ui.lEditFirstName.text()
         lastName = self.ui.lEditLastName.text()
+        combined = f"{firstName} {lastName}"
 
         if self.check_name(firstName, lastName):
             update_Statement = f"UPDATE Users SET FirstName='{firstName}', LastName='{lastName}' WHERE Profile='{self.refUser}'"
@@ -115,6 +117,10 @@ class Profile(QDialog):
             self.ui.lmessage.setStyleSheet(standardAppearance)
             self.ui.lmessage.setText("Name Updated for future reference")
             self.toggle_button("Name", False)
+            self.ui.lEditUserName.clear()
+            self.ui.lEditUserName.setText(combined)
+            self.ui.lEditFirstName.clear()
+            self.ui.lEditLastName.clear()
         else:
             self.ui.lmessage.setStyleSheet(generalError)
             self.toggle_button("Name", False)
@@ -166,8 +172,8 @@ class Profile(QDialog):
             self.toggle_button("Password", False)
 
             self.ui.lEditPassword.setText(new_pass)
-            self.ui.lEditNewPassword.setText("")
-            self.ui.lEditConfirmNewPassword.setText("")
+            self.ui.lEditNewPassword.clear()
+            self.ui.lEditConfirmNewPassword.clear()
 
         else:
             self.ui.lmessage.setStyleSheet(generalError)

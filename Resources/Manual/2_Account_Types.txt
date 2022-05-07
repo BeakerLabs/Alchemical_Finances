@@ -1,0 +1,46 @@
+<h1>Account Types</h1>
+<h3><strong>Parent Types:</strong></h3>
+<p>Currently there are 9 &ldquo;Parent&rdquo; account types that can be found under the <strong><em>Assets </em></strong>and <strong><em>Liabilities </em></strong>drop down menus.</p>
+<ol>
+<li><strong><em>Assets</em></strong>
+<ul style="list-style-type: disc;">
+<li>Bank</li>
+<li>Cash</li>
+<li>Certificate of Deposit</li>
+<li>Equity</li>
+<li>Property</li>
+<li>Treasury Bonds</li>
+<li>Retirement</li>
+</ul>
+</li>
+<li><strong><em>Liabilities</em></strong>
+<ul style="list-style-type: disc;">
+<li>Credit Cards</li>
+<li>Debt</li>
+</ul>
+</li>
+</ol>
+<p>They serve to separate your ledgers into different account buckets, and ledger formats. For example, an <strong><em>Equity</em></strong> ledger will generally contain taxable accounts, while Retirement ledgers will alternatively hold tax advantaged accounts. This allows <em>Alchemical Finances</em> to show you your asset or liability breakdown by type on the <strong><em>Summary </em></strong>tab. This information is displayed as two pie charts at the top of the tab. More specific balance breakdowns by specific the accounts would be listed underneath the charts.</p>
+<h3><strong>Sub Types</strong>: <em>(Account Type)</em></h3>
+<p>Each account is additionally assigned an Account Type within each Parent Type heading. This allows you to further specify the type of account. The <strong><em>Summary</em></strong> tab will display and sort your accounts by their Account Types under the Parent Type heading.</p>
+<p>Under Bank Accounts you start with</p>
+<ul style="list-style-type: disc;">
+<li>Checking</li>
+<li>Savings</li>
+<li>Money Market</li>
+<li>HSA</li>
+</ul>
+<p>Under Equity Accounts, you start with</p>
+<ul style="list-style-type: disc;">
+<li>Stock</li>
+<li>Mutual Fund</li>
+<li>ETF</li>
+</ul>
+<p>Each Parent Type holds a separate list of Sub Types that are default to the given category. You can add, delete, modify the different account types for each specific Parent Type. This allows you to describe accounts more accurately to fit your needs or classifications.</p>
+<p>To access this functionality:</p>
+<ul style="list-style-type: disc;">
+<li>Select <strong>[Modify]</strong> next to the Active Account drop-down menu</li>
+<li>In the Account dialog box select <strong>[New] </strong>or <strong>[Edit]</strong> to activate the inputs below.</li>
+<li>Select <strong>[Modify] </strong>to the left of the Account type drop-down menu.</li>
+<li>To exit the edit mode in the Account dialog box. Just select a different account and the inputs will be deactivated.</li>
+</ul>

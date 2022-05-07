@@ -1,0 +1,9 @@
+<h1>Receipt Viewer</h1>
+<h3>Images (.gif, jpeg, .jpg, .png)</h3>
+<p>An internal image viewer will load the image file for you to review the receipt. The viewer has the ability for you to rotate the image, zoom in, and zoom out. No image editing capabilities are provided natively within <em>Alchemical Finances. </em>&nbsp;</p>
+<p>The viewer also provides the ability for you to download the image for faster access to the direct file. This contrasts with searching for the file, within the software storage.</p>
+<h3>PDF</h3>
+<p>PDF files will be handled by the OS default PDF Viewer. There is no internal handler for PDF files. Your ability to alter PDF files will be directly related to the type of reader/editors you have at your disposal.</p>
+<h3>File Storage</h3>
+<p>The receipts are stored natively on your PC. They are not stored within the Pictures directory, but elsewhere. The file names are shown on the ledger and can be found using that name.</p>
+<p><strong><span style="color: red;">As of this writing, the receipt files are not encrypted. There are plans to develop an encryption and decryption method for added security. The intent is to protect your data from outside breaches or manipulation. This will make the need to open and download copies of receipts once uploaded necessary for use outside of the software.</span></strong></p>

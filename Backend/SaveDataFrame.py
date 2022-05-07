@@ -5,6 +5,7 @@
 
 import os
 import sqlite3
+import shutil
 import sys
 import time
 
@@ -17,16 +18,19 @@ from Frontend.SaveDFlUi import Ui_SaveDF
 from Backend.DataFrame import empty_container
 
 from Toolbox.Formatting_Tools import remove_space
+from Toolbox.OS_Tools import file_destination, obtain_storage_dir
+from Toolbox.SQL_Tools import obtain_sql_list
 
 
 class SaveProgress(QDialog):
-    def __init__(self, ledgerContainer, database, error_log):
+    def __init__(self, refUser, ledgerContainer, database, error_log):
         super().__init__()
         self.ui = Ui_SaveDF()
         self.ui.setupUi(self)
         # self.setModal(True)
         self.show()
 
+        self.refUser = refUser
         self.ledgerContainer = ledgerContainer
         self.refuserDB = database
         self.errorLog = error_log
@@ -38,7 +42,7 @@ class SaveProgress(QDialog):
         self.accept()
 
     def EstablishThread(self):
-        self.processor = ProgressThread(self.ledgerContainer, self.refuserDB, self.errorLog)
+        self.processor = ProgressThread(self.refUser, self.ledgerContainer, self.refuserDB, self.errorLog)
         self.threadHolder = QThread()
         self.processor.moveToThread(self.threadHolder)
         self.threadHolder.started.connect(self.processor.ProcessRunner)
@@ -73,13 +77,15 @@ class ProgressThread(QObject):
     labelSignal = Signal(str)
     valueSignal = Signal(int)
 
-    def __init__(self, ledgerContainer, database, error_log):
+    def __init__(self, refUser, ledgerContainer, database, error_log):
         super().__init__()
         self.connected = True
 
+        self.refUser = refUser
         self.ledgerContainer = ledgerContainer
         self.refuserDB = database
         self.errorLog = error_log
+        self.storage_dir = obtain_storage_dir()
         self.ledger_dictionary = empty_container(self.ledgerContainer)
         self.ledger_count = len(self.ledger_dictionary)
         self.savePercentage = 0
@@ -91,6 +97,8 @@ class ProgressThread(QObject):
                 conn = sqlite3.connect(self.refuserDB)
                 with conn:
                     for account in self.ledger_dictionary:
+                        self.delete_account_receipts()
+
                         self.labelSignal.emit(account)
                         self.count += 1
                         print(f"Saved: {self.count}/{self.ledger_count} -- [{account}]")
@@ -102,7 +110,7 @@ class ProgressThread(QObject):
                                          if_exists="replace",
                                          index=False,
                                          index_label=None)
-                        time.sleep(0.25)
+                        time.sleep(0.1)
                         self.savePercentage += (1 / self.ledger_count) * 100
                         self.valueSignal.emit(self.savePercentage)
 
@@ -123,6 +131,27 @@ class ProgressThread(QObject):
         del self.ledger_dictionary
         self.saveFinishedSignal.emit("Saved")
 
+    def delete_account_receipts(self):
+        info_statement = f"SELECT ID, ParentType FROM DeletePending"
+        account_info_tpl = obtain_sql_list(info_statement, self.refuserDB, self.errorLog)
+        del_count = 0
+        del_total = len(account_info_tpl)
+
+        if del_total > 0:
+            for account in account_info_tpl:
+                del_count += 1
+                sql_accountName = remove_space(account[0])
+                parentType = account[1]
+                obsolete_dir_path = file_destination(['Alchemical Finances', 'Receipts', self.refUser, {parentType}, sql_accountName], starting_point=self.storage_dir)
+                obsolete_dir_str = str(obsolete_dir_path)
+                try:
+                    shutil.rmtree(obsolete_dir_str)
+                    print(f"Deleted: {del_count}/{del_total} -- [{account[0]}]")
+                except OSError:
+                    error_string = f"Window's Denied Deletion Action. Manual action required once program is closed.\n"
+                    self.errorLog.error(error_string, exc_info=True)
+        else:
+            print("Deleted: 0/0 -- [No Accounts Found]")
 
 if __name__ == "__main__":
     sys.tracebacklimit = 0

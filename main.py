@@ -21,7 +21,7 @@ from Backend.WelcomeMessage import Message
 from Backend.AFMainWindow import AFBackbone
 
 from Toolbox.Logging_System import create_log_fileName, get_logger
-from Toolbox.OS_Tools import file_destination, obtain_storage_dir
+from Toolbox.OS_Tools import file_destination, obtain_screen_dimensions, obtain_storage_dir
 
 
 def main():
@@ -55,7 +55,7 @@ def main():
 
     app = QApplication(sys.argv)
 
-    screen_dimensions_path = file_destination(['Resources'])
+    screen_dimensions_path = file_destination(dir_name_lst=['Alchemical Finances', 'data', 'account'], starting_point=user_pathway)
     screen_dimensions_path = screen_dimensions_path + "dimensions.pkl"
     screen_dimensions_path = Path(screen_dimensions_path)
 

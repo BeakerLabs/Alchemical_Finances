@@ -1,0 +1,11 @@
+<h1>Archive</h1>
+<h3>What?</h3>
+<p>The <strong>Archive</strong> can be found under the <strong>Tools</strong> drop-down menu. This is where closed accounts can be housed to maintain a record of your financial history. From this ledger you can review past transactions and receipts from archived accounts of all types. &nbsp;As you are not able to submit new or alter old transactions in these accounts. The archive is meant as a static history.</p>
+<p>Even though an account is not active the history can be useful to keep available in the short term. These ledgers are a storage device that can be visited to read and view past receipts for confirmation of past transactions.</p>
+<p>Additionally, as <em>Alchemical Finances</em> evolves the past transactional history will be rolled into the budgeting system. This will allow you to peer into your past to review your old habits. Once deleted the data will not be available for analysis.</p>
+<h3>Graphs will appear while archived.</h3>
+<p><em>*TBD* -- Currently the graphs will remain active. This may be changed to quarantine them, incase of reactivation. </em></p>
+<h3>Restore Account</h3>
+<p>Incase an account was archived in error, or was re-opened, the option remains to unarchive that account. This will return the account to its associated parent type ledger for normal use, or to correct old errors found within the records. It is always recommended that notes be made when changes to archived accounts are made.</p>
+<h3>Delete Account</h3>
+<p><span style="color: #ff0000;"><strong>Any archived account can also be permanently deleted from your account. This will remove all records from <em>Alchemical Finances. </em>All receipts will be permanently deleted from your system if an account is deleted.</strong></span></p>

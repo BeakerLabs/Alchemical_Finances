@@ -4,12 +4,13 @@
 #  contact@beakerlabstech.com
 
 import os
-import pickle
 import sys
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtGui import QPixmap
 from win32api import GetMonitorInfo, MonitorFromPoint
+
+from Toolbox.OS_Tools import obtain_screen_dimensions
 
 
 class Ui_WelcomeMessage(object):
@@ -19,10 +20,7 @@ class Ui_WelcomeMessage(object):
         Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         # Obtain and use the monitor screen to determine the size of the dialog box
-        screen_dimensions_file = open("Resources/dimensions.pkl", "rb")
-        screen_dimensions = pickle.load(screen_dimensions_file)
-        screen_dimensions_file.close()
-
+        screen_dimensions, _ = obtain_screen_dimensions()
         work_area = screen_dimensions
 
         size_factor = 0.25
@@ -73,7 +71,7 @@ class Ui_WelcomeMessage(object):
 
         # Row 1 -- Label for Welcome message
         self.vlr1 = QtWidgets.QVBoxLayout()
-        self.vlr1.setObjectName("hlr1")
+        self.vlr1.setObjectName("vlr1")
         # Row, Column, RowSpan, ColSpan
         self.gridLayout.addLayout(self.vlr1, 1, 1, 1, 4, alignment=QtCore.Qt.Alignment())
 

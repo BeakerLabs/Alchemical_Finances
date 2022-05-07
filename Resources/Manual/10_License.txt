@@ -1,0 +1,8 @@
+<h1>License</h1>
+<p><em>Alchemical Finances </em>was developed using the <strong>GNU LESSER GENERAL PUBLIC LICENSE</strong> Version 3, 29 June 2007 [GNU LGPLv3.0]. As such the development code is and always will be available via a github repository.</p>
+<p><span style="color: #3366ff;"><strong><a style="color: #3366ff;" href="https://github.com/BeakerLabs/Alchemical_Finances">https://github.com/BeakerLabs/Alchemical_Finances</a></strong></span></p>
+<p>Access to the text of the GNU LGPLv3.0 license will be found under the <strong>Other </strong>drop-down menu and in the github repository.</p>
+<p><em>Alchemical Finances </em>is actively developed as an open-source software project. I welcome the community to help build this project into something grander than I can ever imagine on my own.</p>
+<p><em>Alchemical Finances </em>was developed using Pyside6 from the Qt Company which has also product and distributed their software under the GNU LGPLv3.0 license. The above-mentioned GitHub repository does not include or alter the source Pyside6 software. The best way to obtain the software if through the use of the Python pip system.</p>
+<p>For additional information about the Pyside6 license please refer to the following website: <span style="color: #3366ff;"><strong><a style="color: #3366ff;" href="https://doc.qt.io/qtforpython/licenses.html">https://doc.qt.io/qtforpython/licenses.html</a></strong></span></p>
+<p>Additionally, as with Pyside6 any other repositories used in the development of <em>Alchemical Finances</em> no source software or intellectual properties were modified. None of these repositories are included in the GitHub directly and would need to be obtain via their respective owners.</p>

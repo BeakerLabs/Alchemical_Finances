@@ -21,7 +21,7 @@ from Backend.ReceiptViewer import Receipt
 from Toolbox.AF_Tools import disp_LedgerV1_Table, disp_LedgerV2_Table, generate_statement_months
 from Toolbox.Formatting_Tools import remove_space
 from Toolbox.OS_Tools import file_destination, obtain_storage_dir
-from Toolbox.SQL_Tools import execute_sql_statement_list, move_sql_tables, obtain_sql_value, obtain_sql_list
+from Toolbox.SQL_Tools import execute_sql_statement_list, move_row_sql_tables, obtain_sql_value, obtain_sql_list
 
 
 class Archive(QDialog):
@@ -84,7 +84,7 @@ class Archive(QDialog):
         self.fill_combobox(self.ui.comboBStatements, "Statement")
 
     def delete_account(self):
-        ledger_name = self.widgetlist[0].currentText()
+        ledger_name = self.ui.comboBAccounts.currentText()
         modified_ledger_name = remove_space(ledger_name)
 
         parentType_statement = f"SELECT ParentType FROM Account_Archive WHERE ID='{ledger_name}'"
@@ -95,14 +95,20 @@ class Archive(QDialog):
         delete_message = "Selecting 'YES' will permanently delete this account and all associated information"
         confirm = QMessageBox.warning(self, 'Confirm', delete_message, QMessageBox.Yes, QMessageBox.No)
 
-        receipt_directory_path = Path.cwd() / 'Receipts' / parentType_value / modified_ledger_name
-
         if confirm == QMessageBox.Yes:
             delete_archive = f"DELETE FROM Account_Archive WHERE ID = '{ledger_name}'"
             delete_details = f"DELETE FROM {details_table} WHERE Account_Name ='{ledger_name}'"
             delete_ledger = f"DROP TABLE IF EXISTS {modified_ledger_name}"
-            execute_sql_statement_list([delete_archive, delete_details, delete_ledger], self.refUserDB, self.error_Logger)
-            shutil.rmtree(receipt_directory_path)
+            dropAccountWorth = f"ALTER TABLE AccountWorth DROP COLUMN {modified_ledger_name}"
+            delete_statement = f"INSERT INTO DeletePending VALUES({modified_ledger_name}, {parentType_value})"
+
+            statement_lst = [delete_archive,
+                             delete_details,
+                             delete_ledger,
+                             dropAccountWorth,
+                             delete_statement]
+            execute_sql_statement_list(statement_lst, self.refUserDB, self.error_Logger)
+
             self.ui.comboBAccounts.clear()
             self.ui.comboBStatements.clear()
             self.fill_combobox(self.ui.comboBAccounts, "Account")
@@ -195,7 +201,7 @@ class Archive(QDialog):
             pass
 
     def restore_account(self):
-        move_sql_tables("Account_Summary", "Account_Archive", "ID", self.ui.comboBAccounts.currentText(), self.refUserDB, self.error_Logger)
+        move_row_sql_tables("Account_Summary", "Account_Archive", "ID", self.ui.comboBAccounts.currentText(), self.refUserDB, self.error_Logger)
         self.ui.comboBAccounts.clear()
         self.ui.comboBStatements.clear()
         self.fill_combobox(self.ui.comboBAccounts, "Account")

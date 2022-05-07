@@ -25,14 +25,25 @@ QLineEdit{
     border-radius: 8px;
 }
 
-QLineEdit:Disabled{
+QLineEdit:disabled{
     border: 1px solid #748b75;
     background-color: rgba(163, 163, 163, 0.4);
 }
 
 QListWidget{
+    background-color: #FAFAFA;
     border: 1px solid #414E41;
     border-radius: 2px;
+}
+
+QListWidget:item{
+    height: 35px;
+}
+
+QListWidget:item:selected{
+    color: #000000;
+    font: bold 14px;
+    background-color: #BEDF7C;
 }
 
 QTextEdit{
@@ -65,8 +76,8 @@ QPushButton:hover{
     border: 2px solid #414E41;
     background-color: #BEDF7C;
     background: qlineargradient(x1: 0, y1: 0, x2: 0 y2: 1,
-                            stop: 0 #BEDF7C, stop: 0.4 #B4D969,
-                            stop: 0.5 #AFD06D, stop: 0.1 #B8D774);
+                                stop: 0 #BEDF7C, stop: 0.4 #B4D969,
+                                stop: 0.5 #AFD06D, stop: 0.1 #B8D774);
     padding: 2px;
     padding-right: 15px;
     padding-left: 15px;

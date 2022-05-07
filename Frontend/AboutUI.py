@@ -11,6 +11,8 @@ import sys
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtGui import QPixmap
 
+from Toolbox.OS_Tools import obtain_screen_dimensions
+
 
 class Ui_AboutScreen(object):
     def setupUi(self, Dialog):
@@ -19,10 +21,7 @@ class Ui_AboutScreen(object):
         Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         # Obtain and use the monitor screen to determine the width of the dialog box
-        screen_dimensions_file = open("Resources/dimensions.pkl", "rb")
-        screen_dimensions = pickle.load(screen_dimensions_file)
-        screen_dimensions_file.close()
-
+        screen_dimensions, _ = obtain_screen_dimensions()
         work_area = screen_dimensions[1]
 
         size_factor = 0.50

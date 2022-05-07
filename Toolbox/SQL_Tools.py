@@ -3,10 +3,8 @@
 #  www.BeakerLabsTech.com
 #  contact@beakerlabstech.com
 
-import os
 import pickle
 import sqlite3
-import sys
 
 from sqlite3 import Error
 
@@ -205,7 +203,7 @@ def obtain_sql_list(statement: str, database: str, error_log):
         return rValue
 
 
-def move_sql_tables(destination: str, origin: str, identifier: str, target: str, database: str, error_log):
+def move_row_sql_tables(destination: str, origin: str, identifier: str, target: str, database: str, error_log):
     """ Move value(s) between sqlite3 tables. Deletes original input """
 
     insert_statement = f"INSERT INTO {destination} SELECT * FROM {origin} WHERE {identifier} ='{target}'"

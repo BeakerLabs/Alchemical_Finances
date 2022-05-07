@@ -1,0 +1,120 @@
+<h1>Ledger Functionality</h1>
+<p>The design and functionality of each ledger is intended to feel intuitive and natural. Once you understand how to input a transaction for one account type the others should fall into place. As they all follow the same concept with some minor differences. The information that follows will use the <strong><em>Bank</em></strong> account ledger as an example.</p>
+<h3>Create New Account:</h3>
+<ul>
+<li>Select <strong>[Modify]</strong> at the top of ledger screen. Position to the right of the Active Account drop-down menu.</li>
+<li>The Account dialog box will open on the screen.</li>
+<li>Select <strong>[New]</strong> on the Account dialog box and fill out the account information.
+<ul>
+<li>Account Name</li>
+<li>Account Type</li>
+<li>Primary Owner</li>
+<li>Bank</li>
+<li>Statement Date</li>
+<li>Intertest Rate</li>
+<li><em>*These values may change for other types</em></li>
+</ul>
+</li>
+<li>Select <strong>[Submit]</strong></li>
+<li>Press <strong>[X]</strong> to exit the Accounts dialog box.</li>
+</ul>
+<h3>Edit, Archive, or Delete Account:</h3>
+<p>In addition to creating accounts, on the Account dialog box, you have the option to do one of three other actions:</p>
+<ol>
+<li>Edit &ndash; Change the account information.</li>
+<li>Archive &ndash; Deactivate an account and save it for reference.</li>
+<li>Delete &ndash; Remove the ledger and all associated information.
+<ol style="list-style-type: lower-alpha;">
+<li><span style="color: #ff0000;"><strong>This will trigger the account to save its current state. As all associated receipts will be deleted along with the ledger. </strong></span></li>
+</ol>
+</li>
+</ol>
+<h3>Create Spending Categories:</h3>
+<ul>
+<li>Each Parent Type has their own list of Spending Categories. Unique to their type of use avoiding clutter for a parent type that may have less activity.</li>
+<li>Select <strong>[Modify]</strong> next to the Category drop down menu.</li>
+<li>In the Spending Categories dialog box do one of the following four actions
+<ul>
+<li>New</li>
+<li>Edit</li>
+<li>Replace*</li>
+<li>Delete**</li>
+</ul>
+</li>
+<li><em>To Edit, Replace or Delete, make sure to have that input selected prior to selecting that button. As that it will determine the target value.</em></li>
+</ul>
+<p style="padding-left: 40px;"><em>* Replace will remove the initial input value for a new one and update instances of that value existing in the ledgers associated with that parent type already. If the new one is a duplicate it will change the old value to the new value without creating a duplicate input.</em></p>
+<p style="padding-left: 40px;"><em>** Delete will remove the option from the list but <u>will not remove the value from the ledgers.</u> The action will double check but selecting a transaction with a missing input will create an error.</em></p>
+<h3>Uploading a Receipt</h3>
+<p>The input line for the receipt file name is purposely deactivated. As those values are automatically determined by Alchemical Finances. You can always download copies of the uploaded files for quick access.</p>
+<p>There are four different actions that can be taken specifically on the Receipt</p>
+<ul>
+<li>
+<h4>Upload</h4>
+<ul>
+<li>Select an image or pdf file to upload as a receipt.</li>
+</ul>
+</li>
+<li>
+<h4>Display</h4>
+<ul>
+<li>Image &ndash; An internal image viewer will appear for you to review the selected receipt</li>
+<li>PDF &ndash; The OS System PDF viewer will load the document for review.</li>
+</ul>
+</li>
+<li>
+<h4>Clear</h4>
+<ul>
+<li>Clear the input from the receipt from the system. It will not delete the file if it is a duplicate file, but clear the input</li>
+</ul>
+</li>
+<li>
+<h4>Delete</h4>
+<ul>
+<li>This will ask for the row of the visible ledger to delete a receipt from. Unlike clear this value doesn&rsquo;t have to be currently selected.</li>
+</ul>
+</li>
+</ul>
+<p><strong><em>Changes cannot be made to the uploaded receipts. You will have to delete and reupload them for those changes to take effect. </em></strong></p>
+<h3>Adding New Transaction</h3>
+<p>Prior to selecting the <strong>[Add Transaction]</strong> button above the ledger be sure to fill out the inputs in the middle of the ledger screen.</p>
+<p>While not all inputs are required, most are recommended as the more information you provide yourself the easier it will be to understand what the transaction is for. The goal is not only to tally transactions but understand where your money is coming from and going. This will help you identify good and bad habits.</p>
+<ul>
+<li><strong>Required Inputs</strong>
+<ul>
+<li>Date</li>
+<li>Description</li>
+<li>Category</li>
+<li>Status</li>
+</ul>
+</li>
+<li><strong>Optional Inputs</strong>
+<ul>
+<li>Method</li>
+<li>Debit*</li>
+<li>Credit*</li>
+<li>Additional Notes</li>
+<li>Receipt</li>
+</ul>
+</li>
+</ul>
+<p>* <em>Debit or Credit can both be left blank for zero-dollar transactions. Just avoid providing values to both at the same time.</em></p>
+<p>The formatting for the different inputs is controlled natively. A warning box will appear when an input is formatting improperly. Check the following possibilities:</p>
+<ol>
+<li>An unwanted symbol is present in an input value.</li>
+<li>A restricted word is being used in solo. (ie. Check)</li>
+<li>A Debit and Credit value are being provided at the same time.</li>
+</ol>
+<h3>Selecting existing Transaction</h3>
+<p>An input box will appear asking you which transaction you would like to select. You can only select transactions that are visible on the ledger at the time of selection. Navigate to past transactions using the Statement Period drop down menu located on the upper left hand side of the ledger.</p>
+<p><em>The Statement period will be formatted as MMMM DD, YYYY (January 01, 2022) unlike the transactions date that is displayed at MM/DD/YYYY (01/01/2022).</em></p>
+<h3>Updating existing Transaction</h3>
+<p>To correct a mistake or change a transaction from <u>Pending</u> to <u>Posted</u> you will want to follow the following steps</p>
+<ol>
+<li>Select <strong>[Select]</strong> and choosing the transaction of interest</li>
+<li>Change the input as necessary</li>
+<li>Select <strong>[Update]</strong> and choose the original transaction from the ledger.</li>
+</ol>
+<p><em>You can overwrite an existing transaction by accident. The program will ask are you sure prior to committing the change. Just make sure you are careful prior to submitting a transaction.</em></p>
+<h3>Deleting existing Transaction</h3>
+<p>The software will ask you which transaction you would like to delete from the visible ledger.</p>

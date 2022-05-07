@@ -9,6 +9,8 @@ import sys
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
+from Toolbox.OS_Tools import obtain_screen_dimensions
+
 
 class Ui_Ledger1(object):
     def __init__(self, ParentType):
@@ -22,9 +24,7 @@ class Ui_Ledger1(object):
         Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))  # Consider hiring an artist to make different icons for different account types
 
         # Dialog size
-        screen_dimensions_file = open("Resources/dimensions.pkl", "rb")
-        screen_dimensions = pickle.load(screen_dimensions_file)
-        screen_dimensions_file.close()
+        screen_dimensions, _ = obtain_screen_dimensions()
 
         work_area = screen_dimensions[1]
 

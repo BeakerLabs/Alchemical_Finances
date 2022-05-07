@@ -1,0 +1,26 @@
+<h1>Quick Start</h1>
+<p>Version 0.5.7</p>
+<p>If you would like to hit the ground running and not read, the full manual provided here. Use the following steps for a quick start guide.</p>
+<p><strong>Set-up Profile:</strong> Provide your name and email address to the <strong><em>User Profile</em></strong> to close the tab.</p>
+<h3><strong>Start Ledger: </strong></h3>
+<ol>
+<li>Select Bank from under the Asset drop-down menu.</li>
+<li>Select <strong>[Modify]</strong> at the top of the Bank ledger screen. Positioned to the right of the Active Account drop-down menu.</li>
+<li>The Account dialog box will open on the screen.</li>
+<li>Select <strong>[New]</strong> on the Account dialog box and fill out the account information.</li>
+<li><strong>[Submit]</strong> the account</li>
+<li>Close the Accounts dialog box, using the <strong>[X]</strong> button.</li>
+<li>The new account is now active to submit transactions.</li>
+<li>To add new Categories, use the <strong>[Modify]</strong> button located to the left of the drop-down menu.</li>
+<li>Make sure to change the transaction to Posted from Pending for the information to be reflect in the account balance.</li>
+<li>All Asset and Liability ledgers using the same basic structure though there are differences between the different accounts.</li>
+</ol>
+<h3><strong>Equity API:</strong></h3>
+<ol>
+<li>Read the API section of the manual for full details.</li>
+<li>Currently only the Tiingo Equity API is active.</li>
+<li>Crytpo is currently on hiatus, but will be developed.</li>
+<li>Request via <span style="color: #3366ff;"><strong><em>Contact@beakerlabstech.com</em></strong></span> for other API to be added to future versions of the software.</li>
+</ol>
+<p>You are now off to the races. Please refer to the rest of the manual for more detail with explanations behind how things function in Alchemical Finances. Go to <span style="text-decoration: underline;"><em>5. First Ledge</em></span>r for more detail on account construction.</p>
+<p><span style="color: #ff0000;"><strong>This Manual is a living document. As&nbsp;<em>Alchemical Finances</em> is developed functionality will be refined and things will change. While an honest attemp to keep this manual relevant will be made. Please understand this may not happen with every update.</strong></span></p>

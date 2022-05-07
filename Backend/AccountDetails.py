@@ -4,10 +4,10 @@
 #  contact@beakerlabstech.com
 
 import os
-import shutil
 import sys
 
 from PySide6.QtWidgets import QDialog, QMessageBox, QListWidgetItem
+from PySide6 import QtCore
 
 from Frontend.AccountsUi import Ui_Accounts
 
@@ -21,10 +21,12 @@ from Toolbox.AF_Tools import fill_widget
 from Toolbox.Error_Tools import check_characters, check_numerical_inputs, find_character, first_character_check
 from Toolbox.Formatting_Tools import decimal_places, remove_space
 from Toolbox.OS_Tools import file_destination, obtain_storage_dir
-from Toolbox.SQL_Tools import move_sql_tables, check_for_data, delete_column, obtain_sql_value, execute_sql_statement_list, specific_sql_statement, sqlite3_keyword_check
+from Toolbox.SQL_Tools import move_row_sql_tables, check_for_data, delete_column, obtain_sql_value, execute_sql_statement_list, specific_sql_statement, sqlite3_keyword_check
 
 
 class AccountsDetails(QDialog):
+    save_signal = QtCore.Signal(str)
+
     def __init__(self, dbName, parentType, user, ledgerContainer, error_Log):
         super().__init__()
         self.ui = Ui_Accounts()
@@ -158,7 +160,9 @@ class AccountsDetails(QDialog):
         if self.ui.listWidgetAccount.currentItem() is None:
             pass
         else:
-            move_sql_tables("Account_Archive", "Account_Summary", "ID", self.ui.listWidgetAccount.currentItem().text(), self.refUserDB, self.error_Logger)
+            accountName = self.ui.self.ui.listWidgetAccount.currentItem().text()
+            sql_accountName = remove_space(accountName)
+            move_row_sql_tables("Account_Archive", "Account_Summary", "ID", accountName, self.refUserDB, self.error_Logger)
             self.ui.listWidgetAccount.clear()
             fill_widget(self.ui.listWidgetAccount, self.listWidget_Statement, True, self.refUserDB, self.error_Logger)
             self.clear_widgets()
@@ -242,20 +246,11 @@ class AccountsDetails(QDialog):
                 pass
 
     def delete_account(self):
-        question = f"Are you sure you want to delete {self.ui.listWidgetAccount.currentItem().text()}?"
+        question = f"Are you sure you want to delete {self.ui.listWidgetAccount.currentItem().text()}?\nAll associated data and receipts will be permanently deleted. (Upon Save)"
         reply = QMessageBox.question(self, "Confirmation", question, QMessageBox.Yes, QMessageBox.No)
         if reply == QMessageBox.Yes:
             target_account = self.ui.lEditAN.text()
             self.delete_account_sql(target_account)
-
-            sqlCurrentLedgerName = remove_space(target_account)
-            obsolete_dir_path = file_destination(['Alchemical Finances', 'Receipts', self.refUser, self.parentType, sqlCurrentLedgerName], starting_point=self.storage_dir)
-            obsolete_dir_str = str(obsolete_dir_path)
-            try:
-                shutil.rmtree(obsolete_dir_str)
-            except OSError:
-                error_string = f"Window's Denied Actions. Manual action required once program is closed.\n"
-                self.error_Logger.error(error_string, exc_info=True)
 
             update_df_ledger(self.ledgerContainer, target_account, self.error_Logger, activeLedger=None, action="Delete")
 
@@ -268,20 +263,27 @@ class AccountsDetails(QDialog):
             pass
 
     def delete_account_sql(self, accountName):
-        modifiedAN = remove_space(accountName)
+        """To Avoid permanent deletion of receipts until user commits an account save. The account will be removed superficially until a save is performed. The SQL database is a temp file.
+        so if the user doesn't save all of that informationm will be restored from the last save state. The idea of an auto save function running in the background has been floated. However,
+         this is currently not planned. As developed moved away from original auto save functionality of an SQL Database."""
+        sql_accountName = remove_space(accountName)
+
         deleteDetails = f"DELETE FROM {self.accountDetailsTable} WHERE Account_Name ='{accountName}'"
         deleteSummary = f"DELETE FROM Account_Summary WHERE ID ='{accountName}'"
-        dropLedger = f"DROP TABLE IF EXISTS {modifiedAN}"
+        dropLedger = f"DROP TABLE IF EXISTS {sql_accountName}"
+        dropAccountWorth = f"ALTER TABLE AccountWorth DROP COLUMN {sql_accountName}"
+        delete_statement = f"INSERT INTO DeletePending VALUES({sql_accountName}, {self.parentType})"
 
-        statement_list = [deleteDetails, deleteSummary, dropLedger]
+        statement_list = [deleteDetails,
+                          deleteSummary,
+                          dropLedger,
+                          dropAccountWorth,
+                          delete_statement]
+
         execute_sql_statement_list(statement_list, self.refUserDB, self.error_Logger)
 
-        # Deletes the Account Worth over time column
-        delete_column("AccountWorth", modifiedAN, self.refUserDB, self.error_Logger)
-
-        # Deletes Contribution total over time column
         if self.parentType in ["Equity", "Retirement"]:
-            delete_column("ContributionTotals", modifiedAN, self.refUserDB, self.error_Logger)
+            delete_column("ContributionTotals", sql_accountName, self.refUserDB, self.error_Logger)
 
     def edit_account(self):
         self.toggle_widgets(True)
@@ -290,6 +292,7 @@ class AccountsDetails(QDialog):
         self.ui.pBEditSubmit.setEnabled(True)
         self.ui.pBEditSubmit.setHidden(False)
         self.ui.pBModify.setEnabled(True)
+        self.ui.lEditAN.setFocus()
 
     def error_checking(self, purpose):
         accountName = self.ui.lEditAN.text()
@@ -461,6 +464,7 @@ class AccountsDetails(QDialog):
         self.ui.pBEditSubmit.setEnabled(False)
         self.ui.pBEditSubmit.setHidden(True)
         self.ui.pBModify.setEnabled(True)
+        self.ui.lEditAN.setFocus()
         self.clear_widgets()
 
     def submit_account(self):
@@ -609,6 +613,7 @@ class AccountsDetails(QDialog):
             self.ui.lEditV1.setEnabled(switch)
             self.ui.lEditV2.setEnabled(switch)
             self.ui.comboboxState.setEnabled(switch)
+            self.ui.lEZipCode.setEnabled(switch)
             self.ui.lEZipCode.setEnabled(switch)
 
     def type_modifier(self):

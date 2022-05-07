@@ -4,10 +4,11 @@
 #  contact@beakerlabstech.com
 
 import os
-import pickle
 import sys
 
 from PySide6 import QtCore, QtGui, QtWidgets
+
+from Toolbox.OS_Tools import obtain_screen_dimensions
 
 class Ui_Archive(object):
     def setupUi(self, Dialog):
@@ -17,10 +18,7 @@ class Ui_Archive(object):
         Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         # Dialog size
-        screen_dimensions_file = open("Resources/dimensions.pkl", "rb")
-        screen_dimensions = pickle.load(screen_dimensions_file)
-        screen_dimensions_file.close()
-
+        screen_dimensions, _ = obtain_screen_dimensions()
         work_area = screen_dimensions[1]
 
         size_factor = 0.50
@@ -136,15 +134,6 @@ class Ui_Archive(object):
         self.pBRestore.setFixedWidth(150)
         self.hBLayout2.addWidget(self.pBRestore)
 
-        self.pBDisplayReceipt = QtWidgets.QPushButton()
-        self.pBDisplayReceipt.setObjectName("pB")
-        self.pBDisplayReceipt.setText("Display Receipt")
-        self.pBDisplayReceipt.setFont(pushButton_font)
-        self.pBDisplayReceipt.setSizePolicy(pushButton_sizePolicy)
-        self.pBDisplayReceipt.setFixedHeight(30)
-        self.pBDisplayReceipt.setFixedWidth(150)
-        self.hBLayout2.addWidget(self.pBDisplayReceipt)
-
         self.pBDelete = QtWidgets.QPushButton()
         self.pBDelete.setObjectName("pB")
         self.pBDelete.setText("Delete")
@@ -153,6 +142,15 @@ class Ui_Archive(object):
         self.pBDelete.setFixedHeight(30)
         self.pBDelete.setFixedWidth(150)
         self.hBLayout2.addWidget(self.pBDelete)
+
+        self.pBDisplayReceipt = QtWidgets.QPushButton()
+        self.pBDisplayReceipt.setObjectName("pB")
+        self.pBDisplayReceipt.setText("Display Receipt")
+        self.pBDisplayReceipt.setFont(pushButton_font)
+        self.pBDisplayReceipt.setSizePolicy(pushButton_sizePolicy)
+        self.pBDisplayReceipt.setFixedHeight(30)
+        self.pBDisplayReceipt.setFixedWidth(150)
+        self.hBLayout2.addWidget(self.pBDisplayReceipt)
 
         self.hVSpacer1 = QtWidgets.QSpacerItem(adjusted_width/6, 30, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.hBLayout2.addItem(self.hVSpacer1)

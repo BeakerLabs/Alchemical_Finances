@@ -4,10 +4,11 @@
 #  contact@beakerlabstech.com
 
 import os
-import pickle
 import sys
 
 from PySide6 import QtCore, QtGui, QtWidgets
+
+from Toolbox.OS_Tools import obtain_screen_dimensions
 
 
 class Ui_Summary(object):
@@ -18,10 +19,7 @@ class Ui_Summary(object):
         Dialog.setWindowIcon(QtGui.QIcon('Resources/AF Logo.png'))
 
         # Obtain and use the monitor screen to determine with width of the dialog box
-        screen_dimensions_file = open("Resources/dimensions.pkl", "rb")
-        screen_dimensions = pickle.load(screen_dimensions_file)
-        screen_dimensions_file.close()
-
+        screen_dimensions, _ = obtain_screen_dimensions()
         work_area = screen_dimensions[1]
 
         size_factor = 0.50

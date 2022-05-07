@@ -4,6 +4,7 @@
 #  contact@beakerlabstech.com
 
 import os
+import pickle
 import platform
 import sys
 
@@ -62,6 +63,18 @@ def obtain_storage_dir():
         # Will need to return to this to develop for Mac and Linux
 
     return user_pathway
+
+
+def obtain_screen_dimensions():
+    user_pathway = obtain_storage_dir()
+    screen_dimensions_path = file_destination(dir_name_lst=['Alchemical Finances', 'data', 'account'], starting_point=user_pathway)
+    screen_dimensions_path = screen_dimensions_path + "dimensions.pkl"
+    screen_dimensions_path = Path(screen_dimensions_path)
+
+    screen_dimensions_file = open(screen_dimensions_path, "rb")
+    screen_dimensions = pickle.load(screen_dimensions_file)
+    screen_dimensions_file.close()
+    return screen_dimensions, screen_dimensions_path
 
 
 if __name__ == "__main__":
