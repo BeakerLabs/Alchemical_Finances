@@ -44,7 +44,9 @@ class Profile(QDialog):
         name_statement = f"SELECT FirstName, LastName FROM Users WHERE Profile='{self.refUser}'"
         name_raw = obtain_sql_list(name_statement, self.dbPathway, self.error_Logger)
         name = name_raw[0]
-        nameText = f"{name[0]} {name[1]}"
+        first_name = "" if name[0] is None else name[0]
+        last_name = "" if name[1] is None else name[1]
+        nameText = f"{first_name} {last_name}"
         self.ui.lEditUserName.setText(nameText)
 
         email_Statement = f"SELECT Email FROM Users WHERE Profile='{self.refUser}'"

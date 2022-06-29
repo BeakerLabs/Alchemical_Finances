@@ -138,6 +138,25 @@ def update_df_balance(activeLedger):
 
     return activeLedger
 
+def contribution_balance(activeLedger):
+    running_credit_balance = 0
+    running_debit_balance = 0
+    df_row_count = activeLedger.shape[0]
+    df_row_count = int(df_row_count)
+    activeLedger = activeLedger.sort_values(by=['Transaction_Date', 'Update_Date'], ascending=True)
+    activeLedger = activeLedger.reset_index(drop=True)
+
+    for row in range(0, df_row_count):
+        debit = convert_to_float(activeLedger.iloc[row]['Debit'])
+        running_debit_balance += debit
+        credit = convert_to_float(activeLedger.iloc[row]['Credit'])
+        running_credit_balance += credit
+
+    difference = str(running_credit_balance - running_debit_balance)
+    contribution_total = decimal_places(difference, 2)
+
+    return contribution_total
+
 
 if __name__ == "__main__":
     sys.tracebacklimit = 0

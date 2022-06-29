@@ -93,12 +93,11 @@ class ProgressThread(QObject):
 
     def ProcessRunner(self):
         while self.connected:
+            self.delete_account_receipts()
             try:
                 conn = sqlite3.connect(self.refuserDB)
                 with conn:
                     for account in self.ledger_dictionary:
-                        self.delete_account_receipts()
-
                         self.labelSignal.emit(account)
                         self.count += 1
                         print(f"Saved: {self.count}/{self.ledger_count} -- [{account}]")

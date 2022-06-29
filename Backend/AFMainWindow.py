@@ -23,7 +23,7 @@ from StyleSheets.MainWindowCSS import mainWindow
 
 from Backend.About import AboutProgram
 from Backend.ArchiveLedger import Archive
-from Backend.DataFrame import create_DF_dict, load_df_ledger
+from Backend.DataFrame import contribution_balance, create_DF_dict, load_df_ledger
 from Backend.EquityUpdate import obtain_equity_prices
 from Backend.Ledger1 import LedgerV1
 from Backend.Ledger2 import LedgerV2
@@ -307,13 +307,12 @@ class AFBackbone(QMainWindow):
         event.ignore()
         self.log_netWorth("Logout")
 
-        if self.saveToggle:
-            event.accept()
-        else:
+        if not self.saveToggle:
             self.save_database(close=True)
-            os.remove(self.refUserDB)
-            os.remove(self.ledger_container)
-            event.accept()
+
+        os.remove(self.refUserDB)
+        os.remove(self.ledger_container)
+        event.accept()
 
     def switch_tab(self, switch: str):
         type1 = ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit", "Property"]
@@ -474,16 +473,16 @@ class AFBackbone(QMainWindow):
         for account in target_accounts_raw:
             account = account[0]
             sql_account = remove_space(account)
-            contribution_statement = f"SELECT SUM(Credit - Debit) FROM '{sql_account}'"
-            contribution_sum_raw = obtain_sql_value(contribution_statement, self.refUserDB, self.error_Logger)
 
-            if contribution_sum_raw[0] is None:
+            account_df = load_df_ledger(self.ledger_container, account)
+            contribution_sum_raw = contribution_balance(account_df)
+
+            if contribution_sum_raw is None:
                 contribution_sum_checked = 0
             else:
-                contribution_sum_checked = contribution_sum_raw[0]
+                contribution_sum_checked = contribution_sum_raw
 
             contribution_sum = str(decimal_places(contribution_sum_checked, 2))
-
             insert_contribution = f"UPDATE ContributionTotals SET '{sql_account}'={contribution_sum} WHERE Date='{instanceDate}'"
             specific_sql_statement(insert_contribution, self.refUserDB, self.error_Logger)
 
@@ -547,11 +546,13 @@ class AFBackbone(QMainWindow):
             else:  # "Today"
                 if entryPoint != "Logout":
                     self.update_equity(today)
+                    self.log_contributions("Update", today)
 
                 if target[2] == "Update":
                     data = set_networth(self.refUserDB, self.error_Logger, toggleformatting=False)
                     update_statement = f"UPDATE NetWorth SET Gross='{data[0]}', Liabilities='{data[1]}', Net='{data[2]}' WHERE Date='{today}'"
                     specific_sql_statement(update_statement, self.refUserDB, self.error_Logger)
+                    self.log_contributions("Update", today)
 
                 else:  # "Insert"
                     data = set_networth(self.refUserDB, self.error_Logger, toggleformatting=False)
@@ -559,13 +560,14 @@ class AFBackbone(QMainWindow):
                     specific_sql_statement(insert_today_statement, self.refUserDB, self.error_Logger)
                     insertDate_accountWorth_table = f"INSERT INTO AccountWorth(Date) VALUES('{today}')"
                     specific_sql_statement(insertDate_accountWorth_table, self.refUserDB, self.error_Logger)
+                    self.log_contributions("Insert", today)
 
                 account_balances_raw = obtain_sql_list(account_balances_statement, self.refUserDB, self.error_Logger)
                 for account in account_balances_raw:
                     update_account_statement = f"UPDATE AccountWorth SET '{remove_space(account[0])}'='{account[1]}' WHERE Date='{today}'"
                     specific_sql_statement(update_account_statement, self.refUserDB, self.error_Logger)
 
-                self.log_contributions("Update", today)
+
                 print(f"Finances {target[2]} for today: {today}")
 
     def update_equity(self, targetDate: str):
@@ -650,6 +652,12 @@ class AFBackbone(QMainWindow):
             net = remove_comma(netWorth[1][5:-1])
             update_statement = f"UPDATE NetWorth SET Gross='{gross}', Liabilities='{liability}', Net='{net}' WHERE Date='{self.today}'"
             specific_sql_statement(update_statement, self.refUserDB, self.error_Logger)
+
+            # Refresh Contirbution Totals
+            from datetime import datetime, timedelta
+            today = datetime.now()
+            today = today.strftime("%Y/%m/%d")
+            self.log_contributions("Update", today)
 
             # Trigger graph refrish
             if "OTG" in self.tabdic:
