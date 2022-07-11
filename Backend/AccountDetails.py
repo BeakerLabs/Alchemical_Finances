@@ -9,6 +9,7 @@ import sys
 from PySide6.QtWidgets import QDialog, QMessageBox, QListWidgetItem
 from PySide6 import QtCore
 
+from datetime import datetime, timedelta
 from Frontend.AccountsUi import Ui_Accounts
 
 from StyleSheets.ErrorCSS import generalError
@@ -91,6 +92,16 @@ class AccountsDetails(QDialog):
                         f" Status TEXT, Receipt TEXT, Post_Date NUMERIC, Update_Date NUMERIC)"
         accountWorth = f"ALTER TABLE AccountWorth ADD COLUMN '{modifiedAN}' TEXT"
 
+        today = datetime.now()
+        today = datetime.strftime(today, "%Y/%m/%d")
+        yesterday = datetime.strptime(today, "%Y/%m/%d") - timedelta(1)
+        yesterday = datetime.strftime(yesterday, "%Y/%m/%d")
+
+        accountWorthToday = f"UPDATE AccountWorth SET '{modifiedAN}'=('0.00') WHERE Date='{yesterday}'"
+        accountWorthYest = f"UPDATE AccountWorth SET '{modifiedAN}'=('0.00') WHERE Date='{today}'"
+
+
+
         if self.parentType in variant1:
             accountDetails = "INSERT INTO " + self.accountDetailsTable + \
                              " VALUES('" + self.ui.lEditAN.text() + \
@@ -150,7 +161,7 @@ class AccountsDetails(QDialog):
                              "', '" + self.ui.lEditB.text() + \
                              "', '" + str(self.ui.spinBStatement.value()) + "')"
 
-        statement_list = [accountDetails, accountLedger, accountSummary, accountWorth]
+        statement_list = [accountDetails, accountLedger, accountSummary, accountWorth, accountWorthToday, accountWorthYest]
         execute_sql_statement_list(statement_list, self.refUserDB, self.error_Logger)
 
         new_account_df = create_DF(accountName, self.refUserDB, self.error_Logger)
@@ -246,7 +257,7 @@ class AccountsDetails(QDialog):
                 pass
 
     def delete_account(self):
-        question = f"Are you sure you want to delete {self.ui.listWidgetAccount.currentItem().text()}?\nAll associated data and receipts will be permanently deleted. (Upon Save)"
+        question = f"Are you sure you want to delete {self.ui.listWidgetAccount.currentItem().text()}?\nAll associated data and receipts will be permanently deleted."
         reply = QMessageBox.question(self, "Confirmation", question, QMessageBox.Yes, QMessageBox.No)
         if reply == QMessageBox.Yes:
             target_account = self.ui.lEditAN.text()
@@ -264,7 +275,7 @@ class AccountsDetails(QDialog):
 
     def delete_account_sql(self, accountName):
         """To Avoid permanent deletion of receipts until user commits an account save. The account will be removed superficially until a save is performed. The SQL database is a temp file.
-        so if the user doesn't save all of that informationm will be restored from the last save state. The idea of an auto save function running in the background has been floated. However,
+        so if the user doesn't save all of that information will be restored from the last save state. The idea of an auto save function running in the background has been floated. However,
          this is currently not planned. As developed moved away from original auto save functionality of an SQL Database."""
         sql_accountName = remove_space(accountName)
 
@@ -272,7 +283,7 @@ class AccountsDetails(QDialog):
         deleteSummary = f"DELETE FROM Account_Summary WHERE ID ='{accountName}'"
         dropLedger = f"DROP TABLE IF EXISTS {sql_accountName}"
         dropAccountWorth = f"ALTER TABLE AccountWorth DROP COLUMN {sql_accountName}"
-        delete_statement = f"INSERT INTO DeletePending VALUES({sql_accountName}, {self.parentType})"
+        delete_statement = f"INSERT INTO DeletePending VALUES('{accountName}', '{self.parentType}')"
 
         statement_list = [deleteDetails,
                           deleteSummary,

@@ -182,6 +182,10 @@ def remove_comma(value: str):
             displayValue += digit
         else:
             displayValue += digit
+
+    if displayValue == ' ':
+        displayValue = "0.00"
+
     return displayValue
 
 
@@ -232,18 +236,19 @@ def weekend_check(date: str):
     return target_date
 
 
-def change_day(date: str, date_format: str):
+def change_day(date: str, date_format: str, count=7):
     """
     Currently, changes the date by rolling back the calendar by 7 days. Could be upgraded to make that adjustable
 
     :param date: should work for any datetime compatible string format
     :param date_format: datetime comptaible formatting like '%Y/%m/%d'
+    :param count: number of days rolled back. Automatic is 7
     :return: new date str.
     """
     from datetime import datetime, timedelta
 
     target_date = datetime.strptime(date, date_format)
-    target_date = target_date - timedelta(days=7)
+    target_date = target_date - timedelta(days=count)
 
     target_date = datetime.strftime(target_date, '%Y/%m/%d')
     target_date = weekend_check(target_date)

@@ -13,7 +13,7 @@ from math import ceil
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
-from Toolbox.Formatting_Tools import cash_format, decimal_places
+from Toolbox.Formatting_Tools import cash_format, change_day, decimal_places
 from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value
 
 
@@ -57,6 +57,7 @@ def overTimeLineGraph(database, account, parentType, error_log):
     elif account != "Net_Worth_Graph" and parentType in ["Equity", "Retirement"]:
         value_data_statement = f"""SELECT Date, "{account}" FROM AccountWorth WHERE "{account}" IS NOT NULL ORDER BY Date Limit 0, 49999"""
         value_data_tuple = obtain_sql_list(value_data_statement, database, error_log)
+
         contribution_data_statement = f"""SELECT Date, "{account}" FROM ContributionTotals WHERE "{account}" IS NOT NULL ORDER BY Date Limit 0, 49999"""
         contribution_tuple = obtain_sql_list(contribution_data_statement, database, error_log)
 
@@ -96,6 +97,12 @@ def overTimeLineGraph(database, account, parentType, error_log):
         largest_value_statement = f"""SELECT "{account}" FROM AccountWorth WHERE "{account}" IS NOT NULL"""
         largest_y_tuple = obtain_sql_list(largest_value_statement, database, error_log)
         largest_y_raw = []
+
+        if len(largest_y_tuple) < 1:
+            largest_y_temp = []
+            datapoint = (0, )
+            largest_y_temp.append(datapoint)
+            largest_y_tuple = tuple(largest_y_temp)
 
         for value in largest_y_tuple:
             if value is None:
@@ -152,9 +159,9 @@ def overTimeLineGraph(database, account, parentType, error_log):
                 y2_liability_fill.append(int(float(date[2]) / divisor))
                 y3_net_fill.append(int(float(date[3]) / divisor))
             else:
-                y1_gross_fill.append(int(float(date[1]) / divisor) - 1)
-                y2_liability_fill.append(int(float(date[2]) / divisor) - 1)
-                y3_net_fill.append(int(float(date[3]) / divisor) - 1)
+                y1_gross_fill.append(int(float(date[1]) / divisor) - 0.50)
+                y2_liability_fill.append(int(float(date[2]) / divisor) - 0.50)
+                y3_net_fill.append(int(float(date[3]) / divisor) - 0.50)
 
         elif account != "Net_Worth_Graph" and parentType in ["Equity", "Retirement"]:
             x_date.append(date_formatted)
@@ -289,6 +296,24 @@ def spending_chart(spendingData: list, canvas):
                     normalize=True)
 
     canvas.draw()
+
+
+def add_datapoint(dataset: tuple, points: int):
+    initial_date = dataset[0][0]
+    new_initial_date = change_day(initial_date, "%Y/%m/%d", 1)
+
+    data_point_list = [new_initial_date]
+
+    for x in range(0, points, 1):
+        data_point_list.append(0)
+
+    data_point_tuple = tuple(data_point_list)
+
+    dataset_list = list(dataset)
+    dataset_list.append(data_point_tuple)
+    new_dataset = tuple(dataset_list)
+
+    return new_dataset
 
 
 if __name__ == "__main__":

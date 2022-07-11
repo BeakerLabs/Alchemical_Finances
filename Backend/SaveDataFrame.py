@@ -19,7 +19,7 @@ from Backend.DataFrame import empty_container
 
 from Toolbox.Formatting_Tools import remove_space
 from Toolbox.OS_Tools import file_destination, obtain_storage_dir
-from Toolbox.SQL_Tools import obtain_sql_list
+from Toolbox.SQL_Tools import obtain_sql_list, specific_sql_statement
 
 
 class SaveProgress(QDialog):
@@ -93,6 +93,7 @@ class ProgressThread(QObject):
 
     def ProcessRunner(self):
         while self.connected:
+            self.delete_account_images()
             self.delete_account_receipts()
             try:
                 conn = sqlite3.connect(self.refuserDB)
@@ -141,16 +142,43 @@ class ProgressThread(QObject):
                 del_count += 1
                 sql_accountName = remove_space(account[0])
                 parentType = account[1]
-                obsolete_dir_path = file_destination(['Alchemical Finances', 'Receipts', self.refUser, {parentType}, sql_accountName], starting_point=self.storage_dir)
+                obsolete_dir_path = file_destination(['Alchemical Finances', 'Receipts', self.refUser, parentType, sql_accountName], starting_point=self.storage_dir)
                 obsolete_dir_str = str(obsolete_dir_path)
                 try:
                     shutil.rmtree(obsolete_dir_str)
+                    clearpending = f"DELETE FROM DeletePending WHERE ID={account[0]}"
+                    specific_sql_statement(clearpending, self.refUserDB, self.error_Logger)
+
                     print(f"Deleted: {del_count}/{del_total} -- [{account[0]}]")
                 except OSError:
                     error_string = f"Window's Denied Deletion Action. Manual action required once program is closed.\n"
                     self.errorLog.error(error_string, exc_info=True)
         else:
             print("Deleted: 0/0 -- [No Accounts Found]")
+
+    def delete_account_images(self):
+        info_statement = f"SELECT ID, ParentType FROM DeletePending WHERE ParentType='Property'"
+        account_info_tpl = obtain_sql_list(info_statement, self.refuserDB, self.errorLog)
+        img_count = 0
+        img_total = len(account_info_tpl)
+
+        if img_total > 0:
+            for account in account_info_tpl:
+                img_count += 1
+                sql_accountName = remove_space(account[0])
+                parentType = account[1]
+                obsolete_dir_path = file_destination(['Alchemical Finances', 'Images', self.refUser, parentType, sql_accountName], starting_point=self.storage_dir)
+                obsolete_dir_str = str(obsolete_dir_path)
+                try:
+                    shutil.rmtree(obsolete_dir_str)
+                    print(f"Images Deleted: {img_count}/{img_total} -- [{account[0]}]")
+                except OSError:
+                    error_string = f"Window's Denied Deletion Action. Manual action required once program is closed.\n"
+                    self.errorLog.error(error_string, exc_info=True)
+        else:
+            print("Images Deleted: 0/0 -- [No Accounts Found]")
+
+
 
 if __name__ == "__main__":
     sys.tracebacklimit = 0

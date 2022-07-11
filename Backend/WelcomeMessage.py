@@ -38,7 +38,7 @@ class Message(QDialog):
         self.dictionaryFile.close()
 
         # Program Error Log
-        self.error_log = error_Log
+        self.error_logger = error_Log
 
         # Button Functionality
         self.ui.pushButtonNext.clicked.connect(self.disp_next_message)
@@ -46,7 +46,7 @@ class Message(QDialog):
 
         # Obtain User Name if exists
         name_statement = f"SELECT FirstName || ' ' || LastName FROM Users WHERE Profile='{self.refuser}'"
-        name_raw = obtain_sql_value(name_statement, self.dbPathway, self.error_log)
+        name_raw = obtain_sql_value(name_statement, self.dbPathway, self.error_logger)
         self.userName = name_raw[0]
 
         if self.userName is None:
@@ -68,7 +68,7 @@ class Message(QDialog):
         self.show()
 
     def disp_next_message(self):
-        self.refresh_count(self.refuser)
+        self.refresh_count()
         self.ui.labelWelcome.setText(f"{self.messageDict[self.userCount][0]} {self.refuser.capitalize()},")
         self.ui.messageLabel.setText(self.messageDict[self.userCount][1] * 100)
 
@@ -86,13 +86,13 @@ class Message(QDialog):
     def refresh_count(self):
         """ This function refreshes and increases the message count. Future Proofing for new messages"""
         refreshStatement = f"SELECT Message FROM Users WHERE Profile='{self.refuser}'"
-        newCount = obtain_sql_value(refreshStatement, self.dbPathway, self.error_Logger)
+        newCount = obtain_sql_value(refreshStatement, self.dbPathway, self.error_logger)
         self.userCount = newCount[0]
         nextCount = int(self.userCount) + 1
 
         if nextCount in self.messageDict:
             updateStatement = f"UPDATE Users Set Message = {str(nextCount)} WHERE Profile= '{self.refuser}'"
-            specific_sql_statement(updateStatement, self.dbPathway, self.error_Logger)
+            specific_sql_statement(updateStatement, self.dbPathway, self.error_logger)
 
 
 if __name__ == "__main__":

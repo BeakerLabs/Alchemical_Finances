@@ -10,7 +10,7 @@ import shutil
 import sqlite3
 import time
 
-from datetime import date
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from PySide6 import QtCore
 from PySide6.QtCore import Slot
@@ -184,6 +184,80 @@ class AFBackbone(QMainWindow):
         if self.switchCheck == 0:
             self.user_manual()
 
+    def account_details(self, parentType, database):
+        """ Single use Function: Used to Create Parent Type Account Details Table
+            These details are intended to be Parent Type specific while the Account Summary Table it more general
+
+            Admittance - These tables could be wrapped into the summary table. However, they were created to minimize the number
+            of empty columns and null values.
+        """
+
+        itemTypeDict = {
+            "Bank": ["Asset", "Bank_Account_Details"],
+            "Cash": ["Asset", "Cash_Account_Details"],
+            "CD": ["Asset", "CD_Account_Details"],
+            "Treasury": ["Asset", "Treasury_Account_Details"],
+            "Credit": ["Liability", "Credit_Account_Details"],
+            "Debt": ["Liability", "Debt_Account_Details"],
+            "Equity": ["Asset", "Equity_Account_Details"],
+            "Retirement": ["Asset", "Retirement_Account_Details"],
+            "Property": ["Asset", "Property_Account_Details"],
+        }
+
+        # Sector will not correspond with the AccountDetails Window order. This was done due to post add, and to keep consistency for the first 4-5 Columns.
+        detailsTableDict = {
+            "Bank": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Interest_Rate REAL)",
+            "Cash": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER)",
+            "CD": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Interest_Rate REAL, Maturity_Date NUMERIC)",
+            "Treasury": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Interest_Rate REAL, Maturity_Date NUMERIC)",
+            "Credit": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Credit_Limit INTEGER)",
+            "Debt": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Interest_Rate REAL, Starting_Balance REAL)",
+            "Equity": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Ticker_Symbol TEXT, Stock_Price REAL, Sector TEXT)",
+            "Retirement": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Ticker_Symbol TEXT, Stock_Price REAL, Sector TEXT)",
+            "Property": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Ownder TEXT, Bank TEXT, Address_1 TEXT, County TEXT, State_Initials TEXT, Zip_Code INTEGER, Image TEXT)",
+        }
+
+        specific_sql_statement(detailsTableDict[parentType], database, self.error_Logger)
+
+    def account_ledger(self, accountName, parentType):
+        finalName = remove_space(accountName)
+        variant1 = ["Bank", "CD", "Treasury", "Debt", "Credit", "Cash"]
+        variant2 = ["Equity", "Retirement"]
+        # Property will not have a 'ledger' as the mortgage counts as the Debt.
+        if parentType in variant1:
+            ledgerStatement = "CREATE TABLE IF NOT EXISTS " + finalName + \
+                            "(Transaction_Date NUMERIC, Transaction_Method TEXT," \
+                            " Transaction_Description TEXT, Category TEXT, Debit REAL, Credit REAL, Balance REAL, Note TEXT," \
+                            " Status TEXT, Receipt TEXT, Post_Date NUMERIC, Update_Date NUMERIC)"
+            specific_sql_statement(ledgerStatement, self.refUserDB, self.error_Logger)
+        elif parentType in variant2:
+            ledgerStatement = "CREATE TABLE IF NOT EXISTS " + finalName + \
+                              "(Transaction_Date NUMERIC, Transaction_Description TEXT, Category TEXT," \
+                              " Debit REAL, Credit REAL, Sold REAL, Purchased REAL, Price REAL, Note TEXT, Status TEXT," \
+                              " Receipt TEXT, Post_Date NUMERIC, Update_Date NUMERIC)"
+            specific_sql_statement(ledgerStatement, self.refUserDB, self.error_Logger)
+
+    def account_subtypes(self, subTypes, parentType, database):
+        """ Single Use Function: Used to create the starting list of Account Sub Types for each Parent Type"""
+        create_table("AccountSubType", ["SubType", "ParentType"], ["TEXT", "TEXT"], database, self.error_Logger)
+        if check_for_data("AccountSubType", "ParentType", parentType, database, self.error_Logger) is True:
+            statementList = []
+            for account in subTypes:
+                dbStatement = f"INSERT INTO AccountSubType VALUES('{account}', '{parentType}')"
+                statementList.append(dbStatement)
+            execute_sql_statement_list(statementList, database, self.error_Logger)
+        else:
+            pass
+
+    def account_summary(self, accountName: str, accountType: str):
+        """Single use Function: Creates Account Summary Table, then adds example accounts to the table. Used for Asset, Liability, and Net Worth Calculations"""
+
+        summaryStatement = "CREATE TABLE IF NOT EXISTS Account_Summary(ID TEXT, ItemType TEXT, ParentType TEXT, SubType TEXT, Ticker_Symbol TEXT, Balance REAL)"
+        specific_sql_statement(summaryStatement, self.refUserDB, self.error_Logger)
+        if check_for_data("Account_Summary", "ParentType", accountType, self.refUserDB, self.error_Logger) is True:
+            exampleStatement = f"INSERT INTO Account_Summary VALUES('{accountName}', NULL, '{accountType}', NULL, NULL, '0.00')"
+            specific_sql_statement(exampleStatement, self.refUserDB, self.error_Logger)
+
     def acquire_key(self):
         keyStatement = f"SELECT UserKey FROM Users WHERE Profile ='{self.refUser}'"
         try:
@@ -203,33 +277,24 @@ class AFBackbone(QMainWindow):
             conn.close()
             return key
 
-    def create_profile_db(self):
-        key = self.acquire_key()
-        databaseFileName = "db" + key + "rf.dat"
-        userDbPathway = file_destination(['Alchemical Finances', 'data', 'account'], starting_point=self.storage_dir)
-        databaseFN_Pathway = Path(userDbPathway) / databaseFileName
-        databaseName = self.create_db_name()
-        databaseName_Pathway = Path(userDbPathway) / databaseName
+    def close_app(self):
+        quit_msg = "Are you sure you want to quit the program?"
+        reply = QMessageBox.question(self, 'Quit Message', quit_msg, QMessageBox.Yes, QMessageBox.Cancel)
+        if reply == QMessageBox.Yes:
+            self.close()
+        else:
+            pass
 
-        try:
-            with open(databaseFN_Pathway, mode="rb") as f:
-                codedDN = f.read()
-                self.saveState = codedDN.decode('utf-8')
-                # DataCheck is legacy Variable not currently in use.
-                # self.dataCheck = ("Opened File: " + self.saveState + " User Key: "
-                #                   + key + " User Name: " + str(self.refUser))
-                # print(self.dataCheck)
-                f.close()
-                return False
-        except IOError:
-            with open(databaseFN_Pathway, mode="wb") as nf:
-                databaseN_Pathway_string = str(databaseName_Pathway)
-                nf.write(databaseN_Pathway_string.encode('utf-8'))
-                nf.close()
-                self.saveState = databaseN_Pathway_string
-                # DataCheck is legacy Variable not currently in use.
-                self.dataCheck = ("New File Made: " + str(self.saveState))
-                return True
+    def closeEvent(self, event):
+        event.ignore()
+        self.log_netWorth("Logout")
+
+        if not self.saveToggle:
+            self.save_database(close=True)
+
+        os.remove(self.refUserDB)
+        os.remove(self.ledger_container)
+        event.accept()
 
     def create_dataframe_container(self, dictionary):
         key = self.acquire_key()
@@ -266,6 +331,136 @@ class AFBackbone(QMainWindow):
         databaseName = databaseName + ".db"
         return databaseName
 
+    def create_profile_db(self):
+        key = self.acquire_key()
+        databaseFileName = "db" + key + "rf.dat"
+        userDbPathway = file_destination(['Alchemical Finances', 'data', 'account'], starting_point=self.storage_dir)
+        databaseFN_Pathway = Path(userDbPathway) / databaseFileName
+        databaseName = self.create_db_name()
+        databaseName_Pathway = Path(userDbPathway) / databaseName
+
+        try:
+            with open(databaseFN_Pathway, mode="rb") as f:
+                codedDN = f.read()
+                self.saveState = codedDN.decode('utf-8')
+                # DataCheck is legacy Variable not currently in use.
+                # self.dataCheck = ("Opened File: " + self.saveState + " User Key: "
+                #                   + key + " User Name: " + str(self.refUser))
+                # print(self.dataCheck)
+                f.close()
+                return False
+        except IOError:
+            with open(databaseFN_Pathway, mode="wb") as nf:
+                databaseN_Pathway_string = str(databaseName_Pathway)
+                nf.write(databaseN_Pathway_string.encode('utf-8'))
+                nf.close()
+                self.saveState = databaseN_Pathway_string
+                # DataCheck is legacy Variable not currently in use.
+                self.dataCheck = ("New File Made: " + str(self.saveState))
+                return True
+
+    def initial_categories(self, methodList, typeList, database):
+        """ Single Use Function: Used to create the starting spending Categories for each Parent Type"""
+        create_table("Categories", ["Method", "ParentType", "Tabulate"], ["TEXT", "TEXT", "BOOL"], database, self.error_Logger)
+        if check_for_data("Categories", "ParentType", typeList[0], database, self.error_Logger) is True:
+            statementList = []
+            for method in methodList:
+                for catType in typeList:
+                    statement = f"INSERT INTO Categories VALUES('{method}', '{catType}', 'True')"
+                    statementList.append(statement)
+            execute_sql_statement_list(statementList, database, self.error_Logger)
+        else:
+            pass
+
+    def log_contributions(self, action, instanceDate):
+        """ Obtain Equity and Retirement Contribution sums for the Contributions Table"""
+        select_target_accounts = "SELECT ID FROM Account_Summary WHERE ParentType='Equity' or ParentType='Retirement'"
+        target_accounts_raw = obtain_sql_list(select_target_accounts, self.refUserDB, self.error_Logger)
+
+        if action == "Insert":
+            insert_date = f"INSERT INTO ContributionTotals(Date) VALUES('{instanceDate}')"
+            specific_sql_statement(insert_date, self.refUserDB, self.error_Logger)
+        else:
+            pass
+
+        for account in target_accounts_raw:
+            account = account[0]
+            sql_account = remove_space(account)
+
+            account_df = load_df_ledger(self.ledger_container, account)
+            contribution_sum_raw = contribution_balance(account_df)
+
+            if contribution_sum_raw is None:
+                contribution_sum_checked = 0
+            else:
+                contribution_sum_checked = contribution_sum_raw
+
+            contribution_sum = str(decimal_places(contribution_sum_checked, 2))
+            insert_contribution = f"UPDATE ContributionTotals SET '{sql_account}'={contribution_sum} WHERE Date='{instanceDate}'"
+            specific_sql_statement(insert_contribution, self.refUserDB, self.error_Logger)
+
+    def log_netWorth(self, entryPoint):
+        """ Adds Finance Data points [Gross, Liabilities, Net] to NetWorth Table
+            Expanded to input data into AccountWorth and ContributionsTotals
+
+            all intended for Graphing over time
+        """
+        updated = False
+
+        today = datetime.now()
+        yesterday = today - timedelta(days=1)
+        yesterday = yesterday.strftime("%Y/%m/%d")
+        today = today.strftime("%Y/%m/%d")
+
+        # Data = [Assets, Liabilities, Net] -- NetWorth = [Gross, Liabilities, Net]
+        # NetWorth Table Structure (Date TEXT, Gross TEXT, Liabilities TEXT, Net TEXT)
+        last_data_point_Statement = f"SELECT Date FROM Networth ORDER BY Date DESC LIMIT 1"
+        last_data_point = obtain_sql_value(last_data_point_Statement, self.refUserDB, self.error_Logger)
+
+        if last_data_point is None:
+            last_data_point = "1978/01/01"  # Just an unlikely date
+
+        if updated is False:
+            if entryPoint == "Login" and today != last_data_point[0] and yesterday != last_data_point[0]:
+                target = ["Yesterday", "Today", "Insert"]
+            elif entryPoint == "Login" and today == last_data_point[0] and yesterday != last_data_point[0]:
+                target = [None, "Today", "Update"]
+            elif entryPoint == "Login" and today != last_data_point[0] and yesterday == last_data_point[0]:
+                target = [None, "Today", "Insert"]
+            elif entryPoint == "Logout":
+                target = [None, "Today", "Update"]
+            else:
+                target = [None, None, None]
+
+            if target[0] is None:
+                pass
+            else:  # "Yesterday"
+                self.update_equity(yesterday)
+                self.update_networth(yesterday)
+                self.update_accountWorth(yesterday)
+                self.log_contributions("Insert", yesterday)
+                print(f"Finances inserted for yesterday: {yesterday}")
+
+            if target[1] is None:
+                pass
+            else:  # "Today"
+                self.update_equity(today)
+
+                if entryPoint != "Logout":
+                    self.log_contributions("Update", today)
+
+                if target[2] == "Update":
+                    self.update_networth(today, update=True)
+                    self.update_accountWorth(today, update=True)
+                    self.log_contributions("Update", today)
+
+                else:  # "Insert"
+                    self.update_networth(today)
+                    self.update_accountWorth(today)
+                    self.log_contributions("Insert", today)
+
+                print(f"Finances {target[2]} for today: {today}")
+
     def save_database(self, close=False):
         if not self.saveToggle:
             save_mesg = "Do you wish to save your current information?"
@@ -294,25 +489,6 @@ class AFBackbone(QMainWindow):
             done = QMessageBox.information(self, "Save Complete", unnecessary, QMessageBox.Close, QMessageBox.NoButton)
             if done == QMessageBox.Close:
                 pass
-
-    def close_app(self):
-        quit_msg = "Are you sure you want to quit the program?"
-        reply = QMessageBox.question(self, 'Quit Message', quit_msg, QMessageBox.Yes, QMessageBox.Cancel)
-        if reply == QMessageBox.Yes:
-            self.close()
-        else:
-            pass
-
-    def closeEvent(self, event):
-        event.ignore()
-        self.log_netWorth("Logout")
-
-        if not self.saveToggle:
-            self.save_database(close=True)
-
-        os.remove(self.refUserDB)
-        os.remove(self.ledger_container)
-        event.accept()
 
     def switch_tab(self, switch: str):
         type1 = ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit", "Property"]
@@ -372,203 +548,19 @@ class AFBackbone(QMainWindow):
             else:
                 print(f"""ERROR: AFMainWindow: switch_tab \n Input Error -- Variable = {switch}""")
 
-    def account_ledger(self, accountName, parentType):
-        finalName = remove_space(accountName)
-        variant1 = ["Bank", "CD", "Treasury", "Debt", "Credit", "Cash"]
-        variant2 = ["Equity", "Retirement"]
-        # Property will not have a 'ledger' as the mortgage counts as the Debt.
-        if parentType in variant1:
-            ledgerStatement = "CREATE TABLE IF NOT EXISTS " + finalName + \
-                            "(Transaction_Date NUMERIC, Transaction_Method TEXT," \
-                            " Transaction_Description TEXT, Category TEXT, Debit REAL, Credit REAL, Balance REAL, Note TEXT," \
-                            " Status TEXT, Receipt TEXT, Post_Date NUMERIC, Update_Date NUMERIC)"
-            specific_sql_statement(ledgerStatement, self.refUserDB, self.error_Logger)
-        elif parentType in variant2:
-            ledgerStatement = "CREATE TABLE IF NOT EXISTS " + finalName + \
-                              "(Transaction_Date NUMERIC, Transaction_Description TEXT, Category TEXT," \
-                              " Debit REAL, Credit REAL, Sold REAL, Purchased REAL, Price REAL, Note TEXT, Status TEXT," \
-                              " Receipt TEXT, Post_Date NUMERIC, Update_Date NUMERIC)"
-            specific_sql_statement(ledgerStatement, self.refUserDB, self.error_Logger)
-
-    def account_summary(self, accountName: str, accountType: str):
-        """Single use Function: Creates Account Summary Table, then adds example accounts to the table. Used for Asset, Liability, and Net Worth Calculations"""
-
-        summaryStatement = "CREATE TABLE IF NOT EXISTS Account_Summary(ID TEXT, ItemType TEXT, ParentType TEXT, SubType TEXT, Ticker_Symbol TEXT, Balance REAL)"
-        specific_sql_statement(summaryStatement, self.refUserDB, self.error_Logger)
-        if check_for_data("Account_Summary", "ParentType", accountType, self.refUserDB, self.error_Logger) is True:
-            exampleStatement = f"INSERT INTO Account_Summary VALUES('{accountName}', NULL, '{accountType}', NULL, NULL, '0.00')"
-            specific_sql_statement(exampleStatement, self.refUserDB, self.error_Logger)
-
-    def account_details(self, parentType, database):
-        """ Single use Function: Used to Create Parent Type Account Details Table
-            These details are intended to be Parent Type specific while the Account Summary Table it more general
-
-            Admittance - These tables could be wrapped into the summary table. However, they were created to minimize the number
-            of empty columns and null values.
-        """
-
-        itemTypeDict = {
-            "Bank": ["Asset", "Bank_Account_Details"],
-            "Cash": ["Asset", "Cash_Account_Details"],
-            "CD": ["Asset", "CD_Account_Details"],
-            "Treasury": ["Asset", "Treasury_Account_Details"],
-            "Credit": ["Liability", "Credit_Account_Details"],
-            "Debt": ["Liability", "Debt_Account_Details"],
-            "Equity": ["Asset", "Equity_Account_Details"],
-            "Retirement": ["Asset", "Retirement_Account_Details"],
-            "Property": ["Asset", "Property_Account_Details"],
-        }
-
-        # Sector will not correspond with the AccountDetails Window order. This was done due to post add, and to keep consistency for the first 4-5 Columns.
-        detailsTableDict = {
-            "Bank": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Interest_Rate REAL)",
-            "Cash": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER)",
-            "CD": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Interest_Rate REAL, Maturity_Date NUMERIC)",
-            "Treasury": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Interest_Rate REAL, Maturity_Date NUMERIC)",
-            "Credit": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Credit_Limit INTEGER)",
-            "Debt": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Interest_Rate REAL, Starting_Balance REAL)",
-            "Equity": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Ticker_Symbol TEXT, Stock_Price REAL, Sector TEXT)",
-            "Retirement": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Owner TEXT, Bank TEXT, Statement_Date INTEGER, Ticker_Symbol TEXT, Stock_Price REAL, Sector TEXT)",
-            "Property": f"CREATE TABLE IF NOT EXISTS {itemTypeDict[parentType][1]} (Account_Name TEXT, Account_Type TEXT, Primary_Ownder TEXT, Bank TEXT, Address_1 TEXT, County TEXT, State_Initials TEXT, Zip_Code INTEGER, Image TEXT)",
-        }
-
-        specific_sql_statement(detailsTableDict[parentType], database, self.error_Logger)
-
-    def initial_categories(self, methodList, typeList, database):
-        """ Single Use Function: Used to create the starting spending Categories for each Parent Type"""
-        create_table("Categories", ["Method", "ParentType", "Tabulate"], ["TEXT", "TEXT", "BOOL"], database, self.error_Logger)
-        if check_for_data("Categories", "ParentType", typeList[0], database, self.error_Logger) is True:
-            statementList = []
-            for method in methodList:
-                for catType in typeList:
-                    statement = f"INSERT INTO Categories VALUES('{method}', '{catType}', 'True')"
-                    statementList.append(statement)
-            execute_sql_statement_list(statementList, database, self.error_Logger)
-        else:
-            pass
-
-    def account_subtypes(self, subTypes, parentType, database):
-        """ Single Use Function: Used to create the starting list of Account Sub Types for each Parent Type"""
-        create_table("AccountSubType", ["SubType", "ParentType"], ["TEXT", "TEXT"], database, self.error_Logger)
-        if check_for_data("AccountSubType", "ParentType", parentType, database, self.error_Logger) is True:
-            statementList = []
-            for account in subTypes:
-                dbStatement = f"INSERT INTO AccountSubType VALUES('{account}', '{parentType}')"
-                statementList.append(dbStatement)
-            execute_sql_statement_list(statementList, database, self.error_Logger)
-        else:
-            pass
-
-    def log_contributions(self, action, instanceDate):
-        """ Obtain Equity and Retirement Contribution sums for the Contributions Table"""
-        select_target_accounts = "SELECT ID FROM Account_Summary WHERE ParentType='Equity' or ParentType='Retirement'"
-        target_accounts_raw = obtain_sql_list(select_target_accounts, self.refUserDB, self.error_Logger)
-
-        if action == "Insert":
-            insert_date = f"INSERT INTO ContributionTotals(Date) VALUES('{instanceDate}')"
-            specific_sql_statement(insert_date, self.refUserDB, self.error_Logger)
-        else:
-            pass
-
-        for account in target_accounts_raw:
-            account = account[0]
-            sql_account = remove_space(account)
-
-            account_df = load_df_ledger(self.ledger_container, account)
-            contribution_sum_raw = contribution_balance(account_df)
-
-            if contribution_sum_raw is None:
-                contribution_sum_checked = 0
-            else:
-                contribution_sum_checked = contribution_sum_raw
-
-            contribution_sum = str(decimal_places(contribution_sum_checked, 2))
-            insert_contribution = f"UPDATE ContributionTotals SET '{sql_account}'={contribution_sum} WHERE Date='{instanceDate}'"
-            specific_sql_statement(insert_contribution, self.refUserDB, self.error_Logger)
-
-    def log_netWorth(self, entryPoint):
-        """ Adds Finance Data points [Gross, Liabilities, Net] to NetWorth Table
-            Expanded to input data into AccountWorth and ContributionsTotals
-
-            all intended for Graphing over time
-        """
-        from datetime import datetime, timedelta
-
-        updated = False
-
-        today = datetime.now()
-        yesterday = today - timedelta(days=1)
-        yesterday = yesterday.strftime("%Y/%m/%d")
-        today = today.strftime("%Y/%m/%d")
-
-        # Data = [Assets, Liabilities, Net] -- NetWorth = [Gross, Liabilities, Net]
-        # NetWorth Table Structure (Date TEXT, Gross TEXT, Liabilities TEXT, Net TEXT)
-        last_data_point_Statement = f"SELECT Date FROM Networth ORDER BY Date DESC LIMIT 1"
-        last_data_point = obtain_sql_value(last_data_point_Statement, self.refUserDB, self.error_Logger)
-
+    def update_accountWorth(self, target_date: str, update=False):
         account_balances_statement = "SELECT ID, Balance FROM Account_Summary"
+        account_balances_raw = obtain_sql_list(account_balances_statement, self.refUserDB, self.error_Logger)
 
-        if last_data_point is None:
-            last_data_point = "1978/01/01"  # Just an unlikely date
+        if not update:
+            insertDate_accountWorth_table = f"INSERT INTO AccountWorth(Date) VALUES('{target_date}')"
+            specific_sql_statement(insertDate_accountWorth_table, self.refUserDB, self.error_Logger)
+        else:
+            pass
 
-        if updated is False:
-            if entryPoint == "Login" and today != last_data_point[0] and yesterday != last_data_point[0]:
-                target = ["Yesterday", "Today", "Insert"]
-            elif entryPoint == "Login" and today == last_data_point[0] and yesterday != last_data_point[0]:
-                target = [None, "Today", "Update"]
-            elif entryPoint == "Login" and today != last_data_point[0] and yesterday == last_data_point[0]:
-                target = [None, "Today", "Insert"]
-            elif entryPoint == "Logout":
-                target = [None, "Today", "Update"]
-            else:
-                target = [None, None, None]
-
-            if target[0] is None:
-                pass
-            else:  # "Yesterday"
-                self.update_equity(yesterday)
-                account_balances_raw = obtain_sql_list(account_balances_statement, self.refUserDB, self.error_Logger)
-
-                insertDate_accountWorth_table = f"INSERT INTO AccountWorth(Date) VALUES('{yesterday}')"
-                specific_sql_statement(insertDate_accountWorth_table, self.refUserDB, self.error_Logger)
-                for account in account_balances_raw:
-                    update_account_statement = f"UPDATE AccountWorth SET '{remove_space(account[0])}'='{account[1]}' WHERE Date='{yesterday}'"
-                    specific_sql_statement(update_account_statement, self.refUserDB, self.error_Logger)
-
-                data = set_networth(self.refUserDB, self.error_Logger, toggleformatting=False)
-                insert_yesterday_statement = f"INSERT INTO NetWorth Values('{yesterday}', '{data[0]}', '{data[1]}', '{data[2]}')"
-                specific_sql_statement(insert_yesterday_statement, self.refUserDB, self.error_Logger)
-                self.log_contributions("Insert", yesterday)
-                print(f"Finances inserted for yesterday: {yesterday}")
-
-            if target[1] is None:
-                pass
-            else:  # "Today"
-                if entryPoint != "Logout":
-                    self.update_equity(today)
-                    self.log_contributions("Update", today)
-
-                if target[2] == "Update":
-                    data = set_networth(self.refUserDB, self.error_Logger, toggleformatting=False)
-                    update_statement = f"UPDATE NetWorth SET Gross='{data[0]}', Liabilities='{data[1]}', Net='{data[2]}' WHERE Date='{today}'"
-                    specific_sql_statement(update_statement, self.refUserDB, self.error_Logger)
-                    self.log_contributions("Update", today)
-
-                else:  # "Insert"
-                    data = set_networth(self.refUserDB, self.error_Logger, toggleformatting=False)
-                    insert_today_statement = f"INSERT INTO NetWorth Values('{today}', '{data[0]}', '{data[1]}', '{data[2]}')"
-                    specific_sql_statement(insert_today_statement, self.refUserDB, self.error_Logger)
-                    insertDate_accountWorth_table = f"INSERT INTO AccountWorth(Date) VALUES('{today}')"
-                    specific_sql_statement(insertDate_accountWorth_table, self.refUserDB, self.error_Logger)
-                    self.log_contributions("Insert", today)
-
-                account_balances_raw = obtain_sql_list(account_balances_statement, self.refUserDB, self.error_Logger)
-                for account in account_balances_raw:
-                    update_account_statement = f"UPDATE AccountWorth SET '{remove_space(account[0])}'='{account[1]}' WHERE Date='{today}'"
-                    specific_sql_statement(update_account_statement, self.refUserDB, self.error_Logger)
-
-
-                print(f"Finances {target[2]} for today: {today}")
+        for account in account_balances_raw:
+            update_account_statement = f"UPDATE AccountWorth SET '{remove_space(account[0])}'='{account[1]}' WHERE Date='{target_date}'"
+            specific_sql_statement(update_account_statement, self.refUserDB, self.error_Logger)
 
     def update_equity(self, targetDate: str):
         apiStatement = f"SELECT StockApi, StockToken, CryptoApi, CryptoToken FROM Users WHERE Profile = '{self.refUser}'"
@@ -631,6 +623,16 @@ class AFBackbone(QMainWindow):
                     update_balance_statement = f"UPDATE Account_Summary SET Balance='{new_balance}' WHERE ID='{account}'"
                     specific_sql_statement(update_balance_statement, self.refUserDB, self.error_Logger)
 
+    def update_networth(self, target_date:str, update=False):
+        data = set_networth(self.refUserDB, self.error_Logger, toggleformatting=False)
+
+        if not update:
+            insert_yesterday_statement = f"INSERT INTO NetWorth Values('{target_date}', '{data[0]}', '{data[1]}', '{data[2]}')"
+            specific_sql_statement(insert_yesterday_statement, self.refUserDB, self.error_Logger)
+        else:
+            update_statement = f"UPDATE NetWorth SET Gross='{data[0]}', Liabilities='{data[1]}', Net='{data[2]}' WHERE Date='{target_date}'"
+            specific_sql_statement(update_statement, self.refUserDB, self.error_Logger)
+
     def user_manual(self):
         manual = UserManual(self.error_Logger)
         if manual.exec() == QDialog.Accepted:
@@ -646,20 +648,11 @@ class AFBackbone(QMainWindow):
             self.ui.labelTAssests.setText(netWorth[2])  # Gross
             self.ui.labelTLiabilities.setText(netWorth[3])
 
-            # log Net Worth
-            gross = remove_comma(netWorth[2][5:-1])
-            liability = remove_comma(netWorth[3][5:-1])
-            net = remove_comma(netWorth[1][5:-1])
-            update_statement = f"UPDATE NetWorth SET Gross='{gross}', Liabilities='{liability}', Net='{net}' WHERE Date='{self.today}'"
-            specific_sql_statement(update_statement, self.refUserDB, self.error_Logger)
+            self.update_networth(self.today, update=True)
+            self.update_accountWorth(self.today, update=True)
+            self.log_contributions("Update", self.today)
 
-            # Refresh Contirbution Totals
-            from datetime import datetime, timedelta
-            today = datetime.now()
-            today = today.strftime("%Y/%m/%d")
-            self.log_contributions("Update", today)
-
-            # Trigger graph refrish
+            # Trigger graph refresh
             if "OTG" in self.tabdic:
                 self.trigger_refresh_graph()
             else:
