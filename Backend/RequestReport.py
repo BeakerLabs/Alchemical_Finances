@@ -7,6 +7,7 @@ import os
 import sys
 
 from PySide6.QtWidgets import QDialog, QFileDialog
+from PySide6.QtCore import Qt
 
 from Frontend.GenReportUi import Ui_GenReport
 
@@ -62,7 +63,7 @@ class user_report_request(QDialog):
         self.ui.pBGenerate.clicked.connect(lambda: self.generate_list(self.ui.lEditPath.text()))
         self.ui.pBPath.clicked.connect(self.obtain_user_dir)
 
-        initial_dir = os.path.join(os.path.expanduser("~"), "Documents/")
+        initial_dir = os.path.join(os.path.expanduser("~/Onedrive/Desktop"))
         self.ui.lEditPath.setText(initial_dir)
 
     # --- Functions -----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -77,14 +78,14 @@ class user_report_request(QDialog):
         if dirname:
             self.ui.lEditPath.setText(dirname)
         else:
-            dirname = os.path.join(os.path.expanduser("~"), "/Onedrive/Desktop/")
+            dirname = os.path.join(os.path.expanduser("~/Onedrive/Desktop"))
             self.ui.lEditPath.setText(dirname)
 
     # --- -- Used to Generate the report and open the .pdf file ---------------------------------------------------------------------------------------------------------------
     def generate_list(self, directory):
         request = []
         for widget in self.widgetList:
-            if widget.checkState() == 2:
+            if widget.isChecked() is True:
                 parenType_request = [self.parentType[widget], "", ""]
                 request.append(parenType_request)
 

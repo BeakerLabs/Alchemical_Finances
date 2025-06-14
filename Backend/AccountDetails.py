@@ -171,7 +171,7 @@ class AccountsDetails(QDialog):
         if self.ui.listWidgetAccount.currentItem() is None:
             pass
         else:
-            accountName = self.ui.self.ui.listWidgetAccount.currentItem().text()
+            accountName = self.ui.listWidgetAccount.currentItem().text()
             sql_accountName = remove_space(accountName)
             move_row_sql_tables("Account_Archive", "Account_Summary", "ID", accountName, self.refUserDB, self.error_Logger)
             self.ui.listWidgetAccount.clear()

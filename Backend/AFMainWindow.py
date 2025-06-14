@@ -32,6 +32,7 @@ from Backend.OverTimeGraph import OverTimeGraph
 from Backend.Profile import Profile
 from Backend.RequestReport import user_report_request
 from Backend.SaveDataFrame import SaveProgress
+from Backend.ReceiptCleaner import receipt_cleaner
 from Backend.Summary import Ledger_Summary
 
 from Toolbox.AF_Tools import set_networth
@@ -76,12 +77,13 @@ class AFBackbone(QMainWindow):
         self.email = email_raw[0]
 
         # Menu Bar Button Functionality
-        # -- -- File - Summary, Generate Report, Export [Future], Save[Future] Close
+        # -- -- File - Summary, Generate Report, Export [Future], Save, Receipt Clean, Close
         self.ui.actionProfile.triggered.connect(lambda: self.switch_tab("Profile"))
         self.ui.actionSummary.triggered.connect(lambda: self.switch_tab("Summary"))
         self.ui.actionGenerate.triggered.connect(lambda: user_report_request(self.refUserDB, self.refUser, self.error_Logger))
         self.ui.actionNWG.triggered.connect(lambda: self.switch_tab("OTG"))
         self.ui.actionSave.triggered.connect(lambda: self.save_database(close=False))
+        self.ui.actionReceipt.triggered.connect(self.clean_receipts)
         self.ui.actionClose.triggered.connect(self.close_app)
         # -- Assets - Bank, Equity, Retirement, CD, TB
         self.ui.actionBank.triggered.connect(lambda: self.switch_tab("Bank"))
@@ -489,6 +491,30 @@ class AFBackbone(QMainWindow):
             done = QMessageBox.information(self, "Save Complete", unnecessary, QMessageBox.Close, QMessageBox.NoButton)
             if done == QMessageBox.Close:
                 pass
+
+    def clean_receipts(self):
+        self.saveToggle = False
+        clean_mesg = "The clean receipts tool is designed to review and delete extraneous files from your computer. This is used to save space on your hard drive or cloud drive. Your account will be saved immediately afterwards"
+        reply = QMessageBox.warning(self, "Clean Receipts", clean_mesg, QMessageBox.Yes, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            clean_Prog_Dialog = receipt_cleaner(self.refUser, self.ledger_container, self.refUserDB, self.error_Logger)
+            if clean_Prog_Dialog.exec() == QDialog.Accepted:
+                time.sleep(1)
+                step_mesg = "Your receipts have been cleaned. Next Step is to save records."
+                step = QMessageBox.information(self, "Clean COmplete", step_mesg, QMessageBox.Close, QMessageBox.NoButton)
+                if step== QMessageBox.Close:
+                    save_prog_Dialog = SaveProgress(self.refUser, self.ledger_container, self.refUserDB, self.error_Logger)
+                    if save_prog_Dialog.exec() == QDialog.Accepted:
+                        time.sleep(1)
+                        save_mesg = "Your work has been saved."
+                        done = QMessageBox.information(self, "Save Complete", save_mesg, QMessageBox.Close, QMessageBox.NoButton)
+                        if done == QMessageBox.Close:
+                            self.saveToggle = True
+                    self.save_database(close=False)
+        else:
+            pass
+            # There is no alternative. A no just cancels the request.
+
 
     def switch_tab(self, switch: str):
         type1 = ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit", "Property"]

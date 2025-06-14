@@ -11,7 +11,10 @@
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludePattern pattern="ZObsolete - Data" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.10 (AF - Reformulated)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.11 (AF - Reformulated)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+  <component name="PackageRequirementsSettings">
+    <option name="removeUnused" value="true" />
   </component>
 </module>

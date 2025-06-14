@@ -658,7 +658,6 @@ class Ui_Ledger1(object):
             self.tabWidget.addTab(self.tab2, "Year")
             self.tabWidget.addTab(self.tab3, "Overall")
 
-
             self.tab1.hBlayout1 = QtWidgets.QHBoxLayout()
             self.tab1.setLayout(self.tab1.hBlayout1)
             self.tab2.hBlayout2 = QtWidgets.QHBoxLayout()

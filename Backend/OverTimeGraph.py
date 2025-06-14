@@ -161,14 +161,14 @@ class OverTimeGraph(QDialog):
         # canvas.axes.set_xlabel('Date (MM/DD/YY) ', labelpad=1, size='3')
         canvas.axes.set_ylabel(f'$ {lg_data[7]}', labelpad=3, size='3')
 
-        canvas.axes.grid(b=True,
+        canvas.axes.grid(visible=True,
                          which='major',
                          axis='y',
                          color='0.10',
                          linestyle='-',
                          linewidth='0.4')
 
-        canvas.axes.grid(b=True,
+        canvas.axes.grid(visible=True,
                          which='minor',
                          axis='y',
                          color='0.35',

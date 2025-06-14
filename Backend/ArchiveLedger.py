@@ -39,6 +39,7 @@ class Archive(QDialog):
         self.refUserDB = database
         self.refUser = user
         self.ledger_container = ledger_container
+        self.parentType = None
         self.error_Logger = error_log
 
         self.parentType_dict = {"Bank": "Bank_Account_Details",
@@ -56,12 +57,13 @@ class Archive(QDialog):
         if self.ui.comboBAccounts.currentText() != "":
             self.active_account = self.ui.comboBAccounts.currentText()
             self.activeLedger = load_df_ledger(self.ledger_container, self.active_account)
-
+            self.parentType = self.obtain_parentType()
             self.fill_combobox(self.ui.comboBStatements, "Statement")
             self.toggle_entire_ledger(True)
             self.display_ledger()
         else:
             self.toggle_entire_ledger(False)
+
 
         self.ui.comboBAccounts.currentIndexChanged.connect(self.change_account)
         self.ui.comboBStatements.currentIndexChanged.connect(self.display_ledger)
@@ -78,19 +80,18 @@ class Archive(QDialog):
 
     def change_account(self):
         self.active_account = self.ui.comboBAccounts.currentText()
+        self.parentType = self.obtain_parentType()
         self.activeLedger = load_df_ledger(self.ledger_container, self.active_account)
-
         self.ui.comboBStatements.clear()
         self.fill_combobox(self.ui.comboBStatements, "Statement")
+        if self.parentType == "Property":
+            self.display_ledger()
+
 
     def delete_account(self):
         ledger_name = self.ui.comboBAccounts.currentText()
         modified_ledger_name = remove_space(ledger_name)
-
-        parentType_statement = f"SELECT ParentType FROM Account_Archive WHERE ID='{ledger_name}'"
-        parentType_value = obtain_sql_value(parentType_statement, self.refUserDB, self.error_Logger)
-        parentType_value = parentType_value[0]
-        details_table = self.parentType_dict[parentType_value]
+        details_table = self.parentType_dict[self.parentType]
 
         delete_message = "Selecting 'YES' will permanently delete this account and all associated information"
         confirm = QMessageBox.warning(self, 'Confirm', delete_message, QMessageBox.Yes, QMessageBox.No)
@@ -100,7 +101,7 @@ class Archive(QDialog):
             delete_details = f"DELETE FROM {details_table} WHERE Account_Name ='{ledger_name}'"
             delete_ledger = f"DROP TABLE IF EXISTS {modified_ledger_name}"
             dropAccountWorth = f"ALTER TABLE AccountWorth DROP COLUMN {modified_ledger_name}"
-            delete_statement = f"INSERT INTO DeletePending VALUES({modified_ledger_name}, {parentType_value})"
+            delete_statement = f"INSERT INTO DeletePending VALUES({modified_ledger_name}, {self.parentType})"
 
             statement_lst = [delete_archive,
                              delete_details,
@@ -123,18 +124,14 @@ class Archive(QDialog):
         statement = self.ui.comboBStatements.currentText()
         if ledger == "":
             pass
-        elif statement == "":
+        elif statement == "" and self.parentType != "Property":
             pass
         else:
-            parentType_statement = f"SELECT ParentType FROM Account_Archive WHERE ID='{ledger}'"
-            parentType_value = obtain_sql_value(parentType_statement, self.refUserDB, self.error_Logger)
-            parentType_value = parentType_value[0]
-
-            type1 = ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit"]
+            type1 = ["Bank", "Cash", "CD", "Treasury", "Debt", "Credit", "Property"]
             type2 = ["Equity", "Retirement"]
-            if parentType_value in type1:
-                disp_LedgerV1_Table(self.ui.comboBAccounts, self.ui.comboBStatements, parentType_value, self.ui.tWArchive, self.activeLedger)
-            elif parentType_value in type2:
+            if self.parentType in type1:
+                disp_LedgerV1_Table(self.ui.comboBAccounts, self.ui.comboBStatements, self.parentType, self.ui.tWArchive, self.activeLedger)
+            elif self.parentType in type2:
                 disp_LedgerV2_Table(self.ui.comboBAccounts, self.ui.comboBStatements, self.ui.tWArchive, self.activeLedger)
             else:
                 error = "Ledger Type Doesn't Exist"
@@ -143,10 +140,6 @@ class Archive(QDialog):
     def display_receipt(self):
         ledger = self.ui.comboBAccounts.currentText()
         ledger_sql = remove_space(ledger)
-
-        parentType_statement = f"SELECT ParentType FROM Account_Archive WHERE ID='{ledger}'"
-        parentType_value = obtain_sql_value(parentType_statement, self.refUserDB, self.error_Logger)
-        parentType_value = parentType_value[0]
 
         inputText1 = "Select Row"
         inputText2 = "Enter Row#: "
@@ -160,7 +153,7 @@ class Archive(QDialog):
             file_Name = self.ui.tWArchive.item(row, 7).text()
             suffix = PurePath(file_Name).suffix
 
-            file_pathway = file_destination(['Alchemical Finances', 'Receipts', self.refUser, parentType_value, ledger_sql], starting_point=self.storage_dir)
+            file_pathway = file_destination(['Alchemical Finances', 'Receipts', self.refUser, self.parentType, ledger_sql], starting_point=self.storage_dir)
             pathway = Path(file_pathway) / file_Name
 
             if file_Name == "":
@@ -185,13 +178,19 @@ class Archive(QDialog):
             combobox.setCurrentIndex(0)
 
         else:  # Statement
-            account = self.ui.comboBAccounts.currentText()
-            if account is None or account == "" or account == " ":
-                pass
+            if self.parentType != "Property":
+                self.ui.comboBStatements.setHidden(False)
+                self.ui.lStatementPeriod.setHidden(False)
+                account = self.ui.comboBAccounts.currentText()
+                if account is None or account == "" or account == " ":
+                    pass
+                else:
+                    statement_period_list = generate_statement_months(self.active_account, "Archive", self.refUserDB, self.activeLedger, self.error_Logger)
+                    combobox.addItems(statement_period_list)
+                    combobox.setCurrentIndex(0)
             else:
-                statement_period_list = generate_statement_months(self.active_account, "Archive", self.refUserDB, self.activeLedger, self.error_Logger)
-                combobox.addItems(statement_period_list)
-                combobox.setCurrentIndex(0)
+                self.ui.comboBStatements.setHidden(True)
+                self.ui.lStatementPeriod.setHidden(True)
 
     def input_error_msg(self, message):
         reply = QMessageBox.warning(self, 'Input Error', message, QMessageBox.Ok, QMessageBox.NoButton)
@@ -199,6 +198,14 @@ class Archive(QDialog):
             pass
         else:
             pass
+
+    def obtain_parentType(self):
+        ledger_name = self.ui.comboBAccounts.currentText()      
+        parentType_statement = f"SELECT ParentType FROM Account_Archive WHERE ID='{ledger_name}'"
+        self.parentType = obtain_sql_value(parentType_statement, self.refUserDB, self.error_Logger)
+        if self.parentType is not None:
+            self.parentType = self.parentType[0]
+        return self.parentType
 
     def restore_account(self):
         move_row_sql_tables("Account_Summary", "Account_Archive", "ID", self.ui.comboBAccounts.currentText(), self.refUserDB, self.error_Logger)

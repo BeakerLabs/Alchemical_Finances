@@ -174,6 +174,8 @@ class Ui_MainWindow(object):
         self.actionExport.setObjectName("actionExport")
         self.actionSave = QtWidgets.QWidgetAction(MainWindow)
         self.actionSave.setObjectName("actionSave")
+        self.actionReceipt = QtWidgets.QWidgetAction(MainWindow)
+        self.actionReceipt.setObjectName("actionReceipt")
         self.actionClose = QtWidgets.QWidgetAction(MainWindow)
         self.actionClose.setObjectName("actionClose")
 
@@ -210,7 +212,7 @@ class Ui_MainWindow(object):
         self.actionBudgeting.setObjectName("actionBudgeting")
 
         submenu_lst = [self.actionSummary, self.actionGenerate, self.actionNWG, self.actionExport, self.actionSave,
-                       self.actionClose, self.actionBank, self.actionCash, self.actionCertificate_of_Deposit,
+                       self.actionReceipt, self.actionClose, self.actionBank, self.actionCash, self.actionCertificate_of_Deposit,
                        self.actionEquity, self.actionProperty, self.actionRetirement, self.actionTreasury_Bonds,
                        self.actionDebt, self.actionCredit_Cards, self.actionCredit_Cards, self.actionUserManual,
                        self.actionAbout, self.actionArchive, self.actionReports_Future, self.actionBudgeting,
@@ -231,6 +233,7 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionNWG)
         self.menuFile.addAction(self.actionExport)
         self.menuFile.addAction(self.actionSave)
+        self.menuFile.addAction(self.actionReceipt)
         self.menuFile.addAction(self.actionClose)
 
         self.menuAssets.addAction(self.actionBank)
@@ -283,6 +286,7 @@ class Ui_MainWindow(object):
         self.actionCredit_Cards.setText(_translate("MainWindow", "Credit Cards", None))
         self.actionCash.setText(_translate("MainWindow", "Cash", None))
         self.actionSave.setText(_translate("MainWindow", "Save", None))
+        self.actionReceipt.setText(_translate("MainWindow", "Receipt Cleaner", None))
         self.actionUserManual.setText(_translate("MainWindow", "User Manual", None))
         self.actionUserManual.setToolTip(_translate("MainWindow", "User Manual", None))
         self.actionAbout.setText(_translate("MainWindow", "About", None))

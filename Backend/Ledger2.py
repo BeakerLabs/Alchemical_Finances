@@ -358,6 +358,7 @@ class LedgerV2(QDialog):
     def display_ledger_2(self):
         ledger = self.ui.comboBLedger2.currentText()
         statement = self.ui.comboBPeriod.currentText()
+
         if ledger is None or ledger == "":
             pass
         elif statement == "":
@@ -601,7 +602,7 @@ class LedgerV2(QDialog):
                            currentDate]
 
         target_transaction = self.activeLedger[self.activeLedger['Post_Date'] == self.ui.tableWLedger2.item(row, 9).text()].index
-        self.activeLedger.at[target_transaction, column_headers] = new_transaction
+        self.activeLedger.loc[target_transaction, column_headers] = new_transaction
         toc = time.perf_counter()
         print(f'Full Transaction took {tic - toc:0.4f} seconds')
 
@@ -727,7 +728,8 @@ class LedgerV2(QDialog):
 
     def upload_receipt_action(self):
         suffixlist = ['.jpg', '.jpeg', 'JPEG', '.gif', '.pdf', '.png']
-        rname, _ = QFileDialog.getOpenFileName(self, 'Target Receipt', '/home',
+        downloads_path = file_destination(['downloads'], 'downloads')
+        rname, _ = QFileDialog.getOpenFileName(self, 'Target Receipt', downloads_path,
                                                'Combined ( * );; Images ( *.png *.jpg *.jpeg *.gif );; PDF ( *.pdf *.PDF )')
         if rname:
             rname_path = Path(rname)

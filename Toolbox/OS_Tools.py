@@ -17,6 +17,9 @@ def file_destination(dir_name_lst=None, starting_point=None):
     if starting_point is None:
         starting_point = Path.cwd()
 
+    if starting_point == "downloads":
+        starting_point = Path.home()
+
     if dir_name_lst is None:
         dir_name_lst = []
 
@@ -24,9 +27,8 @@ def file_destination(dir_name_lst=None, starting_point=None):
         # Should I depreciate this? I dont' think I use a ".."
         current_dir = Path.cwd()
         current_dir = str(current_dir)
-    else:
-        current_dir = str(starting_point)
 
+    current_dir = str(starting_point)
     gen_str_path = current_dir
 
     if len(dir_name_lst) > 0:
@@ -75,6 +77,7 @@ def obtain_screen_dimensions():
     screen_dimensions = pickle.load(screen_dimensions_file)
     screen_dimensions_file.close()
     return screen_dimensions, screen_dimensions_path
+
 
 
 if __name__ == "__main__":

@@ -129,6 +129,7 @@ class LedgerV1(QDialog):
         else:
             self.ui.comboBLedger1.currentIndexChanged.connect(self.change_ledger1_account)
 
+
         self.ui.DateEditTransDate.setDate(QDate.currentDate())
         self.ui.rBPending.setChecked(True)
 
@@ -377,6 +378,7 @@ class LedgerV1(QDialog):
             pass
 
     def change_ledger1_account(self):
+        print(f"changing account:_{self.parentType}_")
         if self.activeLedger is None:
             pass
         else:
@@ -411,6 +413,8 @@ class LedgerV1(QDialog):
             else:
                 self.set_variable1B()
                 self.set_variable2B()
+                self.display_ledger_1()
+                self.display_house_image()
 
     def display_ledger_1(self):
         ledger = self.active_account
@@ -418,6 +422,8 @@ class LedgerV1(QDialog):
 
         if statementPeriod in ["", " ", None]:
             statementPeriod = None
+            if self.parentType == "Property":
+                statementPeriod = "Hello"
 
         if ledger is None or statementPeriod is None:
             self.ui.tableWLedger1.clearContents()
@@ -542,7 +548,7 @@ class LedgerV1(QDialog):
         modCredit = str(decimal_places(self.ui.lEditCredit.text(), 2))
         currentDate = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
 
-        column_headers = ["Transaction_Date",
+        column_headers = ['Transaction_Date',
                           'Transaction_Method',
                           'Transaction_Description',
                           'Category',
@@ -565,7 +571,7 @@ class LedgerV1(QDialog):
                            currentDate]
 
         target_transaction = self.activeLedger[self.activeLedger['Post_Date'] == self.ui.tableWLedger1.item(row, 9).text()].index
-        self.activeLedger.at[target_transaction, column_headers] = new_transaction
+        self.activeLedger.loc[target_transaction, column_headers] = new_transaction
 
         # update_ledger_balance(self.ui.comboBLedger1, self.refUserDB, self.error_Logger)
         update_df_balance(self.activeLedger)
@@ -860,8 +866,9 @@ class LedgerV1(QDialog):
 
     def upload_receipt_action(self):
         suffixlist = ['.jpg', '.jpeg', 'JPEG', '.gif', '.pdf', '.png']
-        # rname = Receipt [File] Name
-        rname, _ = QFileDialog.getOpenFileName(self, 'Target Receipt', '/home',
+        # rname = Receipt [File]
+        downloads_path = file_destination(['downloads'], 'downloads')
+        rname, _ = QFileDialog.getOpenFileName(self, 'Target Receipt', downloads_path,
                                                'Combined ( * );; Images ( *.png *.jpg *.jpeg *.gif );; PDF ( *.pdf *.PDF )')
         if rname:
             rname_path = Path(rname)

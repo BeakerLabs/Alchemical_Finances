@@ -19,7 +19,7 @@ from Backend.DataFrame import empty_container
 
 from Toolbox.Formatting_Tools import remove_space
 from Toolbox.OS_Tools import file_destination, obtain_storage_dir
-from Toolbox.SQL_Tools import obtain_sql_list, specific_sql_statement
+from Toolbox.SQL_Tools import obtain_sql_list, obtain_sql_value, specific_sql_statement
 
 
 class SaveProgress(QDialog):
@@ -101,10 +101,9 @@ class ProgressThread(QObject):
                     for account in self.ledger_dictionary:
                         self.labelSignal.emit(account)
                         self.count += 1
-                        print(f"Saved: {self.count}/{self.ledger_count} -- [{account}]")
+                        print(f"Saving: {self.count}/{self.ledger_count} -- [{account}]")
                         sql_tableName = remove_space(account)
                         target_DF = self.ledger_dictionary[account]
-
                         target_DF.to_sql(sql_tableName,
                                          conn,
                                          if_exists="replace",
@@ -132,6 +131,7 @@ class ProgressThread(QObject):
         self.saveFinishedSignal.emit("Saved")
 
     def delete_account_receipts(self):
+        """Ledger would be deleted in the AccountDetails dialog box. This is the final clean up which is the removal of receipts from the users system."""
         info_statement = f"SELECT ID, ParentType FROM DeletePending"
         account_info_tpl = obtain_sql_list(info_statement, self.refuserDB, self.errorLog)
         del_count = 0
@@ -146,8 +146,8 @@ class ProgressThread(QObject):
                 obsolete_dir_str = str(obsolete_dir_path)
                 try:
                     shutil.rmtree(obsolete_dir_str)
-                    clearpending = f"DELETE FROM DeletePending WHERE ID={account[0]}"
-                    specific_sql_statement(clearpending, self.refUserDB, self.error_Logger)
+                    clearpending = f"DELETE FROM DeletePending WHERE ID='{account[0]}'"
+                    specific_sql_statement(clearpending, self.refuserDB, self.errorLog)
 
                     print(f"Deleted: {del_count}/{del_total} -- [{account[0]}]")
                 except OSError:
@@ -177,7 +177,6 @@ class ProgressThread(QObject):
                     self.errorLog.error(error_string, exc_info=True)
         else:
             print("Images Deleted: 0/0 -- [No Accounts Found]")
-
 
 
 if __name__ == "__main__":

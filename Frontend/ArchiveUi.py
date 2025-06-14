@@ -122,7 +122,7 @@ class Ui_Archive(object):
         self.comboBAccounts.setFont(general_font)
         self.comboBAccounts.setSizePolicy(sizePolicy)
         self.comboBAccounts.setFixedHeight(30)
-        self.comboBAccounts.setMaximumWidth(adjusted_width/4)
+        self.comboBAccounts.setFixedWidth(adjusted_width/4)
         self.hBLayout2.addWidget(self.comboBAccounts)
 
         self.pBRestore = QtWidgets.QPushButton()

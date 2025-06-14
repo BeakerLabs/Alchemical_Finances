@@ -37,6 +37,7 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, parentType, tablew
     if ledgerName == "":
         pass
     else:
+
         if parentType != "Property":
             target_transactions = statement_range(activeLedger, statement_day, parentType)
 
@@ -46,6 +47,7 @@ def disp_LedgerV1_Table(account_combobox, statement_combobox, parentType, tablew
 
         else:
             target_transactions = statement_range(activeLedger, "January 01, 2018", parentType)
+
 
         for data_point in target_transactions:
             data_point[0] = datetime.strptime(data_point[0], "%Y/%m/%d")
@@ -218,9 +220,9 @@ def fill_statement_period(account, statementComboBox, ledgerStatus, database, ac
     """ Fills a target combobox with Statement periods based upon the Account Details"""
     statementComboBox.clear()
     statement_period_list = generate_statement_months(account, ledgerStatus, database, activeLedger, error_log)
+
     statementComboBox.addItems(statement_period_list)
     statementComboBox.setCurrentIndex(0)
-
 
 def fill_widget(widget, statement: str, areSorted: bool, database: str, error_log):
     """primarily used to fill QComboBox and QListWidget. Doesn't return a variable"""
